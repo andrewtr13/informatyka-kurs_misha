@@ -172,7 +172,7 @@ footer { padding-block: 48px 0; color: var(--muted); display: grid; gap: 6px; }
 <div class="wrap">
   <div class="topbar">
     <span class="course">Інформатика · Модуль 1</span>
-    <button class="prog" id="progBtn" type="button" aria-expanded="false" aria-controls="todo"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 7</span><span aria-hidden="true">▾</span></button>
+    <button class="prog" id="progBtn" type="button" aria-expanded="false" aria-controls="todo"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 8</span><span aria-hidden="true">▾</span></button>
   </div>
   <div class="todo" id="todo" hidden></div>
 
@@ -318,83 +318,107 @@ footer { padding-block: 48px 0; color: var(--muted); display: grid; gap: 6px; }
   <section class="step" id="s7">
     <div class="step-head"><span class="step-no">Крок 7 · програмування · 25 хв</span><h2>Практика на Python</h2></div>
     <div class="text">
-      <p>Відкрий IDLE або будь-який редактор, у якому пишеш на Python. Головне правило: <b>не використовуй вбудовані <code>bin()</code> та <code>int(s, 2)</code></b>. Ми хочемо зрозуміти, як вони працюють усередині. Після кожного завдання запусти перевірку: якщо все правильно, програма надрукує «Усе працює!».</p>
+      <p>Ти вже вмієш перетворювати числа вручну. Тепер навчимо цього комп'ютер. Завдання йдуть від простого до складнішого: спочатку просто запускаєш готовий код, потім доповнюєш пропуски.</p>
     </div>
     <div class="panel">
+      <div class="py-task">
+        <h3>Як запускати код</h3>
+        <p>Відкрий <b>IDLE</b> (є в меню «Пуск» разом із Python). Далі <b>File → New File</b>, встав код, збережи файл (Ctrl+S) і запусти клавішею <b>F5</b>. Результат з'явиться в іншому вікні.</p>
+        <p>Де в коді стоїть <code>___</code> (три підкреслення), там пропуск: заміни його на правильне.</p>
+      </div>
 
       <div class="py-task">
-        <h3>7.1 · Двійкове → десяткове</h3>
-        <p>Напиши функцію <code>from_binary(s)</code>. Вона отримує рядок на кшталт <code>"1101"</code> і повертає число <code>13</code>.</p>
+        <h3>7.1 · Розминка: Python уже вміє</h3>
+        <p>У Python є готові команди для двійкових чисел і для номерів літер. Запусти цей код і подивись, що він друкує.</p>
+        <div class="code-box"><pre>print(bin(13))          # десяткове → двійкове
+print(int("1101", 2))   # двійкове → десяткове
+print(ord("A"))         # номер літери в таблиці
+print(chr(65))          # літера за номером</pre><button class="copy" type="button">Копіювати</button></div>
+        <p><b>Завдання.</b> Зміни код так, щоб дізнатися:</p>
+        <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+          <li>як записується в двійковій рік твого народження;</li>
+          <li>яке число записане як <code>"101010"</code>;</li>
+          <li>який номер у літери <code>"M"</code> і у великої української <code>"М"</code>. Чому вони різні, хоча виглядають однаково?</li>
+        </ul>
+        <details><summary>Чому bin(13) друкує 0b1101, а не 1101?</summary><div><p>Префікс <code>0b</code> означає «далі йде двійкове число» (b від binary). Так Python не сплутає двійкове 1101 з десятковим тисяча сто один.</p></div></details>
+        <details class="sol"><summary>Відповіді</summary><div><p><code>int("101010", 2)</code> дає 42. Латинська M має номер 77, українська М має номер 1052. Це різні символи з різних алфавітів, просто намальовані однаково.</p></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p0"> Зробив</label>
+      </div>
+
+      <div class="py-task">
+        <h3>7.2 · Двійкове → десяткове своїми руками</h3>
+        <p>Як прочитати <code>"1101"</code> зліва направо? Тримаємо число <code>result</code>, яке спочатку дорівнює 0. Для кожної нової цифри старе число <b>подвоюємо</b> (бо все зсувається вліво) і додаємо цю цифру:</p>
+        <div class="tbl-scroll"><table><thead><tr><th>Цифра</th><th>Обчислення</th><th>result</th></tr></thead><tbody>
+          <tr><td class="mono">1</td><td class="mono">0 × 2 + 1</td><td class="mono">1</td></tr>
+          <tr><td class="mono">1</td><td class="mono">1 × 2 + 1</td><td class="mono">3</td></tr>
+          <tr><td class="mono">0</td><td class="mono">3 × 2 + 0</td><td class="mono">6</td></tr>
+          <tr><td class="mono">1</td><td class="mono">6 × 2 + 1</td><td class="mono">13</td></tr>
+        </tbody></table></div>
+        <p>Ось ця сама ідея в коді. Заповни пропуск і запусти. Знизу є функція <code>check</code>: вона порівнює відповідь твоєї функції з правильною і пише <b>OK</b> або <b>ПОМИЛКА</b>.</p>
         <div class="code-box"><pre>def from_binary(s):
-    # твій код тут
-    ...
-
-# перевірка
-assert from_binary("1101") == 13
-assert from_binary("0") == 0
-assert from_binary("11111111") == 255
-assert from_binary("1000000") == 64
-print("Усе працює!")</pre><button class="copy" type="button">Копіювати</button></div>
-        <details><summary>Підказка 1</summary><div><p>Пройди по рядку зліва направо. Коли дописуєш нову цифру справа, усе, що вже є, зсувається вліво і стає вдвічі більшим.</p></div></details>
-        <details><summary>Підказка 2</summary><div><p>Тримай змінну <code>result = 0</code>. Для кожного символу <code>c</code> роби <code>result = result * 2 + (1 якщо c == "1", інакше 0)</code>.</p></div></details>
-        <details class="sol"><summary>Розв'язок (спочатку спробуй сам!)</summary><div><pre>def from_binary(s):
     result = 0
-    for c in s:
-        result = result * 2 + int(c)
-    return result</pre></div></details>
-        <label class="selfcheck"><input type="checkbox" data-task="p1"> Зробив, перевірка пройшла</label>
-      </div>
-
-      <div class="py-task">
-        <h3>7.2 · Десяткове → двійкове</h3>
-        <p>Тепер навпаки: <code>to_binary(13)</code> повертає <code>"1101"</code>.</p>
-        <div class="code-box"><pre>def to_binary(n):
-    # твій код тут
-    ...
-
-# перевірка
-assert to_binary(13) == "1101"
-assert to_binary(0) == "0"
-assert to_binary(255) == "11111111"
-for x in range(1000):
-    assert from_binary(to_binary(x)) == x
-print("Усе працює!")</pre><button class="copy" type="button">Копіювати</button></div>
-        <details><summary>Підказка 1</summary><div><p><code>n % 2</code> дає останню (наймолодшу) двійкову цифру. <code>n // 2</code> відкидає її.</p></div></details>
-        <details><summary>Підказка 2</summary><div><p>Повторюй, поки <code>n &gt; 0</code>: дописуй остачу <b>на початок</b> рядка. Окремо оброби випадок <code>n == 0</code>.</p></div></details>
-        <details class="sol"><summary>Розв'язок (спочатку спробуй сам!)</summary><div><pre>def to_binary(n):
-    if n == 0:
-        return "0"
-    s = ""
-    while n > 0:
-        s = str(n % 2) + s
-        n = n // 2
-    return s</pre></div></details>
-        <label class="selfcheck"><input type="checkbox" data-task="p2"> Зробив, перевірка пройшла</label>
-      </div>
-
-      <div class="py-task">
-        <h3>7.3 · Розшифруй послання</h3>
-        <p>Напиши функцію <code>show(bits, width)</code>, яка друкує рядок бітів як картинку: <code>1</code> → <code>#</code>, <code>0</code> → пробіл, по <code>width</code> символів у рядку. Потім напиши функцію <code>factors(n)</code>, яка повертає список простих множників числа. Застосуй обидві до повідомлення нижче (воно інше, ніж на кроці 6!).</p>
-        <div class="code-box"><pre id="msg2code"></pre><button class="copy" type="button">Копіювати</button></div>
-        <details><summary>Підказка</summary><div><p>Зріз <code>bits[i:i+width]</code> дає один рядок картинки. Для множників ділі <code>n</code> на <code>d = 2, 3, 4, …</code>, поки ділиться без остачі.</p></div></details>
-        <details class="sol"><summary>Розв'язок (спочатку спробуй сам!)</summary><div><pre>def show(bits, width):
-    for i in range(0, len(bits), width):
-        row = bits[i:i + width]
-        print(row.replace("1", "#").replace("0", " "))
-
-def factors(n):
-    result = []
-    d = 2
-    while n > 1:
-        while n % d == 0:
-            result.append(d)
-            n //= d
-        d += 1
+    for c in s:              # c по черзі: "1", "1", "0", "1"
+        result = result * ___ + int(c)
     return result
 
-print(len(msg), factors(len(msg)))
-show(msg, 13)   # 221 = 13 × 17, ширина 13 дає шахового коня</pre></div></details>
-        <label class="selfcheck"><input type="checkbox" data-task="p3"> Розшифрував</label>
+
+# ---- перевірка, тут нічого міняти не треба ----
+def check(got, expected):
+    if got == expected:
+        print("OK:", got)
+    else:
+        print("ПОМИЛКА: вийшло", got, "а треба", expected)
+
+check(from_binary("1101"), 13)
+check(from_binary("11111111"), 255)
+check(from_binary("1000000"), 64)</pre><button class="copy" type="button">Копіювати</button></div>
+        <details><summary>Підказка</summary><div><p>Подивись на стовпчик «Обчислення» в таблиці: на що щоразу множиться старе число?</p></div></details>
+        <details class="sol"><summary>Розв'язок</summary><div><p>Пропуск дорівнює <code>2</code>: <code>result = result * 2 + int(c)</code>.</p></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p1"> Усі три рядки OK</label>
+      </div>
+
+      <div class="py-task">
+        <h3>7.3 · Десяткове → двійкове своїми руками</h3>
+        <p>Щоб перевести 13 у двійкову, ділимо на 2 і записуємо остачі, доки не дійдемо до нуля:</p>
+        <div class="tbl-scroll"><table><thead><tr><th>Число</th><th>÷ 2 =</th><th>Остача</th></tr></thead><tbody>
+          <tr><td class="mono">13</td><td class="mono">6</td><td class="mono">1</td></tr>
+          <tr><td class="mono">6</td><td class="mono">3</td><td class="mono">0</td></tr>
+          <tr><td class="mono">3</td><td class="mono">1</td><td class="mono">1</td></tr>
+          <tr><td class="mono">1</td><td class="mono">0</td><td class="mono">1</td></tr>
+        </tbody></table></div>
+        <p>Остачі, прочитані <b>знизу вгору</b>, дають 1101. Нагадаю, у Python <code>%</code> дає остачу, а <code>//</code> ділить без остачі: <code>13 % 2</code> дорівнює 1, <code>13 // 2</code> дорівнює 6.</p>
+        <div class="code-box"><pre>def to_binary(n):
+    s = ""
+    while n > 0:
+        ostacha = n % 2
+        s = str(ostacha) + s     # дописуємо остачу на ПОЧАТОК рядка
+        n = n // ___
+    return s
+
+
+# ---- перевірка ----
+def check(got, expected):
+    if got == expected:
+        print("OK:", got)
+    else:
+        print("ПОМИЛКА: вийшло", got, "а треба", expected)
+
+check(to_binary(13), "1101")
+check(to_binary(42), "101010")
+check(to_binary(255), "11111111")</pre><button class="copy" type="button">Копіювати</button></div>
+        <details><summary>Підказка</summary><div><p>Подивись на другий стовпчик таблиці: на що ділиться число на кожному кроці?</p></div></details>
+        <details class="sol"><summary>Розв'язок</summary><div><p>Пропуск дорівнює <code>2</code>: <code>n = n // 2</code>.</p></div></details>
+        <details><summary>★ Для допитливих</summary><div><p>Що поверне <code>to_binary(0)</code>? Чому? Виправ функцію, щоб для нуля вона повертала <code>"0"</code>.</p></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p2"> Усі три рядки OK</label>
+      </div>
+
+      <div class="py-task">
+        <h3>7.4 · Розшифруй послання</h3>
+        <p>Ось ще одне послання, інше, ніж на кроці 6. Програма друкує його рядками по <code>width</code> символів: <code>#</code> замість 1 і крапку замість 0. Зараз ширина 5, і нічого не видно. Змінюй число в рядку <code>width = 5</code> і запускай знову, доки не з'явиться малюнок.</p>
+        <div class="code-box"><pre id="msg2code"></pre><button class="copy" type="button">Копіювати</button></div>
+        <details><summary>Підказка</summary><div><p>Програма друкує довжину послання. Згадай крок 6: ширина картинки — один із множників цієї довжини.</p></div></details>
+        <details class="sol"><summary>Відповідь</summary><div><p>Довжина 221 = 13 × 17. При ширині 13 видно шахового коня.</p></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p3"> Побачив малюнок</label>
       </div>
     </div>
   </section>
@@ -415,10 +439,15 @@ show(msg, 13)   # 221 = 13 × 17, ширина 13 дає шахового кон
     <div class="code-box"><pre>def knight_moves(square):
     ...
 
-assert knight_moves(6) == 10489856   # кінь на g1: e2, f3, h3
-assert knight_moves(0) == 132096     # кінь на a1: b3, c2
-assert bin(knight_moves(27)).count("1") == 8   # кінь на d4: 8 ходів
-print("Ти справжній шаховий програміст!")</pre><button class="copy" type="button">Копіювати</button></div>
+def check(got, expected):
+    if got == expected:
+        print("OK:", got)
+    else:
+        print("ПОМИЛКА: вийшло", got, "а треба", expected)
+
+check(knight_moves(6), 10489856)            # кінь на g1: e2, f3, h3
+check(knight_moves(0), 132096)              # кінь на a1: b3, c2
+check(bin(knight_moves(27)).count("1"), 8)  # кінь на d4: 8 ходів</pre><button class="copy" type="button">Копіювати</button></div>
     <details><summary>Підказка</summary><div><p>Перетвори номер на рядок і стовпчик: <code>row = square // 8</code>, <code>col = square % 8</code>. Кінь змінює їх на (±1, ±2) або (±2, ±1). Пропускай ходи, які виходять за межі 0..7. Для кожного дозволеного ходу вмикай біт: <code>result |= 1 &lt;&lt; (r * 8 + c)</code>.</p></div></details>
     <p class="fact"><b>Ще складніше.</b> Скористайся своєю функцією, щоб знайти найменшу кількість ходів, за яку кінь дістанеться з a1 до h8.</p>
     <label class="selfcheck"><input type="checkbox" data-task="ch"> Челендж виконано</label>
@@ -445,12 +474,12 @@ print("Ти справжній шаховий програміст!")</pre><butt
 
 <script>
 (() => {
-  const TASKS = ["bits", "pawns", "msg", "p1", "p2", "p3", "quiz"];
+  const TASKS = ["bits", "pawns", "msg", "p0", "p1", "p2", "p3", "quiz"];
   const LABELS = { bits: ["s2", "Завдання 1: зібрати числа з лампочок"], pawns: ["s4", "Завдання 2: білі пішаки на бітборді"],
-    msg: ["s6", "Завдання 3: розкласти довжину послання на множники"], p1: ["s7", "Python 7.1: from_binary (відміть галочку)"],
-    p2: ["s7", "Python 7.2: to_binary (відміть галочку)"], p3: ["s7", "Python 7.3: розшифрувати послання (відміть галочку)"],
+    msg: ["s6", "Завдання 3: розкласти довжину послання на множники"], p0: ["s7", "Python 7.1: розминка (відміть галочку)"], p1: ["s7", "Python 7.2: двійкове → десяткове (відміть галочку)"],
+    p2: ["s7", "Python 7.3: десяткове → двійкове (відміть галочку)"], p3: ["s7", "Python 7.4: розшифрувати послання (відміть галочку)"],
     quiz: ["s8", "Тест: щонайменше 4 з 5"], ch: ["s9", "★ Челендж (необов'язково)"] };
-  const SECTION_OF = { bits: "s2", pawns: "s4", msg: "s6", p1: "s7", p2: "s7", p3: "s7", quiz: "s8", ch: "s9" };
+  const SECTION_OF = { bits: "s2", pawns: "s4", msg: "s6", p0: "s7", p1: "s7", p2: "s7", p3: "s7", quiz: "s8", ch: "s9" };
   let done = {};
   try { done = JSON.parse(localStorage.getItem("inf-l1") || "{}") || {}; } catch (e) { done = {}; }
   delete done.read;
@@ -575,7 +604,7 @@ print("Ти справжній шаховий програміст!")</pre><butt
   // chess knight, 13 wide x 17 tall = 221 = 13 x 17
   const MSG2 = "00000000000000000001000000000001110000000001111110000001111111100001110111111001111111111110111111111111001111101111100000011111100000011111100000011111110000001111111000001111111110001111111111100111111111110000000000000";
   const chunks = MSG2.match(/.{1,60}/g).map(c => '    "' + c + '"').join("\n");
-  document.getElementById("msg2code").textContent = "msg = (\n" + chunks + "\n)\n\ndef show(bits, width):\n    ...\n\ndef factors(n):\n    ...\n\nprint(len(msg), factors(len(msg)))\n# спробуй різні ширини!";
+  document.getElementById("msg2code").textContent = "msg = (\n" + chunks + "\n)\n\nwidth = 5    # <-- змінюй це число\n\nprint(\"Довжина послання:\", len(msg))\nfor i in range(0, len(msg), width):\n    row = msg[i:i + width]\n    print(row.replace(\"1\", \"#\").replace(\"0\", \".\"))";
 
   /* ---- quiz ---- */
   const Q = [
