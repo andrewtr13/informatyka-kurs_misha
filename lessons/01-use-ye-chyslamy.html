@@ -431,6 +431,7 @@ print("Ти справжній шаховий програміст!")</pre><butt
     <span class="step-no">Наступне заняття</span>
     <h3>Логічні вентилі: як із «так» і «ні» зібрати калькулятор</h3>
     <p>Ти побудуєш схему, яка додає двійкові числа, і зрозумієш, що процесор робить це мільярди разів на секунду.</p>
+    <div class="row" style="margin-top:24px"><button class="btn" id="resetBtn" type="button">Скинути прогрес цього заняття</button><span id="resetMsg"></span></div>
   </footer>
 </div>
 
@@ -592,6 +593,12 @@ print("Ти справжній шаховий програміст!")</pre><butt
     const fallback = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "Виділено: Ctrl+C"; };
     try { navigator.clipboard.writeText(pre.textContent).then(ok, fallback); } catch (e) { fallback(); }
   }));
+  const rb = document.getElementById("resetBtn");
+  rb.addEventListener("click", () => {
+    if (rb.dataset.armed) { try { localStorage.removeItem("inf-l1"); } catch (e) {} location.reload(); return; }
+    rb.dataset.armed = "1"; rb.textContent = "Точно скинути? Натисни ще раз";
+    setTimeout(() => { delete rb.dataset.armed; rb.textContent = "Скинути прогрес цього заняття"; }, 4000);
+  });
   renderProg();
 })();
 </script>
