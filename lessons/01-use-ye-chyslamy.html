@@ -50,6 +50,13 @@ button, input, select { font: inherit; color: inherit; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
 .course { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .prog { display: flex; align-items: center; gap: 10px; font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+button.prog { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.todo { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 52px); z-index: 4; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: grid; gap: 6px; margin-top: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.todo[hidden] { display: none; }
+.todo a { color: var(--ink); text-decoration: none; display: flex; gap: 10px; align-items: baseline; }
+.todo a:hover span:last-child { text-decoration: underline; }
+.todo .ok { color: var(--ok); } .todo .no { color: var(--muted); }
+.todo .hd { font-weight: 700; }
 .prog-bar { width: 110px; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
 .prog-bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .4s; }
 
@@ -165,8 +172,9 @@ footer { padding-block: 48px 0; color: var(--muted); display: grid; gap: 6px; }
 <div class="wrap">
   <div class="topbar">
     <span class="course">Інформатика · Модуль 1</span>
-    <span class="prog"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 9</span></span>
+    <button class="prog" id="progBtn" type="button" aria-expanded="false" aria-controls="todo"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 7</span><span aria-hidden="true">▾</span></button>
   </div>
+  <div class="todo" id="todo" hidden></div>
 
   <header class="hero">
     <span class="eyebrow">Заняття 1 з 50 · ≈ 90 хвилин</span>
@@ -437,14 +445,22 @@ print("Ти справжній шаховий програміст!")</pre><butt
 
 <script>
 (() => {
-  const TASKS = ["bits", "pawns", "msg", "p1", "p2", "p3", "quiz", "ch", "read"];
+  const TASKS = ["bits", "pawns", "msg", "p1", "p2", "p3", "quiz"];
+  const LABELS = { bits: ["s2", "Завдання 1: зібрати числа з лампочок"], pawns: ["s4", "Завдання 2: білі пішаки на бітборді"],
+    msg: ["s6", "Завдання 3: розкласти довжину послання на множники"], p1: ["s7", "Python 7.1: from_binary (відміть галочку)"],
+    p2: ["s7", "Python 7.2: to_binary (відміть галочку)"], p3: ["s7", "Python 7.3: розшифрувати послання (відміть галочку)"],
+    quiz: ["s8", "Тест: щонайменше 4 з 5"], ch: ["s9", "★ Челендж (необов'язково)"] };
   const SECTION_OF = { bits: "s2", pawns: "s4", msg: "s6", p1: "s7", p2: "s7", p3: "s7", quiz: "s8", ch: "s9" };
   let done = {};
   try { done = JSON.parse(localStorage.getItem("inf-l1") || "{}") || {}; } catch (e) { done = {}; }
+  delete done.read;
   const save = () => { try { localStorage.setItem("inf-l1", JSON.stringify(done)); } catch (e) {} };
   function mark(t, v = true) { done[t] = v; done._n = TASKS.filter(x => done[x]).length; done._total = TASKS.length; save(); renderProg(); }
   function renderProg() {
     const n = TASKS.filter(t => done[t]).length;
+    done._n = n; done._total = TASKS.length; save();
+    document.getElementById("todo").innerHTML = '<span class="hd">' + (n === TASKS.length ? "Заняття пройдено! Залишився тільки челендж ★, якщо хочеш." : "Що ще залишилось:") + "</span>" +
+      Object.entries(LABELS).map(([t, [sec, txt]]) => `<a href="#${sec}"><span class="${done[t] ? "ok" : "no"}">${done[t] ? "✓" : "○"}</span><span>${txt}</span></a>`).join("");
     document.getElementById("progTxt").textContent = n + " / " + TASKS.length;
     document.getElementById("progBar").style.width = (n / TASKS.length * 100) + "%";
     const secDone = {};
@@ -452,8 +468,9 @@ print("Ти справжній шаховий програміст!")</pre><butt
     document.querySelectorAll("#plan a").forEach(a => { const s = a.getAttribute("href").slice(1); a.classList.toggle("done", !!secDone[s]); });
   }
   // reading the theory counts once the student reaches step 6
-  const io = "IntersectionObserver" in window ? new IntersectionObserver(es => { es.forEach(e => { if (e.isIntersecting && !done.read) mark("read"); }); }) : null;
-  if (io) io.observe(document.getElementById("s6"));
+  const pb = document.getElementById("progBtn"), todo = document.getElementById("todo");
+  pb.addEventListener("click", () => { todo.hidden = !todo.hidden; pb.setAttribute("aria-expanded", String(!todo.hidden)); });
+  todo.addEventListener("click", e => { if (e.target.closest("a")) { todo.hidden = true; pb.setAttribute("aria-expanded", "false"); } });
 
   /* ---- bits ---- */
   const bitsEl = document.getElementById("bits"), bits = Array(8).fill(0);
