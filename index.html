@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Курс інформатики Міші</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a course map; modules stacked as a vertical route, each lesson is one row with its status. */
+:root {
+  --bg: #EEF1F6; --surface: #FFFFFF; --ink: #141B2D; --muted: #586178; --line: #D3D9E4;
+  --accent: #B8620A; --accent-ink: #FFFFFF; --accent-soft: #FBEBD6; --sky: #2E4A9E; --ok: #1D7447; --ok-soft: #DDF1E5;
+  --f-display: "Unbounded", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #0D1220; --surface: #151C2E; --ink: #E6EAF2; --muted: #9AA3B8; --line: #2A3350;
+  --accent: #F2A23A; --accent-ink: #1A1206; --accent-soft: #3A2A12; --sky: #9DB3F2; --ok: #63C690; --ok-soft: #15301F; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.55;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 64px max(16px, env(safe-area-inset-left, 0px)); }
+.wrap { max-width: 820px; margin: 0 auto; }
+h1, h2 { font-family: var(--f-display); margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: clamp(30px, 6vw, 46px); }
+h2 { font-size: 20px; }
+header { padding-block: 48px 24px; display: grid; gap: 14px; }
+.eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.lead { color: var(--muted); font-size: 19px; max-width: 62ch; margin: 0; }
+.summary { display: flex; flex-wrap: wrap; gap: 8px 24px; font-variant-numeric: tabular-nums; color: var(--muted); font-size: 15px; }
+.summary b { color: var(--ink); }
+.next { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; }
+.next a.go { background: var(--accent); color: var(--accent-ink); text-decoration: none; font-weight: 700; padding: 9px 18px; border-radius: 8px; }
+.mod { padding-block: 28px 0; display: grid; gap: 12px; }
+.mod-head { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.mod-no { font-family: var(--f-mono); font-size: 13px; color: var(--accent); font-weight: 600; }
+.mod-desc { color: var(--muted); margin: 0; font-size: 15px; max-width: 66ch; }
+ol { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+li { display: grid; grid-template-columns: 2.6em minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); }
+li:first-child { border-top: 0; }
+.n { font-family: var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
+.t { min-width: 0; }
+li a { color: var(--ink); font-weight: 700; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+li.soon .t { color: var(--muted); }
+.pill { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; white-space: nowrap; border: 1px solid var(--line); color: var(--muted); }
+.pill.ready { border-color: var(--accent); color: var(--accent); }
+.pill.prog { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.pill.done { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+footer { padding-block: 40px 0; color: var(--muted); font-size: 15px; }
+a:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Інформатика · 50 занять · 2 рази на тиждень</span>
+    <h1>Від біта до штучного інтелекту</h1>
+    <p class="lead">Як влаштований комп'ютер, як мандрують дані інтернетом, як написати власний шаховий рушій, змоделювати орбіти планет і навчити нейромережу.</p>
+    <div class="summary" id="summary"></div>
+    <div class="next" id="next"></div>
+  </header>
+  <main id="mods"></main>
+  <footer>Заняття з'являються по одному. Прогрес зберігається у браузері на цьому комп'ютері.</footer>
+</div>
+<script>
+const MODS = [
+  { t: "Як думає комп'ютер", d: "Біти, логіка, процесор, операційна система і командний рядок.", l: [
+    ["Усе є числами", "lessons/01-use-ye-chyslamy.html", 9],
+    ["Логічні вентилі: збираємо калькулятор"], ["Процесор і пам'ять: як виконується програма"],
+    ["Операційна система і командний рядок Windows"], ["Файли, формати і стиснення"] ] },
+  { t: "Інтернет і безпека", d: "Що відбувається між натисканням Enter і появою сайту, і як захистити себе.", l: [
+    ["Як мандрує пакет: IP, маршрути, ping і tracert"], ["DNS і HTTP: як відкривається сайт"],
+    ["Шифрування: від Цезаря до HTTPS"], ["Паролі, фішинг і цифрова гігієна"] ] },
+  { t: "Алгоритми", d: "Мислення програміста: пошук, сортування, рекурсія, графи.", l: [
+    ["Двійковий пошук: вгадай число за 7 спроб"], ["Сортування і складність алгоритмів"],
+    ["Рекурсія: ханойські вежі і фрактали"], ["Графи: найкоротший шлях шахового коня"], ["Вісім ферзів: перебір з поверненням"] ] },
+  { t: "Python глибше", d: "Від скриптів до справжніх програм.", l: [
+    ["Модулі та бібліотеки"], ["Класи та об'єкти: моделюємо шахові фігури"],
+    ["Файли і обробка помилок"], ["Git і GitHub: власний репозиторій"] ] },
+  { t: "Власний шаховий рушій", d: "Програма, яка грає в шахи і, можливо, обіграє автора.", l: [
+    ["Дошка і ходи в коді"], ["Правила і генерація ходів"], ["Оцінка позиції"], ["Мінімакс: як програма думає наперед"], ["Альфа-бета відсікання і партія проти свого рушія"] ] },
+  { t: "Космос у коді", d: "Фізика і симуляції: від падіння яблука до орбіти ракети.", l: [
+    ["Графіка на Python"], ["Рух крок за кроком: швидкість і прискорення"], ["Гравітація Ньютона: перша орбіта"],
+    ["Сонячна система в масштабі"], ["Проєкт: виведи ракету на орбіту"] ] },
+  { t: "Веб", d: "Власний сайт, опублікований в інтернеті.", l: [
+    ["HTML: структура сторінки"], ["CSS: дизайн"], ["JavaScript: інтерактив"], ["Canvas: анімоване зоряне небо"], ["Публікація сайту на GitHub Pages"] ] },
+  { t: "Дані", d: "Справжні дані: екзопланети NASA і власні шахові партії.", l: [
+    ["Таблиці і CSV"], ["Графіки: досліджуємо екзопланети"], ["Статистика своїх партій з Lichess"] ] },
+  { t: "Штучний інтелект", d: "Як навчаються машини, з математикою під капотом.", l: [
+    ["Що таке машинне навчання"], ["Найближчий сусід: перша класифікація"], ["Градієнтний спуск руками"],
+    ["Нейрон і перцептрон"], ["Нейромережа з нуля"], ["Розпізнаємо рукописні цифри"],
+    ["Як грають AlphaZero і Stockfish"], ["Як працюють великі мовні моделі"], ["Власний чат-бот"], ["Етика і безпека ШІ"] ] },
+  { t: "Фінальний проєкт", d: "Своя ідея від задуму до презентації.", l: [
+    ["Ідея і план"], ["Розробка, частина 1"], ["Розробка, частина 2"], ["Презентація"] ] },
+];
+function progress(n) {
+  try { const d = JSON.parse(localStorage.getItem("inf-l" + n) || "null"); return d && d._total ? d : null; } catch (e) { return null; }
+}
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let n = 0, ready = 0, finished = 0, next = null, html = "";
+MODS.forEach((m, mi) => {
+  html += `<section class="mod"><div class="mod-head"><span class="mod-no">Модуль ${mi + 1}</span><h2>${esc(m.t)}</h2></div><p class="mod-desc">${esc(m.d)}</p><ol>`;
+  m.l.forEach(([title, href]) => {
+    n++;
+    let pill = '<span class="pill">Скоро</span>', cls = "soon", t = esc(title);
+    if (href) {
+      ready++; cls = ""; t = `<a href="${href}">${esc(title)}</a>`;
+      const p = progress(n);
+      if (p && p._n >= p._total) { pill = '<span class="pill done">Пройдено</span>'; finished++; }
+      else if (p && p._n > 0) { pill = `<span class="pill prog">${p._n} / ${p._total}</span>`; if (!next) next = { n, title, href }; }
+      else { pill = '<span class="pill ready">Готове</span>'; if (!next) next = { n, title, href }; }
+    }
+    html += `<li class="${cls}"><span class="n">${String(n).padStart(2, "0")}</span><span class="t">${t}</span>${pill}</li>`;
+  });
+  html += "</ol></section>";
+});
+document.getElementById("mods").innerHTML = html;
+document.getElementById("summary").innerHTML = `<span>Готово занять: <b>${ready}</b> з ${n}</span><span>Пройдено: <b>${finished}</b></span>`;
+document.getElementById("next").innerHTML = next
+  ? `<span>Далі: <b>Заняття ${next.n}. ${esc(next.title)}</b></span><a class="go" href="${next.href}">Почати</a>`
+  : `<span>Усі готові заняття пройдено. Наступне скоро з'явиться.</span>`;
+</script>
+</body>
+</html>

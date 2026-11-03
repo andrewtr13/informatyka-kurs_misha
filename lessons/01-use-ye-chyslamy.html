@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Заняття 1. Усе є числами</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column like an observatory logbook; each section is a numbered step of the lesson, interactive instruments sit on surface panels. */
+:root {
+  --bg: #EEF1F6; --surface: #FFFFFF; --ink: #141B2D; --muted: #586178; --line: #D3D9E4;
+  --accent: #B8620A; --accent-ink: #FFFFFF; --accent-soft: #FBEBD6; --sky: #2E4A9E; --sky-soft: #E2E8F7;
+  --ok: #1D7447; --ok-soft: #DDF1E5; --bad: #B3261E; --bad-soft: #F8E1DF;
+  --sq-l: #E9DFC9; --sq-d: #A8B4C9; --code-bg: #1A2236; --code-ink: #E3E8F4;
+  --f-display: "Unbounded", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0D1220; --surface: #151C2E; --ink: #E6EAF2; --muted: #9AA3B8; --line: #2A3350;
+  --accent: #F2A23A; --accent-ink: #1A1206; --accent-soft: #3A2A12; --sky: #9DB3F2; --sky-soft: #1E2945;
+  --ok: #63C690; --ok-soft: #15301F; --bad: #F29088; --bad-soft: #3A1A18;
+  --sq-l: #3B4560; --sq-d: #232B42; --code-bg: #0A0F1B; --code-ink: #E3E8F4; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0D1220; --surface: #151C2E; --ink: #E6EAF2; --muted: #9AA3B8; --line: #2A3350;
+  --accent: #F2A23A; --accent-ink: #1A1206; --accent-soft: #3A2A12; --sky: #9DB3F2; --sky-soft: #1E2945;
+  --ok: #63C690; --ok-soft: #15301F; --bad: #F29088; --bad-soft: #3A1A18;
+  --sq-l: #3B4560; --sq-d: #232B42; --code-bg: #0A0F1B; --code-ink: #E3E8F4; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px; }
+.wrap { max-width: 760px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(30px, 6vw, 46px); font-weight: 700; }
+h2 { font-size: clamp(21px, 3.6vw, 26px); font-weight: 700; }
+h3 { font-size: 17px; font-weight: 500; }
+p { margin: 0; }
+a { color: var(--sky); }
+code, .mono { font-family: var(--f-mono); font-size: 0.92em; }
+:not(pre) > code { background: var(--sky-soft); padding: 1px 5px; border-radius: 4px; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+
+/* top bar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.course { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.prog { display: flex; align-items: center; gap: 10px; font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.prog-bar { width: 110px; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.prog-bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .4s; }
+
+header.hero { padding-block: 40px 8px; display: grid; gap: 16px; }
+.eyebrow { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.lead { font-size: 19px; color: var(--muted); max-width: 62ch; }
+.hero-bits { font-family: var(--f-mono); font-size: 13px; color: var(--muted); letter-spacing: 0.15em; overflow: hidden; white-space: nowrap; }
+.plan { display: flex; flex-wrap: wrap; gap: 8px; }
+.plan a { text-decoration: none; font-size: 14px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: var(--surface); }
+.plan a.done { border-color: var(--ok); color: var(--ok); }
+
+section.step { padding-block: 44px 0; display: grid; gap: 18px; }
+.step-head { display: grid; gap: 6px; }
+.step-no { font-family: var(--f-mono); font-size: 13px; color: var(--accent); font-weight: 600; }
+.text { display: grid; gap: 14px; max-width: 66ch; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.fact { border-left: 3px solid var(--sky); padding: 4px 0 4px 16px; color: var(--ink); max-width: 66ch; }
+.fact b { color: var(--sky); }
+.task { background: var(--accent-soft); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; }
+.task .lbl { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+.status { font-weight: 700; }
+.status.ok { color: var(--ok); }
+.status.bad { color: var(--bad); }
+
+/* bits */
+.panel > *, .step > * { min-width: 0; }
+.bits { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+.bit button { min-width: 0; padding: 0; }
+.bit { display: grid; gap: 6px; justify-items: center; }
+.bit button { width: 100%; max-width: 64px; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--line); background: var(--bg);
+  cursor: pointer; font-family: var(--f-mono); font-size: 20px; font-weight: 600; color: var(--muted); transition: background .15s, box-shadow .15s; }
+.bit button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 0 18px var(--accent); }
+.bit small { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.readout { display: flex; flex-wrap: wrap; gap: 8px 28px; align-items: baseline; font-variant-numeric: tabular-nums; }
+.readout .big { font-family: var(--f-display); font-size: 40px; font-weight: 700; }
+.readout .sub { font-family: var(--f-mono); color: var(--muted); }
+.targets { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-family: var(--f-mono); font-size: 14px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+.chip.cur { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chip.done { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+
+/* grains */
+.slider-row { display: grid; gap: 6px; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-variant-numeric: tabular-nums; }
+.kv dt { color: var(--muted); font-size: 15px; }
+.kv dd { margin: 0; font-family: var(--f-mono); font-size: 15px; min-width: 0; overflow-wrap: anywhere; }
+
+/* board */
+.board-wrap { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 640px) { .board-wrap { grid-template-columns: 1fr; } }
+.board { display: grid; grid-template-columns: 18px repeat(8, 1fr); gap: 0; max-width: 360px; width: 100%; }
+.board .coord { font-family: var(--f-mono); font-size: 11px; color: var(--muted); display: grid; place-items: center; }
+.sq { aspect-ratio: 1; border: 0; cursor: pointer; display: grid; place-items: center; padding: 0; position: relative; }
+.sq.l { background: var(--sq-l); } .sq.d { background: var(--sq-d); }
+.sq.on::after { content: ""; width: 56%; height: 56%; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.bin64 { font-family: var(--f-mono); font-size: 13px; line-height: 1.7; word-break: break-all; }
+.bin64 .one { color: var(--accent); font-weight: 600; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 14px; cursor: pointer; font-weight: 600; font-size: 15px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn:hover { border-color: var(--accent); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* text table */
+.tbl-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); font-size: 15px; white-space: nowrap; }
+th { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+td.mono { font-family: var(--f-mono); }
+input[type=text], input[type=number] { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 7px 10px; min-width: 0; }
+input[type=number] { width: 80px; }
+
+/* message */
+.msg-grid { display: grid; gap: 2px; width: max-content; max-width: 100%; }
+.msg-grid span { width: 14px; height: 14px; background: var(--line); border-radius: 2px; }
+.msg-grid span.one { background: var(--accent); }
+.msg-scroll { overflow-x: auto; padding-bottom: 4px; }
+.bitstream { font-family: var(--f-mono); font-size: 12px; color: var(--muted); word-break: break-all; line-height: 1.5; }
+
+/* code */
+pre { background: var(--code-bg); color: var(--code-ink); padding: 14px 16px; border-radius: 8px; overflow-x: auto; margin: 0; font-family: var(--f-mono); font-size: 14px; line-height: 1.55; }
+.code-box { position: relative; min-width: 0; }
+.copy { position: absolute; top: 8px; right: 8px; font-size: 12px; padding: 3px 8px; border-radius: 6px; border: 1px solid #3A4566; background: #232D47; color: #E3E8F4; cursor: pointer; }
+details { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+details > summary { cursor: pointer; padding: 9px 14px; font-weight: 600; font-size: 15px; }
+details > div { padding: 0 14px 14px; display: grid; gap: 10px; }
+details.sol > summary { color: var(--muted); }
+.py-task { display: grid; gap: 12px; padding-block: 18px; border-top: 1px solid var(--line); }
+.py-task:first-of-type { border-top: 0; padding-top: 0; }
+.selfcheck { display: flex; gap: 8px; align-items: center; font-weight: 600; cursor: pointer; }
+.selfcheck input { width: 18px; height: 18px; accent-color: var(--ok); }
+
+/* quiz */
+.q { display: grid; gap: 8px; padding-block: 14px; border-top: 1px solid var(--line); }
+.q:first-child { border-top: 0; padding-top: 0; }
+.q label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.q input { margin-top: 6px; accent-color: var(--accent); }
+.q .expl { font-size: 15px; padding: 8px 12px; border-radius: 6px; }
+.q .expl.ok { background: var(--ok-soft); color: var(--ok); }
+.q .expl.bad { background: var(--bad-soft); color: var(--bad); }
+
+.ask { background: var(--sky-soft); border-radius: 10px; padding: 18px 20px; display: grid; gap: 10px; }
+.ask ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+footer { padding-block: 48px 0; color: var(--muted); display: grid; gap: 6px; }
+.star { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<p style="padding-top:12px;margin:0;font-size:14px"><a href="../index.html">← Усі заняття курсу</a></p>
+
+<div class="wrap">
+  <div class="topbar">
+    <span class="course">Інформатика · Модуль 1</span>
+    <span class="prog"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 9</span></span>
+  </div>
+
+  <header class="hero">
+    <span class="eyebrow">Заняття 1 з 50 · ≈ 90 хвилин</span>
+    <h1>Усе є числами</h1>
+    <p class="lead">Фото, шахова партія, повідомлення інопланетянам і цей текст зберігаються в комп'ютері як довгі рядки нулів та одиниць. Сьогодні ти навчишся читати їх і записувати.</p>
+    <div class="hero-bits" aria-hidden="true">01001011 01101111 01100100 00100000 01010110 01110011 01100101 01110011 01110110 01101001 01110100 01110101 00100000 01001011 01101111 01100100</div>
+    <nav class="plan" id="plan" aria-label="Зміст заняття">
+      <a href="#s1">1. Лампочки</a><a href="#s2">2. Біти</a><a href="#s3">3. Шахи і зерно</a><a href="#s4">4. Дошка як число</a>
+      <a href="#s5">5. Текст</a><a href="#s6">6. Послання в космос</a><a href="#s7">7. Python</a><a href="#s8">8. Тест</a><a href="#s9">★ Челендж</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="step" id="s1">
+    <div class="step-head"><span class="step-no">Крок 1 · теорія · 5 хв</span><h2>Чому саме 0 і 1</h2></div>
+    <div class="text">
+      <p>Процесор складається з <b>транзисторів</b>. Це крихітні вимикачі: струм або йде, або ні. Сучасний чип вміщує десятки мільярдів таких вимикачів на площі з ніготь.</p>
+      <p>Можна було б зробити транзистор, який розрізняє 10 рівнів напруги, і рахувати в звичній десятковій системі. Але тоді найменша перешкода (нагрів, наводка, старіння) перетворить «7» на «6». Два стани розрізнити легко: «є струм» чи «немає». Тому комп'ютери двійкові. Це питання надійності, а не обмеження.</p>
+      <p>Один такий вимикач зберігає <b>1 біт</b>: 0 або 1. Вісім бітів утворюють <b>байт</b>.</p>
+    </div>
+    <p class="fact"><b>Факт.</b> Бортовий комп'ютер «Вояджера-1», запущеного в 1977 році, має близько 70 КБ пам'яті. Це менше, ніж займає одна фотографія на твоєму телефоні. Він досі працює і передає дані з-за меж Сонячної системи.</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2">
+    <div class="step-head"><span class="step-no">Крок 2 · інтерактив · 15 хв</span><h2>Вісім лампочок = один байт</h2></div>
+    <div class="text">
+      <p>У десятковому числі 365 кожна цифра має «вагу»: 3 сотні, 6 десятків, 5 одиниць. Кожна позиція вдесятеро важча за попередню.</p>
+      <p>У двійковій системі все так само, тільки кожна позиція <b>удвічі</b> важча: 1, 2, 4, 8, 16, 32, 64, 128. Лампочка горить, отже її вага додається до числа.</p>
+    </div>
+    <div class="panel">
+      <div class="bits" id="bits"></div>
+      <div class="readout">
+        <span><span class="big" id="bitDec">0</span> <span class="sub">у десятковій</span></span>
+        <span class="sub" id="bitBin">00000000</span>
+      </div>
+      <div class="task">
+        <span class="lbl">Завдання 1</span>
+        <p>Увімкни лампочки так, щоб вийшло число. Коли влучиш, з'явиться наступне.</p>
+        <div class="targets" id="targets"></div>
+        <p class="status" id="bitStatus"></p>
+      </div>
+    </div>
+    <p class="fact"><b>Подумай.</b> Чому 255 — найбільше число, яке поміщається в один байт? Скільки всього різних чисел можна записати вісьмома бітами, якщо рахувати і нуль?</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3">
+    <div class="step-head"><span class="step-no">Крок 3 · математика · 10 хв</span><h2>Легенда про шахи і зерно</h2></div>
+    <div class="text">
+      <p>За легендою, винахідник шахів попросив у правителя нагороду: одну зернину на першу клітинку дошки, дві на другу, чотири на третю, і так далі, щоразу вдвічі більше. Правитель засміявся з такої скромності. Дарма.</p>
+    </div>
+    <div class="panel">
+      <div class="slider-row">
+        <label for="grainSq">Клітинка: <b id="grainSqTxt">1</b> з 64</label>
+        <input type="range" id="grainSq" min="1" max="64" value="1">
+      </div>
+      <dl class="kv">
+        <dt>На цій клітинці</dt><dd id="gOn">1</dd>
+        <dt>Разом на дошці</dt><dd id="gTot">1</dd>
+        <dt>Разом у двійковій</dt><dd id="gBin">1</dd>
+        <dt>Вага</dt><dd id="gMass">0,05 г</dd>
+      </dl>
+    </div>
+    <div class="text">
+      <p>Подивись на рядок «Разом у двійковій»: там самі одиниці. Сума 1 + 2 + 4 + … + 2<sup>63</sup> дорівнює 2<sup>64</sup> − 1. Це <b>найбільше число, яке вміщується в 64 біти</b>. Саме стільки бітів обробляє за раз процесор твого комп'ютера, тому його називають 64-бітним.</p>
+    </div>
+    <p class="fact"><b>Масштаб.</b> Якщо одна зернина важить 0,05 г, то вся нагорода важить приблизно 920 мільярдів тонн. Людство вирощує близько 790 мільйонів тонн пшениці на рік, тож для правителя це понад тисячу років світового врожаю.</p>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4">
+    <div class="step-head"><span class="step-no">Крок 4 · інтерактив · 15 хв</span><h2>Шахова дошка як одне число</h2></div>
+    <div class="text">
+      <p>На дошці 64 клітинки, і в 64-бітному числі теж 64 біти. Шахові програми, наприклад Stockfish, користуються цим збігом: позиції фігур одного типу зберігаються як одне число, яке називається <b>бітборд</b> (bitboard). Клітинка a1 відповідає біту 0, b1 — біту 1, … h1 — біту 7, a2 — біту 8, і так до h8, якій відповідає біт 63.</p>
+      <p>Навіщо це потрібно? Процесор оперує 64-бітним числом за одну дію. Тому відповідь на питання «чи атакує хтось цю клітинку?» займає мільярдні частки секунди.</p>
+    </div>
+    <div class="panel">
+      <div class="board-wrap">
+        <div class="board" id="board" role="grid" aria-label="Шахова дошка"></div>
+        <div style="display:grid; gap:12px; min-width:0">
+          <dl class="kv">
+            <dt>Десяткове</dt><dd id="bbDec">0</dd>
+            <dt>Бітів увімкнено</dt><dd id="bbCnt">0</dd>
+          </dl>
+          <div><div class="step-no" style="margin-bottom:4px">64 біти (від h8 до a1)</div><div class="bin64" id="bbBin"></div></div>
+          <div class="row"><button class="btn" id="bbClear" type="button">Очистити дошку</button></div>
+        </div>
+      </div>
+      <div class="task">
+        <span class="lbl">Завдання 2</span>
+        <p>Познач клітинки, де стоять білі пішаки на початку партії. Яке число вийшло? Перевір, що воно дорівнює 255 × 256, і поясни собі чому.</p>
+        <p class="status" id="bbStatus"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5">
+    <div class="step-head"><span class="step-no">Крок 5 · інтерактив · 10 хв</span><h2>Літери теж числа</h2></div>
+    <div class="text">
+      <p>Комп'ютер не знає, що таке літера «А». Люди домовилися про таблицю: кожен символ має свій номер. Для латиниці є стара таблиця ASCII, де «A» = 65, «B» = 66 і так далі. Для всіх мов світу, включно з українською, шахами ♞ і емодзі 🚀, існує <b>Юнікод</b> зі 150 тисячами символів. Тому українська літера займає 2 байти, а емодзі 4.</p>
+    </div>
+    <div class="panel">
+      <label for="txtIn">Напиши своє ім'я або будь-яке слово:</label>
+      <input type="text" id="txtIn" value="Kosmos ♞">
+      <div class="tbl-scroll"><table><thead><tr><th>Символ</th><th>Номер</th><th>Байти в пам'яті (UTF-8)</th></tr></thead><tbody id="txtBody"></tbody></table></div>
+      <p class="mono" id="txtSum" style="color:var(--muted); font-size:14px"></p>
+    </div>
+    <p class="fact"><b>Спробуй.</b> Порівняй «A» і «a». Різниця між великою і малою латинською літерою завжди 32. Подивись на двійковий запис: відрізняється рівно один біт. Чому саме 32?</p>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6">
+    <div class="step-head"><span class="step-no">Крок 6 · головоломка · 15 хв</span><h2>Послання в космос</h2></div>
+    <div class="text">
+      <p>У 1974 році радіотелескоп Аресібо відправив до зоряного скупчення M13 повідомлення з <b>1679 бітів</b>. Як інопланетянам здогадатися, що це картинка і якої вона ширини? Учені вибрали число, яке розкладається на прості множники лише одним способом: 1679 = 23 × 73. Розумна істота, яка знає математику, розкладе 1679, складе біти в прямокутник 23 × 73 і побачить малюнок: людину, ДНК, Сонячну систему.</p>
+      <p>Нижче наше власне повідомлення. Це рядок бітів без жодних підказок. Розшифруй його.</p>
+    </div>
+    <div class="panel">
+      <div class="bitstream" id="stream"></div>
+      <div class="slider-row">
+        <label for="msgW">Ширина рядка: <b id="msgWTxt">7</b> бітів</label>
+        <input type="range" id="msgW" min="3" max="24" value="7">
+      </div>
+      <div class="msg-scroll"><div class="msg-grid" id="msgGrid"></div></div>
+      <div class="task">
+        <span class="lbl">Завдання 3</span>
+        <p>Скільки бітів у повідомленні? Розклади це число на прості множники і знайди ширину, при якій з'являється малюнок.</p>
+        <div class="row">
+          <label for="f1">Біти =</label>
+          <input type="number" id="f1" min="1" aria-label="Перший множник"> × <input type="number" id="f2" min="1" aria-label="Другий множник">
+          <button class="btn primary" id="msgCheck" type="button">Перевірити</button>
+        </div>
+        <p class="status" id="msgStatus"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7">
+    <div class="step-head"><span class="step-no">Крок 7 · програмування · 25 хв</span><h2>Практика на Python</h2></div>
+    <div class="text">
+      <p>Відкрий IDLE або будь-який редактор, у якому пишеш на Python. Головне правило: <b>не використовуй вбудовані <code>bin()</code> та <code>int(s, 2)</code></b>. Ми хочемо зрозуміти, як вони працюють усередині. Після кожного завдання запусти перевірку: якщо все правильно, програма надрукує «Усе працює!».</p>
+    </div>
+    <div class="panel">
+
+      <div class="py-task">
+        <h3>7.1 · Двійкове → десяткове</h3>
+        <p>Напиши функцію <code>from_binary(s)</code>. Вона отримує рядок на кшталт <code>"1101"</code> і повертає число <code>13</code>.</p>
+        <div class="code-box"><pre>def from_binary(s):
+    # твій код тут
+    ...
+
+# перевірка
+assert from_binary("1101") == 13
+assert from_binary("0") == 0
+assert from_binary("11111111") == 255
+assert from_binary("1000000") == 64
+print("Усе працює!")</pre><button class="copy" type="button">Копіювати</button></div>
+        <details><summary>Підказка 1</summary><div><p>Пройди по рядку зліва направо. Коли дописуєш нову цифру справа, усе, що вже є, зсувається вліво і стає вдвічі більшим.</p></div></details>
+        <details><summary>Підказка 2</summary><div><p>Тримай змінну <code>result = 0</code>. Для кожного символу <code>c</code> роби <code>result = result * 2 + (1 якщо c == "1", інакше 0)</code>.</p></div></details>
+        <details class="sol"><summary>Розв'язок (спочатку спробуй сам!)</summary><div><pre>def from_binary(s):
+    result = 0
+    for c in s:
+        result = result * 2 + int(c)
+    return result</pre></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p1"> Зробив, перевірка пройшла</label>
+      </div>
+
+      <div class="py-task">
+        <h3>7.2 · Десяткове → двійкове</h3>
+        <p>Тепер навпаки: <code>to_binary(13)</code> повертає <code>"1101"</code>.</p>
+        <div class="code-box"><pre>def to_binary(n):
+    # твій код тут
+    ...
+
+# перевірка
+assert to_binary(13) == "1101"
+assert to_binary(0) == "0"
+assert to_binary(255) == "11111111"
+for x in range(1000):
+    assert from_binary(to_binary(x)) == x
+print("Усе працює!")</pre><button class="copy" type="button">Копіювати</button></div>
+        <details><summary>Підказка 1</summary><div><p><code>n % 2</code> дає останню (наймолодшу) двійкову цифру. <code>n // 2</code> відкидає її.</p></div></details>
+        <details><summary>Підказка 2</summary><div><p>Повторюй, поки <code>n &gt; 0</code>: дописуй остачу <b>на початок</b> рядка. Окремо оброби випадок <code>n == 0</code>.</p></div></details>
+        <details class="sol"><summary>Розв'язок (спочатку спробуй сам!)</summary><div><pre>def to_binary(n):
+    if n == 0:
+        return "0"
+    s = ""
+    while n > 0:
+        s = str(n % 2) + s
+        n = n // 2
+    return s</pre></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p2"> Зробив, перевірка пройшла</label>
+      </div>
+
+      <div class="py-task">
+        <h3>7.3 · Розшифруй послання</h3>
+        <p>Напиши функцію <code>show(bits, width)</code>, яка друкує рядок бітів як картинку: <code>1</code> → <code>#</code>, <code>0</code> → пробіл, по <code>width</code> символів у рядку. Потім напиши функцію <code>factors(n)</code>, яка повертає список простих множників числа. Застосуй обидві до повідомлення нижче (воно інше, ніж на кроці 6!).</p>
+        <div class="code-box"><pre id="msg2code"></pre><button class="copy" type="button">Копіювати</button></div>
+        <details><summary>Підказка</summary><div><p>Зріз <code>bits[i:i+width]</code> дає один рядок картинки. Для множників ділі <code>n</code> на <code>d = 2, 3, 4, …</code>, поки ділиться без остачі.</p></div></details>
+        <details class="sol"><summary>Розв'язок (спочатку спробуй сам!)</summary><div><pre>def show(bits, width):
+    for i in range(0, len(bits), width):
+        row = bits[i:i + width]
+        print(row.replace("1", "#").replace("0", " "))
+
+def factors(n):
+    result = []
+    d = 2
+    while n > 1:
+        while n % d == 0:
+            result.append(d)
+            n //= d
+        d += 1
+    return result
+
+print(len(msg), factors(len(msg)))
+show(msg, 13)   # 221 = 13 × 17, ширина 13 дає шахового коня</pre></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p3"> Розшифрував</label>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8">
+    <div class="step-head"><span class="step-no">Крок 8 · тест · 5 хв</span><h2>Перевір себе</h2></div>
+    <div class="panel" id="quiz"></div>
+    <div class="row"><button class="btn primary" id="quizCheck" type="button">Перевірити відповіді</button><span class="status" id="quizStatus"></span></div>
+  </section>
+
+  <!-- 9 -->
+  <section class="step" id="s9">
+    <div class="step-head"><span class="step-no star">★ Челендж на тиждень · необов'язково</span><h2>Куди стрибає кінь</h2></div>
+    <div class="text">
+      <p>Напиши функцію <code>knight_moves(square)</code>. Вона отримує номер клітинки від 0 (a1) до 63 (h8) і повертає <b>бітборд</b>: одне число, в якому увімкнені біти всіх клітинок, куди може стрибнути кінь. Пам'ятай про краї дошки: кінь з a1 не може стрибнути «вліво».</p>
+    </div>
+    <div class="code-box"><pre>def knight_moves(square):
+    ...
+
+assert knight_moves(6) == 10489856   # кінь на g1: e2, f3, h3
+assert knight_moves(0) == 132096     # кінь на a1: b3, c2
+assert bin(knight_moves(27)).count("1") == 8   # кінь на d4: 8 ходів
+print("Ти справжній шаховий програміст!")</pre><button class="copy" type="button">Копіювати</button></div>
+    <details><summary>Підказка</summary><div><p>Перетвори номер на рядок і стовпчик: <code>row = square // 8</code>, <code>col = square % 8</code>. Кінь змінює їх на (±1, ±2) або (±2, ±1). Пропускай ходи, які виходять за межі 0..7. Для кожного дозволеного ходу вмикай біт: <code>result |= 1 &lt;&lt; (r * 8 + c)</code>.</p></div></details>
+    <p class="fact"><b>Ще складніше.</b> Скористайся своєю функцією, щоб знайти найменшу кількість ходів, за яку кінь дістанеться з a1 до h8.</p>
+    <label class="selfcheck"><input type="checkbox" data-task="ch"> Челендж виконано</label>
+
+    <div class="ask">
+      <h3>Застряг? Запитай Claude</h3>
+      <p>Можна скопіювати свій код і запитати, наприклад:</p>
+      <ul>
+        <li>«Мій код видає помилку, ось він. Не кажи відповідь, дай підказку».</li>
+        <li>«Чому в шістнадцятковій системі пишуть FF, а не 255?»</li>
+        <li>«Як від'ємні числа зберігаються в бітах?»</li>
+        <li>«Як Stockfish за допомогою бітбордів знаходить ходи слона?»</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span class="step-no">Наступне заняття</span>
+    <h3>Логічні вентилі: як із «так» і «ні» зібрати калькулятор</h3>
+    <p>Ти побудуєш схему, яка додає двійкові числа, і зрозумієш, що процесор робить це мільярди разів на секунду.</p>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const TASKS = ["bits", "pawns", "msg", "p1", "p2", "p3", "quiz", "ch", "read"];
+  const SECTION_OF = { bits: "s2", pawns: "s4", msg: "s6", p1: "s7", p2: "s7", p3: "s7", quiz: "s8", ch: "s9" };
+  let done = {};
+  try { done = JSON.parse(localStorage.getItem("inf-l1") || "{}") || {}; } catch (e) { done = {}; }
+  const save = () => { try { localStorage.setItem("inf-l1", JSON.stringify(done)); } catch (e) {} };
+  function mark(t, v = true) { done[t] = v; done._n = TASKS.filter(x => done[x]).length; done._total = TASKS.length; save(); renderProg(); }
+  function renderProg() {
+    const n = TASKS.filter(t => done[t]).length;
+    document.getElementById("progTxt").textContent = n + " / " + TASKS.length;
+    document.getElementById("progBar").style.width = (n / TASKS.length * 100) + "%";
+    const secDone = {};
+    for (const [t, s] of Object.entries(SECTION_OF)) secDone[s] = (secDone[s] ?? true) && !!done[t];
+    document.querySelectorAll("#plan a").forEach(a => { const s = a.getAttribute("href").slice(1); a.classList.toggle("done", !!secDone[s]); });
+  }
+  // reading the theory counts once the student reaches step 6
+  const io = "IntersectionObserver" in window ? new IntersectionObserver(es => { es.forEach(e => { if (e.isIntersecting && !done.read) mark("read"); }); }) : null;
+  if (io) io.observe(document.getElementById("s6"));
+
+  /* ---- bits ---- */
+  const bitsEl = document.getElementById("bits"), bits = Array(8).fill(0);
+  const targets = [5, 42, 100, 255]; let ti = done.bits ? targets.length : 0;
+  for (let i = 0; i < 8; i++) {
+    const w = 2 ** (7 - i), d = document.createElement("div"); d.className = "bit";
+    d.innerHTML = `<button type="button" aria-label="Біт вагою ${w}">0</button><small>${w}</small>`;
+    d.querySelector("button").addEventListener("click", () => { bits[i] ^= 1; renderBits(); });
+    bitsEl.appendChild(d);
+  }
+  function renderBits() {
+    const val = bits.reduce((a, b, i) => a + b * 2 ** (7 - i), 0);
+    bitsEl.querySelectorAll("button").forEach((b, i) => { b.classList.toggle("on", !!bits[i]); b.textContent = bits[i]; });
+    document.getElementById("bitDec").textContent = val;
+    document.getElementById("bitBin").textContent = bits.join("");
+    if (ti < targets.length && val === targets[ti]) { ti++; if (ti === targets.length) mark("bits"); }
+    document.getElementById("targets").innerHTML = targets.map((t, i) => `<span class="chip ${i < ti ? "done" : i === ti ? "cur" : ""}">${t}${i < ti ? " ✓" : ""}</span>`).join("");
+    const st = document.getElementById("bitStatus");
+    if (ti >= targets.length) { st.textContent = "Готово! 255 = 11111111: усі вісім лампочок горять."; st.className = "status ok"; }
+    else { st.textContent = "Ціль: " + targets[ti]; st.className = "status"; }
+  }
+  renderBits();
+
+  /* ---- grains ---- */
+  const fmt = b => b.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  function renderGrains() {
+    const k = +document.getElementById("grainSq").value;
+    const on = 2n ** BigInt(k - 1), tot = 2n ** BigInt(k) - 1n;
+    document.getElementById("grainSqTxt").textContent = k;
+    document.getElementById("gOn").textContent = fmt(on);
+    document.getElementById("gTot").textContent = fmt(tot);
+    document.getElementById("gBin").textContent = "1".repeat(k) + "  (" + k + " одиниць)";
+    const g = Number(tot) * 0.05;
+    let m;
+    if (g < 1000) m = g.toLocaleString("uk-UA", { maximumFractionDigits: 2 }) + " г";
+    else if (g < 1e6) m = (g / 1000).toLocaleString("uk-UA", { maximumFractionDigits: 1 }) + " кг";
+    else { const t = g / 1e6; m = Math.round(t).toLocaleString("uk-UA") + " т"; const yrs = t / 7.9e8; if (yrs >= 0.01) m += " ≈ " + yrs.toLocaleString("uk-UA", { maximumFractionDigits: yrs < 10 ? 2 : 0 }) + " світового врожаю"; }
+    document.getElementById("gMass").textContent = m;
+  }
+  document.getElementById("grainSq").addEventListener("input", renderGrains); renderGrains();
+
+  /* ---- bitboard ---- */
+  const boardEl = document.getElementById("board"); let bb = 0n;
+  const files = "abcdefgh";
+  for (let r = 7; r >= 0; r--) {
+    const c = document.createElement("span"); c.className = "coord"; c.textContent = r + 1; boardEl.appendChild(c);
+    for (let f = 0; f < 8; f++) {
+      const idx = r * 8 + f, b = document.createElement("button");
+      b.type = "button"; b.className = "sq " + ((r + f) % 2 ? "l" : "d"); b.dataset.i = idx;
+      b.setAttribute("aria-label", files[f] + (r + 1) + ", біт " + idx); b.title = files[f] + (r + 1) + " · біт " + idx;
+      b.addEventListener("click", () => { bb ^= 1n << BigInt(idx); renderBB(); });
+      boardEl.appendChild(b);
+    }
+  }
+  boardEl.appendChild(document.createElement("span"));
+  for (let f = 0; f < 8; f++) { const c = document.createElement("span"); c.className = "coord"; c.textContent = files[f]; c.style.paddingTop = "2px"; boardEl.appendChild(c); }
+  function renderBB() {
+    boardEl.querySelectorAll(".sq").forEach(s => s.classList.toggle("on", !!((bb >> BigInt(s.dataset.i)) & 1n)));
+    const s = bb.toString(2).padStart(64, "0");
+    document.getElementById("bbBin").innerHTML = s.match(/.{8}/g).map(g => g.replace(/1/g, '<span class="one">1</span>')).join(" ");
+    document.getElementById("bbDec").textContent = fmt(bb);
+    document.getElementById("bbCnt").textContent = (s.match(/1/g) || []).length;
+    const st = document.getElementById("bbStatus");
+    if (bb === 65280n) { st.textContent = "Так! 65 280 = 255 × 256: вісім одиниць (255), зсунуті на 8 позицій вліво (× 2⁸)."; st.className = "status ok"; mark("pawns"); }
+    else if (done.pawns) { st.textContent = "Завдання вже виконано. Можеш експериментувати."; st.className = "status ok"; }
+    else st.textContent = "";
+  }
+  document.getElementById("bbClear").addEventListener("click", () => { bb = 0n; renderBB(); });
+  renderBB();
+
+  /* ---- text ---- */
+  function renderTxt() {
+    const enc = new TextEncoder(), v = document.getElementById("txtIn").value;
+    let rows = "", total = 0;
+    for (const ch of Array.from(v).slice(0, 40)) {
+      const bytes = enc.encode(ch); total += bytes.length;
+      rows += `<tr><td>${ch === " " ? "␣" : ch.replace(/[<&]/g, x => x === "<" ? "&lt;" : "&amp;")}</td><td class="mono">${ch.codePointAt(0)}</td><td class="mono">${Array.from(bytes).map(b => b.toString(2).padStart(8, "0")).join(" ")}</td></tr>`;
+    }
+    document.getElementById("txtBody").innerHTML = rows;
+    document.getElementById("txtSum").textContent = "Разом: " + Array.from(v).length + " символів, " + total + " байтів, " + total * 8 + " бітів.";
+  }
+  document.getElementById("txtIn").addEventListener("input", renderTxt); renderTxt();
+
+  /* ---- message ---- */
+  const MSG = "00000100000000011100000000111000000011111000000101010000001101100000011111000000111110000011111110001101110110010011100100000101000000010001000";
+  document.getElementById("stream").textContent = MSG;
+  function renderMsg() {
+    const w = +document.getElementById("msgW").value, g = document.getElementById("msgGrid");
+    document.getElementById("msgWTxt").textContent = w;
+    g.style.gridTemplateColumns = `repeat(${w}, 14px)`;
+    g.innerHTML = Array.from(MSG).map(b => `<span class="${b === "1" ? "one" : ""}"></span>`).join("");
+  }
+  document.getElementById("msgW").addEventListener("input", renderMsg); renderMsg();
+  document.getElementById("msgCheck").addEventListener("click", () => {
+    const a = +document.getElementById("f1").value, b = +document.getElementById("f2").value, st = document.getElementById("msgStatus");
+    if (a * b !== 143) { st.textContent = a && b ? `${a} × ${b} = ${a * b}, а в повідомленні 143 біти. Порахуй ще раз.` : "Введи два множники."; st.className = "status bad"; return; }
+    if (a === 1 || b === 1) { st.textContent = "Технічно правильно, але з шириною 1 малюнка не вийде. Знайди прості множники."; st.className = "status bad"; return; }
+    st.textContent = "143 = 11 × 13. Встанови ширину 11, і побачиш ракету! (При ширині 13 вийде каша: спробуй.)"; st.className = "status ok"; mark("msg");
+  });
+
+  /* ---- python task 3 code ---- */
+  // chess knight, 13 wide x 17 tall = 221 = 13 x 17
+  const MSG2 = "00000000000000000001000000000001110000000001111110000001111111100001110111111001111111111110111111111111001111101111100000011111100000011111100000011111110000001111111000001111111110001111111111100111111111110000000000000";
+  const chunks = MSG2.match(/.{1,60}/g).map(c => '    "' + c + '"').join("\n");
+  document.getElementById("msg2code").textContent = "msg = (\n" + chunks + "\n)\n\ndef show(bits, width):\n    ...\n\ndef factors(n):\n    ...\n\nprint(len(msg), factors(len(msg)))\n# спробуй різні ширини!";
+
+  /* ---- quiz ---- */
+  const Q = [
+    { q: "Скільки різних значень можна записати вісьмома бітами?", a: ["8", "255", "256", "1024"], c: 2, e: "2⁸ = 256: від 0 до 255 включно." },
+    { q: "Чому дорівнює двійкове 1010?", a: ["10", "1010", "12", "5"], c: 0, e: "8 + 2 = 10." },
+    { q: "Що станеться з числом, якщо дописати 0 праворуч у двійковому записі?", a: ["Нічого", "Збільшиться на 1", "Збільшиться вдвічі", "Збільшиться вдесятеро"], c: 2, e: "Кожна цифра зсувається на позицію вліво, де її вага вдвічі більша. Як дописати 0 у десятковій: ×10." },
+    { q: "Скільки бітів потрібно, щоб пронумерувати всі 64 клітинки шахової дошки (номери 0–63)?", a: ["6", "8", "64", "32"], c: 0, e: "2⁶ = 64, тож номери від 0 до 63 вміщуються в 6 бітів." },
+    { q: "Чому комп'ютери двійкові, а не десяткові?", a: ["Так вирішив Білл Гейтс", "Два стани легко надійно розрізнити", "Десяткову систему неможливо запрограмувати", "Двійкові числа коротші"], c: 1, e: "Відрізнити «є струм» від «немає» легко навіть при перешкодах. Двійкові числа, до речі, довші за десяткові." },
+  ];
+  const quizEl = document.getElementById("quiz");
+  quizEl.innerHTML = Q.map((x, i) => `<fieldset class="q" style="border:0;margin:0"><legend style="padding:0;font-weight:700">${i + 1}. ${x.q}</legend>${x.a.map((o, j) => `<label><input type="radio" name="q${i}" id="q${i}_${j}" value="${j}"> <span>${o}</span></label>`).join("")}<div class="expl" hidden></div></fieldset>`).join("");
+  document.getElementById("quizCheck").addEventListener("click", () => {
+    let score = 0;
+    Q.forEach((x, i) => {
+      const sel = quizEl.querySelector(`input[name=q${i}]:checked`), ex = quizEl.querySelectorAll(".expl")[i];
+      ex.hidden = false;
+      if (!sel) { ex.className = "expl bad"; ex.textContent = "Ти не обрав відповідь."; return; }
+      const ok = +sel.value === x.c; if (ok) score++;
+      ex.className = "expl " + (ok ? "ok" : "bad"); ex.textContent = (ok ? "Правильно. " : "Ні. ") + x.e;
+    });
+    const st = document.getElementById("quizStatus");
+    st.textContent = score + " з " + Q.length + (score === Q.length ? ". Чудово!" : ". Перечитай пояснення і спробуй ще.");
+    st.className = "status " + (score >= 4 ? "ok" : "bad");
+    if (score >= 4) mark("quiz");
+  });
+
+  /* ---- self-check boxes & copy ---- */
+  document.querySelectorAll("input[data-task]").forEach(cb => { cb.checked = !!done[cb.dataset.task]; cb.addEventListener("change", () => mark(cb.dataset.task, cb.checked)); });
+  document.querySelectorAll(".copy").forEach(btn => btn.addEventListener("click", () => {
+    const pre = btn.parentElement.querySelector("pre");
+    const ok = () => { btn.textContent = "Скопійовано"; setTimeout(() => btn.textContent = "Копіювати", 1500); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "Виділено: Ctrl+C"; };
+    try { navigator.clipboard.writeText(pre.textContent).then(ok, fallback); } catch (e) { fallback(); }
+  }));
+  renderProg();
+})();
+</script>
+</body>
+</html>
