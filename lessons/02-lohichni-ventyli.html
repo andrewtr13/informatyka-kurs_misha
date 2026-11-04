@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Заняття 2. Логічні вентилі</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; lesson 2 adds circuit, gate and adder instruments; each section is a numbered step of the lesson, interactive instruments sit on surface panels. */
+:root {
+  --bg: #EEF1F6; --surface: #FFFFFF; --ink: #141B2D; --muted: #586178; --line: #D3D9E4;
+  --accent: #B8620A; --accent-ink: #FFFFFF; --accent-soft: #FBEBD6; --sky: #2E4A9E; --sky-soft: #E2E8F7;
+  --ok: #1D7447; --ok-soft: #DDF1E5; --bad: #B3261E; --bad-soft: #F8E1DF;
+  --sq-l: #E9DFC9; --sq-d: #A8B4C9; --code-bg: #1A2236; --code-ink: #E3E8F4;
+  --f-display: "Unbounded", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0D1220; --surface: #151C2E; --ink: #E6EAF2; --muted: #9AA3B8; --line: #2A3350;
+  --accent: #F2A23A; --accent-ink: #1A1206; --accent-soft: #3A2A12; --sky: #9DB3F2; --sky-soft: #1E2945;
+  --ok: #63C690; --ok-soft: #15301F; --bad: #F29088; --bad-soft: #3A1A18;
+  --sq-l: #3B4560; --sq-d: #232B42; --code-bg: #0A0F1B; --code-ink: #E3E8F4; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0D1220; --surface: #151C2E; --ink: #E6EAF2; --muted: #9AA3B8; --line: #2A3350;
+  --accent: #F2A23A; --accent-ink: #1A1206; --accent-soft: #3A2A12; --sky: #9DB3F2; --sky-soft: #1E2945;
+  --ok: #63C690; --ok-soft: #15301F; --bad: #F29088; --bad-soft: #3A1A18;
+  --sq-l: #3B4560; --sq-d: #232B42; --code-bg: #0A0F1B; --code-ink: #E3E8F4; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px; }
+.wrap { max-width: 760px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(30px, 6vw, 46px); font-weight: 700; }
+h2 { font-size: clamp(21px, 3.6vw, 26px); font-weight: 700; }
+h3 { font-size: 17px; font-weight: 500; }
+p { margin: 0; }
+a { color: var(--sky); }
+code, .mono { font-family: var(--f-mono); font-size: 0.92em; }
+:not(pre) > code { background: var(--sky-soft); padding: 1px 5px; border-radius: 4px; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+
+/* top bar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.course { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.prog { display: flex; align-items: center; gap: 10px; font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+button.prog { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.todo { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 52px); z-index: 4; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: grid; gap: 6px; margin-top: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.todo[hidden] { display: none; }
+.todo a { color: var(--ink); text-decoration: none; display: flex; gap: 10px; align-items: baseline; }
+.todo a:hover span:last-child { text-decoration: underline; }
+.todo .ok { color: var(--ok); } .todo .no { color: var(--muted); }
+.todo .hd { font-weight: 700; }
+.prog-bar { width: 110px; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.prog-bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .4s; }
+
+header.hero { padding-block: 40px 8px; display: grid; gap: 16px; }
+.eyebrow { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.lead { font-size: 19px; color: var(--muted); max-width: 62ch; }
+.hero-bits { font-family: var(--f-mono); font-size: 13px; color: var(--muted); letter-spacing: 0.15em; overflow: hidden; white-space: nowrap; }
+.plan { display: flex; flex-wrap: wrap; gap: 8px; }
+.plan a { text-decoration: none; font-size: 14px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: var(--surface); }
+.plan a.done { border-color: var(--ok); color: var(--ok); }
+
+section.step { padding-block: 44px 0; display: grid; gap: 18px; }
+.step-head { display: grid; gap: 6px; }
+.step-no { font-family: var(--f-mono); font-size: 13px; color: var(--accent); font-weight: 600; }
+.text { display: grid; gap: 14px; max-width: 66ch; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.fact { border-left: 3px solid var(--sky); padding: 4px 0 4px 16px; color: var(--ink); max-width: 66ch; }
+.fact b { color: var(--sky); }
+.task { background: var(--accent-soft); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; }
+.task .lbl { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+.status { font-weight: 700; }
+.status.ok { color: var(--ok); }
+.status.bad { color: var(--bad); }
+
+/* bits */
+.panel > *, .step > * { min-width: 0; }
+.bits { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+.bit button { min-width: 0; padding: 0; }
+.bit { display: grid; gap: 6px; justify-items: center; }
+.bit button { width: 100%; max-width: 64px; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--line); background: var(--bg);
+  cursor: pointer; font-family: var(--f-mono); font-size: 20px; font-weight: 600; color: var(--muted); transition: background .15s, box-shadow .15s; }
+.bit button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 0 18px var(--accent); }
+.bit small { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.readout { display: flex; flex-wrap: wrap; gap: 8px 28px; align-items: baseline; font-variant-numeric: tabular-nums; }
+.readout .big { font-family: var(--f-display); font-size: 40px; font-weight: 700; }
+.readout .sub { font-family: var(--f-mono); color: var(--muted); }
+.targets { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-family: var(--f-mono); font-size: 14px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+.chip.cur { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chip.done { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+
+/* grains */
+.slider-row { display: grid; gap: 6px; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-variant-numeric: tabular-nums; }
+.kv dt { color: var(--muted); font-size: 15px; }
+.kv dd { margin: 0; font-family: var(--f-mono); font-size: 15px; min-width: 0; overflow-wrap: anywhere; }
+
+/* board */
+.board-wrap { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 640px) { .board-wrap { grid-template-columns: 1fr; } }
+.board { display: grid; grid-template-columns: 18px repeat(8, 1fr); gap: 0; max-width: 360px; width: 100%; }
+.board .coord { font-family: var(--f-mono); font-size: 11px; color: var(--muted); display: grid; place-items: center; }
+.sq { aspect-ratio: 1; border: 0; cursor: pointer; display: grid; place-items: center; padding: 0; position: relative; }
+.sq.l { background: var(--sq-l); } .sq.d { background: var(--sq-d); }
+.sq.on::after { content: ""; width: 56%; height: 56%; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.bin64 { font-family: var(--f-mono); font-size: 13px; line-height: 1.7; word-break: break-all; }
+.bin64 .one { color: var(--accent); font-weight: 600; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 14px; cursor: pointer; font-weight: 600; font-size: 15px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn:hover { border-color: var(--accent); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* text table */
+.tbl-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); font-size: 15px; white-space: nowrap; }
+th { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+td.mono { font-family: var(--f-mono); }
+input[type=text], input[type=number] { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 7px 10px; min-width: 0; }
+input[type=number] { width: 80px; }
+
+/* message */
+.msg-grid { display: grid; gap: 2px; width: max-content; max-width: 100%; }
+.msg-grid span { width: 14px; height: 14px; background: var(--line); border-radius: 2px; }
+.msg-grid span.one { background: var(--accent); }
+.msg-scroll { overflow-x: auto; padding-bottom: 4px; }
+.bitstream { font-family: var(--f-mono); font-size: 12px; color: var(--muted); word-break: break-all; line-height: 1.5; }
+
+/* code */
+pre { background: var(--code-bg); color: var(--code-ink); padding: 14px 16px; border-radius: 8px; overflow-x: auto; margin: 0; font-family: var(--f-mono); font-size: 14px; line-height: 1.55; }
+.code-box { position: relative; min-width: 0; }
+.copy { position: absolute; top: 8px; right: 8px; font-size: 12px; padding: 3px 8px; border-radius: 6px; border: 1px solid #3A4566; background: #232D47; color: #E3E8F4; cursor: pointer; }
+details { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+details > summary { cursor: pointer; padding: 9px 14px; font-weight: 600; font-size: 15px; }
+details > div { padding: 0 14px 14px; display: grid; gap: 10px; }
+details.sol > summary { color: var(--muted); }
+.py-task { display: grid; gap: 12px; padding-block: 18px; border-top: 1px solid var(--line); }
+.py-task:first-of-type { border-top: 0; padding-top: 0; }
+.selfcheck { display: flex; gap: 8px; align-items: center; font-weight: 600; cursor: pointer; }
+.selfcheck input { width: 18px; height: 18px; accent-color: var(--ok); }
+
+/* quiz */
+.q { display: grid; gap: 8px; padding-block: 14px; border-top: 1px solid var(--line); }
+.q:first-child { border-top: 0; padding-top: 0; }
+.q label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.q input { margin-top: 6px; accent-color: var(--accent); }
+.q .expl { font-size: 15px; padding: 8px 12px; border-radius: 6px; }
+.q .expl.ok { background: var(--ok-soft); color: var(--ok); }
+.q .expl.bad { background: var(--bad-soft); color: var(--bad); }
+
+.ask { background: var(--sky-soft); border-radius: 10px; padding: 18px 20px; display: grid; gap: 10px; }
+.ask ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+footer { padding-block: 48px 0; color: var(--muted); display: grid; gap: 6px; }
+.star { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* ---- lesson 2 ---- */
+.circuit svg { width: 100%; max-width: 420px; height: auto; display: block; }
+.circuit .wire { fill: none; stroke: var(--muted); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.circuit.live .wire { stroke: var(--accent); }
+.circuit .sw { stroke: var(--ink); stroke-width: 4; stroke-linecap: round; }
+.circuit .node { fill: var(--ink); }
+.circuit .lamp { fill: var(--bg); stroke: var(--muted); stroke-width: 3; }
+.circuit.live .lamp { fill: var(--accent); stroke: var(--accent); filter: drop-shadow(0 0 8px var(--accent)); }
+.circuit .batt { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.circuit text { fill: var(--ink); font-family: var(--f-mono); font-size: 13px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 6px 14px; cursor: pointer; font-weight: 600; font-size: 15px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.tog { border: 2px solid var(--line); background: var(--bg); border-radius: 8px; min-width: 52px; padding: 6px 10px; cursor: pointer; font-family: var(--f-mono); font-weight: 600; font-size: 16px; }
+.tog.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.lampdot { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--line); background: var(--bg); font-family: var(--f-mono); font-weight: 700; color: var(--muted); }
+.lampdot.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 0 14px var(--accent); }
+.gates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 640px) { .gates { grid-template-columns: 1fr; } }
+.gate { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; background: var(--surface); }
+.gate .gname { font-family: var(--f-display); font-size: 16px; }
+.gate .gname small { font-family: var(--f-mono); font-size: 13px; color: var(--muted); margin-left: 6px; }
+.gate .life { font-size: 14px; color: var(--muted); }
+.gate .io { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.gate .arrow { color: var(--muted); font-family: var(--f-mono); }
+td select, .formula select { border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 3px 6px; font-family: var(--f-mono); }
+.formula { font-family: var(--f-mono); font-size: 16px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; line-height: 2; }
+tr.miss td { background: var(--bad-soft); }
+tr.hit td { background: var(--ok-soft); }
+.ha { display: grid; grid-template-columns: auto auto 1fr; gap: 10px 14px; align-items: center; }
+.ha .box { font-family: var(--f-mono); font-weight: 600; border: 2px solid var(--ink); border-radius: 6px; padding: 4px 10px; text-align: center; }
+.adder { display: grid; grid-template-columns: 70px repeat(5, minmax(0, 56px)); gap: 8px 6px; align-items: center; justify-items: center; width: max-content; max-width: 100%; }
+.adder .rl { justify-self: start; font-size: 13px; color: var(--muted); font-weight: 600; }
+.adder .tog { min-width: 0; width: 44px; padding: 6px 0; }
+.fa { width: 50px; border: 2px solid var(--ink); border-radius: 6px; text-align: center; font-family: var(--f-mono); font-size: 12px; padding: 3px 0; line-height: 1.3; }
+.fa .cin { display: block; border-radius: 4px; color: var(--muted); }
+.fa .cin.on { background: var(--accent); color: var(--accent-ink); }
+.sumbit { width: 44px; height: 36px; display: grid; place-items: center; border-radius: 6px; font-family: var(--f-mono); font-weight: 700; border: 2px solid var(--line); }
+.sumbit.on { background: var(--sky); border-color: var(--sky); color: var(--surface); }
+.sumbit.over { border-style: dashed; }
+.adder-scroll { overflow-x: auto; padding-bottom: 4px; }
+</style>
+</head>
+<body>
+<p style="padding-top:12px;margin:0;font-size:14px"><a href="../index.html">← Усі заняття курсу</a></p>
+<div class="wrap">
+  <div class="topbar">
+    <span class="course">Інформатика · Модуль 1</span>
+    <button class="prog" id="progBtn" type="button" aria-expanded="false" aria-controls="todo"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 8</span><span aria-hidden="true">▾</span></button>
+  </div>
+  <div class="todo" id="todo" hidden></div>
+
+  <header class="hero">
+    <span class="eyebrow">Заняття 2 з 50 · ≈ 90 хвилин</span>
+    <h1>Логічні вентилі</h1>
+    <p class="lead">Минулого разу ти дізнався, що все в комп'ютері є нулями та одиницями. Сьогодні зрозумієш, як комп'ютер з ними <b>рахує</b>. В кінці ти власноруч збереш схему, яка додає числа, точнісінько як процесор.</p>
+    <nav class="plan" id="plan" aria-label="Зміст заняття">
+      <a href="#s1">1. Вимикачі</a><a href="#s2">2. Вентилі</a><a href="#s3">3. Мат чи пат</a><a href="#s4">4. Додаємо біти</a>
+      <a href="#s5">5. Суматор</a><a href="#s6">6. Головоломка</a><a href="#s7">7. Python</a><a href="#s8">8. Тест</a><a href="#s9">★ Челендж</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="step" id="s1">
+    <div class="step-head"><span class="step-no">Крок 1 · інтерактив · 10 хв</span><h2>Два вимикачі і лампочка</h2></div>
+    <div class="text">
+      <p>Транзистор — це вимикач, яким керує не палець, а електричний сигнал. Подивимось, що можна зробити лише з двома вимикачами. Їх можна з'єднати двома способами: <b>послідовно</b> (один за одним) або <b>паралельно</b> (поруч, дві окремі доріжки).</p>
+    </div>
+    <div class="panel">
+      <div class="row">
+        <div class="seg" role="group" aria-label="Спосіб з'єднання"><button type="button" id="mSer" aria-pressed="true">Послідовно</button><button type="button" id="mPar" aria-pressed="false">Паралельно</button></div>
+      </div>
+      <div class="circuit" id="circuit"></div>
+      <div class="row">
+        <button class="tog" type="button" id="swA">A = 0</button>
+        <button class="tog" type="button" id="swB">B = 0</button>
+        <span id="lampTxt" class="status"></span>
+      </div>
+    </div>
+    <div class="text">
+      <p>Пограйся з обома схемами і подумай: коли світиться лампочка?</p>
+      <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+        <li><b>Послідовно:</b> лампочка світиться, тільки якщо увімкнені A <b>і</b> B.</li>
+        <li><b>Паралельно:</b> лампочка світиться, якщо увімкнений A <b>або</b> B (або обидва).</li>
+      </ul>
+      <p>Ці дві схеми звуться логічними вентилями <b>І</b> та <b>АБО</b>. Англійською AND та OR.</p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2">
+    <div class="step-head"><span class="step-no">Крок 2 · інтерактив · 15 хв</span><h2>Чотири головні вентилі</h2></div>
+    <div class="text">
+      <p>Вентиль отримує на вхід біти і видає один біт. Усе, що вміє вентиль, можна записати в маленьку <b>таблицю істинності</b>: що він видає для кожного можливого входу. Клацай входи й дивись на вихід.</p>
+    </div>
+    <div class="gates" id="gates"></div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 1</span>
+        <p>Є ще вентиль <b>НЕ-І</b> (NAND). Він працює як І, а потім перевертає результат через НЕ. Заповни його таблицю істинності.</p>
+        <div class="tbl-scroll"><table style="width:auto"><thead><tr><th>A</th><th>B</th><th>A НЕ-І B</th></tr></thead><tbody id="nandBody"></tbody></table></div>
+        <div class="row"><button class="btn primary" type="button" id="nandCheck">Перевірити</button><span class="status" id="nandStatus"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3">
+    <div class="step-head"><span class="step-no">Крок 3 · логіка в шахах · 10 хв</span><h2>Мат чи пат?</h2></div>
+    <div class="text">
+      <p>Шахові програми теж мислять вентилями. Як програма вирішує, що партія закінчилась? Вона перевіряє дві речі: чи стоїть король <b>під шахом</b> і чи є в гравця <b>хоча б один дозволений хід</b>.</p>
+    </div>
+    <div class="panel">
+      <div class="row">
+        <button class="tog" type="button" id="cCheck">Шах: ні</button>
+        <button class="tog" type="button" id="cMoves">Є ходи: ні</button>
+      </div>
+      <p class="status" id="cResult"></p>
+      <div class="task">
+        <span class="lbl">Завдання 2</span>
+        <p>Склади правила для програми. Обери правильний логічний вираз для кожної ситуації:</p>
+        <div class="row"><b style="min-width:3.5em">Мат =</b><select id="selMate"></select></div>
+        <div class="row"><b style="min-width:3.5em">Пат =</b><select id="selStale"></select></div>
+        <div class="row"><button class="btn primary" type="button" id="chessCheck">Перевірити</button><span class="status" id="chessStatus"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4">
+    <div class="step-head"><span class="step-no">Крок 4 · інтерактив · 10 хв</span><h2>Як додати два біти</h2></div>
+    <div class="text">
+      <p>Тепер найважливіше: як вентилі <b>рахують</b>. Почнемо з найменшого: додамо два біти. Варіантів лише чотири:</p>
+      <div class="tbl-scroll"><table style="width:auto"><thead><tr><th>A</th><th>B</th><th>A + B</th><th>у двійковій</th></tr></thead><tbody>
+        <tr><td class="mono">0</td><td class="mono">0</td><td class="mono">0</td><td class="mono">00</td></tr>
+        <tr><td class="mono">0</td><td class="mono">1</td><td class="mono">1</td><td class="mono">01</td></tr>
+        <tr><td class="mono">1</td><td class="mono">0</td><td class="mono">1</td><td class="mono">01</td></tr>
+        <tr><td class="mono">1</td><td class="mono">1</td><td class="mono">2</td><td class="mono">10</td></tr>
+      </tbody></table></div>
+      <p>Результат має дві цифри. Права зветься <b>сума</b> (S), ліва зветься <b>перенос</b> (C, від carry). Як «1 в умі», коли додаєш у стовпчик. Подивись уважно на стовпчики: права цифра дорівнює 1, коли біти <b>різні</b>. Це ж ВИКЛЮЧНЕ АБО! А ліва дорівнює 1, коли <b>обидва</b> біти 1. Це І!</p>
+      <p>Два вентилі разом утворюють схему, яка зветься <b>півсуматор</b>:</p>
+    </div>
+    <div class="panel">
+      <div class="ha">
+        <span>Входи:</span><span></span><span class="row"><button class="tog" type="button" id="haA">A = 0</button><button class="tog" type="button" id="haB">B = 0</button></span>
+        <span class="box">ВИКЛ. АБО</span><span class="arrow mono">→</span><span class="row">S = <span class="lampdot" id="haS">0</span></span>
+        <span class="box">І</span><span class="arrow mono">→</span><span class="row">C = <span class="lampdot" id="haC">0</span></span>
+      </div>
+      <p class="status" id="haTxt"></p>
+      <div class="task">
+        <span class="lbl">Завдання 3</span>
+        <p>Скільки буде 1 + 1 + 1 у двійковій системі? Підказка: це 3 в десятковій.</p>
+        <div class="row"><input type="text" id="threeIn" aria-label="Відповідь" style="width:100px"><button class="btn primary" type="button" id="threeCheck">Перевірити</button><span class="status" id="threeStatus"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5">
+    <div class="step-head"><span class="step-no">Крок 5 · інтерактив · 15 хв</span><h2>Чотирибітний суматор</h2></div>
+    <div class="text">
+      <p>Щоб додати довгі числа, потрібна схема, яка вміє додати <b>три</b> біти: біт числа A, біт числа B і перенос з попереднього розряду. Така схема зветься <b>повний суматор</b> (ПС), і вона складається з двох півсуматорів.</p>
+      <p>Поставимо чотири повних суматори в ряд і передаватимемо перенос справа наліво, як при додаванні в стовпчик. Вийде калькулятор для чисел від 0 до 15. Клацай біти чисел A і B.</p>
+    </div>
+    <div class="panel">
+      <div class="adder-scroll"><div class="adder" id="adder"></div></div>
+      <div class="readout"><span class="big" id="addTxt">0 + 0 = 0</span><span class="status bad" id="addNote"></span></div>
+      <div class="task">
+        <span class="lbl">Завдання 4</span>
+        <p>Встанови A = 7 і B = 9. Подивись уважно: скільки повних суматорів отримали перенос 1? Що сталося з результатом?</p>
+        <div class="row"><label for="carryIn">Переносів:</label><input type="number" id="carryIn" min="0" max="5"><button class="btn primary" type="button" id="carryCheck">Перевірити</button></div>
+        <p class="status" id="carryStatus"></p>
+      </div>
+    </div>
+    <p class="fact"><b>Переповнення в космосі.</b> 1996 року ракета «Аріан-5» вибухнула через 37 секунд після старту. Програма намагалася записати велике число швидкості у 16 бітів, а воно туди не вмістилося. Так само як 16 не влазить у наші 4 біти. Помилка коштувала сотні мільйонів доларів. Твій процесор має 64-бітний суматор: 64 повних суматори в ряд.</p>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6">
+    <div class="step-head"><span class="step-no">Крок 6 · головоломка · 10 хв</span><h2>Збери вентиль з інших</h2></div>
+    <div class="text">
+      <p>Деякі вентилі можна зібрати з інших. Схема нижче має три вентилі: перші два отримують A і B, третій об'єднує їхні результати. Обери вентилі так, щоб уся схема працювала як потрібно. Зелені рядки таблиці вже збігаються з ціллю, червоні ще ні.</p>
+    </div>
+    <div class="panel" id="puzzles"></div>
+    <p class="fact"><b>Факт.</b> Бортовий комп'ютер «Аполлона», який доставив людей на Місяць, був зібраний з вентилів лише одного типу: НЕ-АБО (NOR). Їх було кілька тисяч. З одного NOR можна зібрати будь-який інший вентиль, а отже і цілий комп'ютер.</p>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7">
+    <div class="step-head"><span class="step-no">Крок 7 · програмування · 25 хв</span><h2>Суматор на Python</h2></div>
+    <div class="text">
+      <p>Зберемо такий самий суматор у коді. Як і минулого разу: <b>IDLE → File → New File</b>, встав код, F5. Пропуски <code>___</code> заміни на правильне.</p>
+    </div>
+    <div class="panel">
+      <div class="py-task">
+        <h3>7.1 · Вентилі в Python</h3>
+        <p>У Python є операції з бітами: <code>&amp;</code> — це І, <code>|</code> — це АБО, <code>^</code> — це ВИКЛЮЧНЕ АБО. Цей код друкує таблицю істинності для І. Запусти.</p>
+        <div class="code-box"><pre>print("A B | A І B")
+for a in [0, 1]:
+    for b in [0, 1]:
+        print(a, b, "|", a &amp; b)</pre><button class="copy" type="button">Копіювати</button></div>
+        <p><b>Завдання.</b> Зміни код, щоб він надрукував таблицю для АБО, а потім для ВИКЛЮЧНОГО АБО. Порівняй з таблицями з кроку 2.</p>
+        <details><summary>Підказка</summary><div><p>Треба замінити тільки знак <code>&amp;</code> в останньому рядку (і заголовок, щоб було гарно).</p></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p0"> Зробив обидві таблиці</label>
+      </div>
+
+      <div class="py-task">
+        <h3>7.2 · Півсуматор</h3>
+        <p>Функція може повертати <b>два значення одразу</b>: <code>return s, c</code>. Отримати їх можна так: <code>s, c = half_adder(1, 1)</code>. Заповни два пропуски. Згадай крок 4: який вентиль дає суму, а який перенос?</p>
+        <div class="code-box"><pre>def half_adder(a, b):
+    s = a ___ b     # сума: 1, коли біти різні
+    c = a ___ b     # перенос: 1, коли обидва біти 1
+    return s, c
+
+
+# ---- перевірка ----
+def check(got, expected):
+    if got == expected:
+        print("OK:", got)
+    else:
+        print("ПОМИЛКА: вийшло", got, "а треба", expected)
+
+check(half_adder(0, 0), (0, 0))
+check(half_adder(0, 1), (1, 0))
+check(half_adder(1, 0), (1, 0))
+check(half_adder(1, 1), (0, 1))</pre><button class="copy" type="button">Копіювати</button></div>
+        <details><summary>Підказка</summary><div><p>Один пропуск дорівнює <code>^</code>, другий <code>&amp;</code>. Який де?</p></div></details>
+        <details class="sol"><summary>Розв'язок</summary><div><p><code>s = a ^ b</code> і <code>c = a &amp; b</code>.</p></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p1"> Усі чотири рядки OK</label>
+      </div>
+
+      <div class="py-task">
+        <h3>7.3 · Повний суматор з двох півсуматорів</h3>
+        <p>Допиши цей код <b>у той самий файл</b>, нижче за <code>half_adder</code>, бо повний суматор використовує півсуматор. Спершу додаємо A і B, потім до результату додаємо перенос, що прийшов справа. Якщо перенос виник хоча б на одному з кроків, він іде далі.</p>
+        <div class="code-box"><pre>def full_adder(a, b, c_in):
+    s1, c1 = half_adder(a, b)       # крок 1: A + B
+    s, c2 = half_adder(s1, c_in)    # крок 2: + перенос справа
+    c_out = c1 ___ c2               # перенос, якщо він був хоч на одному кроці
+    return s, c_out
+
+
+check(full_adder(0, 0, 1), (1, 0))
+check(full_adder(1, 0, 1), (0, 1))
+check(full_adder(1, 1, 0), (0, 1))
+check(full_adder(1, 1, 1), (1, 1))</pre><button class="copy" type="button">Копіювати</button></div>
+        <details><summary>Підказка</summary><div><p>Перенос іде далі, якщо c1 дорівнює 1 <b>АБО</b> c2 дорівнює 1. Який знак означає АБО?</p></div></details>
+        <details class="sol"><summary>Розв'язок</summary><div><p><code>c_out = c1 | c2</code></p></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p2"> Усі рядки OK</label>
+      </div>
+
+      <div class="py-task">
+        <h3>7.4 · Калькулятор з вентилів</h3>
+        <p>Цей код повністю готовий. Допиши його в той самий файл і запусти. Функція <code>add</code> розкладає числа на біти й додає їх ланцюжком повних суматорів, так само як на кроці 5.</p>
+        <div class="code-box"><pre>def to_bits(n, bits):
+    result = []
+    for i in range(bits):
+        result.append(n % 2)    # наймолодший біт першим
+        n = n // 2
+    return result
+
+
+def add(x, y, bits):
+    a = to_bits(x, bits)
+    b = to_bits(y, bits)
+    carry = 0
+    total = 0
+    for i in range(bits):
+        s, carry = full_adder(a[i], b[i], carry)
+        total = total + s * 2 ** i
+    print(x, "+", y, "=", total, "   перенос, що не вмістився:", carry)
+
+
+add(5, 3, 4)
+add(7, 9, 4)</pre><button class="copy" type="button">Копіювати</button></div>
+        <p><b>Завдання.</b></p>
+        <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+          <li>Чому <code>7 + 9</code> вийшло 0? Згадай крок 5.</li>
+          <li>Що треба змінити, щоб <code>7 + 9</code> порахувалося правильно?</li>
+          <li>Порахуй своїм калькулятором <code>200 + 55</code> і <code>200 + 56</code> з <code>bits = 8</code>. Що сталося і чому саме на 256?</li>
+        </ul>
+        <details class="sol"><summary>Відповіді</summary><div><p>16 у двійковій — це 10000, п'ять бітів. У 4 біти вміщуються тільки чотири нулі, а одиниця «вилітає» в перенос. Якщо написати <code>add(7, 9, 8)</code>, буде 16. А 200 + 56 = 256 не вміщується у 8 бітів, бо найбільше 8-бітне число 255 (пам'ятаєш з заняття 1?).</p></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p3"> Калькулятор працює, я зрозумів переповнення</label>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8">
+    <div class="step-head"><span class="step-no">Крок 8 · тест · 5 хв</span><h2>Перевір себе</h2></div>
+    <div class="panel" id="quiz"></div>
+    <div class="row"><button class="btn primary" id="quizCheck" type="button">Перевірити відповіді</button><span class="status" id="quizStatus"></span></div>
+  </section>
+
+  <!-- 9 -->
+  <section class="step" id="s9">
+    <div class="step-head"><span class="step-no star">★ Челендж на тиждень · необов'язково</span><h2>Чи можна зробити рокіровку?</h2></div>
+    <div class="text">
+      <p>Рокіровка дозволена, коли виконуються всі умови: король ще <b>не ходив</b>, ця тура ще <b>не ходила</b>, король зараз <b>не під шахом</b>, між королем і турою <b>немає фігур</b>, і клітинки, через які йде король, <b>не під ударом</b>.</p>
+      <p>Напиши функцію, яка повертає <code>True</code>, якщо рокіровка можлива. Тобі знадобляться слова <code>and</code>, <code>or</code>, <code>not</code>. Вони працюють як вентилі, тільки з <code>True</code> і <code>False</code>.</p>
+    </div>
+    <div class="code-box"><pre>def can_castle(king_moved, rook_moved, in_check, path_blocked, path_attacked):
+    return ___
+
+
+def check(got, expected):
+    if got == expected:
+        print("OK:", got)
+    else:
+        print("ПОМИЛКА: вийшло", got, "а треба", expected)
+
+check(can_castle(False, False, False, False, False), True)    # усе чисто
+check(can_castle(True,  False, False, False, False), False)   # король уже ходив
+check(can_castle(False, False, True,  False, False), False)   # шах
+check(can_castle(False, False, False, False, True),  False)   # шлях під ударом
+check(can_castle(False, True,  False, True,  False), False)</pre><button class="copy" type="button">Копіювати</button></div>
+    <details><summary>Підказка</summary><div><p>Почни так: <code>return not king_moved and not rook_moved and ...</code></p></div></details>
+    <p class="fact"><b>★★ Ще складніше.</b> У Python немає окремого слова для ВИКЛЮЧНОГО АБО з <code>True</code>/<code>False</code>. Напиши функцію <code>xor(a, b)</code>, використовуючи лише <code>and</code>, <code>or</code>, <code>not</code>. Підказка: подивись на розв'язок головоломки з кроку 6.</p>
+    <label class="selfcheck"><input type="checkbox" data-task="ch"> Челендж виконано</label>
+
+    <div class="ask">
+      <h3>Застряг? Запитай Claude</h3>
+      <p>Можна скопіювати свій код і запитати, наприклад:</p>
+      <ul>
+        <li>«Ось мій код, він видає помилку. Не кажи відповідь, дай підказку».</li>
+        <li>«Як із транзисторів зробити вентиль НЕ?»</li>
+        <li>«Як процесор віднімає, якщо в нього є тільки суматор?»</li>
+        <li>«Як із самих вентилів NOR зібрати вентиль І?»</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span class="step-no">Наступне заняття</span>
+    <h3>Процесор і пам'ять: як виконується програма</h3>
+    <p>Суматор уміє тільки додавати. Як процесор знає, що і коли додавати? Ти побачиш, як програма крок за кроком виконується всередині процесора, і сам напишеш програму на мові, яку розуміє «залізо».</p>
+    <div class="row" style="margin-top:24px"><button class="btn" id="resetBtn" type="button">Скинути прогрес цього заняття</button></div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const KEY = "inf-l2";
+  const TASKS = ["nand", "chess", "three", "carry", "puzzle", "p0", "p1", "p2", "p3", "quiz"];
+  const LABELS = { nand: ["s2", "Завдання 1: таблиця НЕ-І"], chess: ["s3", "Завдання 2: мат і пат"],
+    three: ["s4", "Завдання 3: 1 + 1 + 1 у двійковій"], carry: ["s5", "Завдання 4: 7 + 9 на суматорі"],
+    puzzle: ["s6", "Головоломка: обидві схеми"], p0: ["s7", "Python 7.1: таблиці (відміть галочку)"],
+    p1: ["s7", "Python 7.2: півсуматор (відміть галочку)"], p2: ["s7", "Python 7.3: повний суматор (відміть галочку)"],
+    p3: ["s7", "Python 7.4: калькулятор (відміть галочку)"], quiz: ["s8", "Тест: щонайменше 4 з 5"], ch: ["s9", "★ Челендж (необов'язково)"] };
+  const SECTION_OF = { nand: "s2", chess: "s3", three: "s4", carry: "s5", puzzle: "s6", p0: "s7", p1: "s7", p2: "s7", p3: "s7", quiz: "s8", ch: "s9" };
+  let done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { done = {}; }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} };
+  function mark(t, v = true) { done[t] = v; renderProg(); }
+  function renderProg() {
+    const n = TASKS.filter(t => done[t]).length;
+    done._n = n; done._total = TASKS.length; save();
+    document.getElementById("progTxt").textContent = n + " / " + TASKS.length;
+    document.getElementById("progBar").style.width = (n / TASKS.length * 100) + "%";
+    document.getElementById("todo").innerHTML = '<span class="hd">' + (n === TASKS.length ? "Заняття пройдено! Залишився тільки челендж ★, якщо хочеш." : "Що ще залишилось:") + "</span>" +
+      Object.entries(LABELS).map(([t, [sec, txt]]) => `<a href="#${sec}"><span class="${done[t] ? "ok" : "no"}">${done[t] ? "✓" : "○"}</span><span>${txt}</span></a>`).join("");
+    const secDone = {};
+    for (const [t, s] of Object.entries(SECTION_OF)) secDone[s] = (secDone[s] ?? true) && !!done[t];
+    document.querySelectorAll("#plan a").forEach(a => { const s = a.getAttribute("href").slice(1); a.classList.toggle("done", !!secDone[s]); });
+  }
+  const $ = id => document.getElementById(id);
+  const pb = $("progBtn"), todo = $("todo");
+  pb.addEventListener("click", () => { todo.hidden = !todo.hidden; pb.setAttribute("aria-expanded", String(!todo.hidden)); });
+  todo.addEventListener("click", e => { if (e.target.closest("a")) { todo.hidden = true; pb.setAttribute("aria-expanded", "false"); } });
+  const setStatus = (el, ok, txt) => { el.textContent = txt; el.className = "status " + (ok ? "ok" : "bad"); };
+
+  const G = {
+    AND: (a, b) => a & b, OR: (a, b) => a | b, XOR: (a, b) => a ^ b,
+    NAND: (a, b) => 1 - (a & b), NOR: (a, b) => 1 - (a | b), NOT: a => 1 - a,
+  };
+  const UA = { AND: "І", OR: "АБО", NAND: "НЕ-І", NOR: "НЕ-АБО", XOR: "ВИКЛ. АБО" };
+
+  /* ---- 1: switch circuit ---- */
+  let mode = "ser", A = 0, B = 0;
+  function swPath(x1, y, on) { return on ? `<line class="sw" x1="${x1}" y1="${y}" x2="${x1 + 40}" y2="${y}"/>` : `<line class="sw" x1="${x1}" y1="${y}" x2="${x1 + 34}" y2="${y - 20}"/>`; }
+  function node(x, y) { return `<circle class="node" cx="${x}" cy="${y}" r="4"/>`; }
+  function renderCircuit() {
+    const live = mode === "ser" ? (A && B) : (A || B);
+    let s = '<svg viewBox="0 0 340 130" role="img" aria-label="Схема з батарейкою, двома вимикачами і лампочкою">';
+    s += '<rect class="batt" x="8" y="62" width="26" height="34" rx="3"/><text x="13" y="84">+−</text>';
+    s += '<path class="wire" d="M21 62 V30"/><path class="wire" d="M21 96 V116 H310 V96"/>';
+    s += '<circle class="lamp" cx="310" cy="78" r="17"/><text x="303" y="83">Л</text>';
+    if (mode === "ser") {
+      s += '<path class="wire" d="M21 30 H90"/>' + node(90, 30) + swPath(90, 30, A) + node(130, 30);
+      s += '<path class="wire" d="M130 30 H180"/>' + node(180, 30) + swPath(180, 30, B) + node(220, 30);
+      s += '<path class="wire" d="M220 30 H310 V61"/>';
+      s += '<text x="98" y="54">A</text><text x="188" y="54">B</text>';
+    } else {
+      s += '<path class="wire" d="M21 30 H80 V14 H110"/><path class="wire" d="M80 30 V50 H110"/>';
+      s += node(110, 14) + swPath(110, 14, A) + node(150, 14) + node(110, 50) + swPath(110, 50, B) + node(150, 50);
+      s += '<path class="wire" d="M150 14 H190 V50 H150"/><path class="wire" d="M190 30 H310 V61"/>';
+      s += '<text x="160" y="22">A</text><text x="160" y="66">B</text>';
+    }
+    s += "</svg>";
+    const c = $("circuit"); c.innerHTML = s; c.classList.toggle("live", !!live);
+    $("swA").textContent = "A = " + A; $("swA").classList.toggle("on", !!A);
+    $("swB").textContent = "B = " + B; $("swB").classList.toggle("on", !!B);
+    $("lampTxt").textContent = live ? "Лампочка світиться" : "Лампочка не світиться";
+    $("lampTxt").className = "status " + (live ? "ok" : "");
+  }
+  $("swA").addEventListener("click", () => { A ^= 1; renderCircuit(); });
+  $("swB").addEventListener("click", () => { B ^= 1; renderCircuit(); });
+  $("mSer").addEventListener("click", () => { mode = "ser"; $("mSer").setAttribute("aria-pressed", "true"); $("mPar").setAttribute("aria-pressed", "false"); renderCircuit(); });
+  $("mPar").addEventListener("click", () => { mode = "par"; $("mPar").setAttribute("aria-pressed", "true"); $("mSer").setAttribute("aria-pressed", "false"); renderCircuit(); });
+  renderCircuit();
+
+  /* ---- 2: gate cards ---- */
+  const CARDS = [
+    { k: "AND", name: "І", en: "AND", life: "Ракета стартує, якщо пальне заправлене І погода льотна." },
+    { k: "OR", name: "АБО", en: "OR", life: "Сигналізація спрацює, якщо відчинені двері АБО вікно." },
+    { k: "NOT", name: "НЕ", en: "NOT", life: "Перевертає біт: 0 стає 1, а 1 стає 0. Має лише один вхід." },
+    { k: "XOR", name: "ВИКЛЮЧНЕ АБО", en: "XOR", life: "Світло на сходах: два вимикачі на різних поверхах. Клацнеш будь-який, і світло зміниться." },
+  ];
+  const gatesEl = $("gates");
+  CARDS.forEach(c => {
+    const st = { a: 0, b: 0 };
+    const d = document.createElement("div"); d.className = "gate";
+    d.innerHTML = `<div class="gname">${c.name}<small>${c.en}</small></div><div class="io"><button class="tog" type="button" data-in="a">A = 0</button>${c.k === "NOT" ? "" : '<button class="tog" type="button" data-in="b">B = 0</button>'}<span class="arrow">→</span><span class="lampdot">0</span></div><div class="life">${c.life}</div>`;
+    const out = d.querySelector(".lampdot");
+    const r = () => {
+      d.querySelectorAll("[data-in]").forEach(b => { const v = st[b.dataset.in]; b.textContent = b.dataset.in.toUpperCase() + " = " + v; b.classList.toggle("on", !!v); });
+      const v = c.k === "NOT" ? G.NOT(st.a) : G[c.k](st.a, st.b); out.textContent = v; out.classList.toggle("on", !!v);
+    };
+    d.querySelectorAll("[data-in]").forEach(b => b.addEventListener("click", () => { st[b.dataset.in] ^= 1; r(); }));
+    r(); gatesEl.appendChild(d);
+  });
+  const ROWS = [[0, 0], [0, 1], [1, 0], [1, 1]];
+  $("nandBody").innerHTML = ROWS.map(([a, b], i) => `<tr><td class="mono">${a}</td><td class="mono">${b}</td><td><select id="nand${i}" aria-label="Вихід для A=${a}, B=${b}"><option value="">?</option><option>0</option><option>1</option></select></td></tr>`).join("");
+  $("nandCheck").addEventListener("click", () => {
+    const wrong = ROWS.filter(([a, b], i) => $("nand" + i).value !== String(G.NAND(a, b))).length;
+    if (!wrong) { setStatus($("nandStatus"), true, "Правильно! НЕ-І видає 0 тільки тоді, коли обидва входи 1."); mark("nand"); }
+    else setStatus($("nandStatus"), false, "Неправильних рядків: " + wrong + ". Спочатку порахуй І, потім переверни.");
+  });
+
+  /* ---- 3: chess ---- */
+  let cs = 0, cm = 0;
+  function renderChess() {
+    $("cCheck").textContent = "Шах: " + (cs ? "так" : "ні"); $("cCheck").classList.toggle("on", !!cs);
+    $("cMoves").textContent = "Є ходи: " + (cm ? "так" : "ні"); $("cMoves").classList.toggle("on", !!cm);
+    $("cResult").textContent = cm ? (cs ? "Шах! Треба захищатися, але гра триває." : "Звичайна позиція, гра триває.") : (cs ? "МАТ. Партія закінчена, перемога суперника." : "ПАТ. Нічия: ходів немає, але й шаху немає.");
+  }
+  $("cCheck").addEventListener("click", () => { cs ^= 1; renderChess(); });
+  $("cMoves").addEventListener("click", () => { cm ^= 1; renderChess(); });
+  renderChess();
+  const CHOPTS = ["шах І є ходи", "шах І НЕ є ходи", "шах АБО НЕ є ходи", "НЕ шах І НЕ є ходи", "НЕ шах АБО є ходи"];
+  ["selMate", "selStale"].forEach(id => { $(id).innerHTML = '<option value="">обери…</option>' + CHOPTS.map((o, i) => `<option value="${i}">${o}</option>`).join(""); });
+  $("chessCheck").addEventListener("click", () => {
+    const m = $("selMate").value, s = $("selStale").value;
+    if (m === "1" && s === "3") { setStatus($("chessStatus"), true, "Так! Ти щойно написав логіку, яка є в кожній шаховій програмі."); mark("chess"); }
+    else if (m === "1") setStatus($("chessStatus"), false, "Мат правильно. А пат? Перевір кнопками вгорі: коли буває пат?");
+    else if (s === "3") setStatus($("chessStatus"), false, "Пат правильно. А мат? Перевір кнопками вгорі.");
+    else setStatus($("chessStatus"), false, "Поки ні. Пограйся кнопками «Шах» і «Є ходи» і подивись, коли буває мат.");
+  });
+
+  /* ---- 4: half adder ---- */
+  let ha = 0, hb = 0;
+  function renderHA() {
+    const s = ha ^ hb, c = ha & hb;
+    $("haA").textContent = "A = " + ha; $("haA").classList.toggle("on", !!ha);
+    $("haB").textContent = "B = " + hb; $("haB").classList.toggle("on", !!hb);
+    $("haS").textContent = s; $("haS").classList.toggle("on", !!s);
+    $("haC").textContent = c; $("haC").classList.toggle("on", !!c);
+    $("haTxt").textContent = `${ha} + ${hb} = ${c}${s} у двійковій = ${ha + hb} у десятковій`;
+  }
+  $("haA").addEventListener("click", () => { ha ^= 1; renderHA(); });
+  $("haB").addEventListener("click", () => { hb ^= 1; renderHA(); });
+  renderHA();
+  $("threeCheck").addEventListener("click", () => {
+    const v = $("threeIn").value.trim();
+    if (v === "11") { setStatus($("threeStatus"), true, "Так! 11 = 2 + 1. Саме це рахує повний суматор."); mark("three"); }
+    else if (v === "3") setStatus($("threeStatus"), false, "Це в десятковій. А в двійковій?");
+    else setStatus($("threeStatus"), false, "Ні. Згадай ваги розрядів: 2 і 1.");
+  });
+
+  /* ---- 5: 4-bit adder ---- */
+  const ab = [0, 0, 0, 0], bb = [0, 0, 0, 0]; // index = bit number
+  const adder = $("adder");
+  function renderAdder() {
+    const carries = [0]; const sum = [];
+    for (let i = 0; i < 4; i++) { const t = ab[i] + bb[i] + carries[i]; sum[i] = t & 1; carries[i + 1] = t >> 1; }
+    const av = ab.reduce((s, v, i) => s + v * 2 ** i, 0), bv = bb.reduce((s, v, i) => s + v * 2 ** i, 0);
+    const res4 = sum.reduce((s, v, i) => s + v * 2 ** i, 0);
+    let h = '<span class="rl">A</span><span></span>';
+    for (let i = 3; i >= 0; i--) h += `<button class="tog ${ab[i] ? "on" : ""}" type="button" data-r="a" data-i="${i}" aria-label="Біт ${i} числа A">${ab[i]}</button>`;
+    h += '<span class="rl">B</span><span></span>';
+    for (let i = 3; i >= 0; i--) h += `<button class="tog ${bb[i] ? "on" : ""}" type="button" data-r="b" data-i="${i}" aria-label="Біт ${i} числа B">${bb[i]}</button>`;
+    h += '<span class="rl">суматори</span><span class="mono" style="font-size:12px;color:var(--muted)">←</span>';
+    for (let i = 3; i >= 0; i--) h += `<div class="fa">ПС${i}<span class="cin ${carries[i] ? "on" : ""}">c=${carries[i]}</span></div>`;
+    h += '<span class="rl">сума</span>';
+    h += `<span class="sumbit over ${carries[4] ? "on" : ""}" title="Перенос, що не вмістився">${carries[4]}</span>`;
+    for (let i = 3; i >= 0; i--) h += `<span class="sumbit ${sum[i] ? "on" : ""}">${sum[i]}</span>`;
+    h += '<span class="rl">вага</span><span class="mono" style="font-size:12px;color:var(--muted)">16</span><span class="mono" style="font-size:12px;color:var(--muted)">8</span><span class="mono" style="font-size:12px;color:var(--muted)">4</span><span class="mono" style="font-size:12px;color:var(--muted)">2</span><span class="mono" style="font-size:12px;color:var(--muted)">1</span>';
+    adder.innerHTML = h;
+    $("addTxt").textContent = `${av} + ${bv} = ${res4 + carries[4] * 16}`;
+    $("addNote").textContent = carries[4] ? `Переповнення: у 4 біти вмістилося лише ${res4}` : "";
+  }
+  adder.addEventListener("click", e => { const b = e.target.closest("[data-r]"); if (!b) return; (b.dataset.r === "a" ? ab : bb)[+b.dataset.i] ^= 1; renderAdder(); });
+  renderAdder();
+  $("carryCheck").addEventListener("click", () => {
+    const v = +$("carryIn").value;
+    if (v === 4) { setStatus($("carryStatus"), true, "Так! Перенос пробіг ланцюжком через усі розряди і вилетів за межі: 7 + 9 = 16 = 10000, а у 4 біти вміщується тільки 0000. Це називається переповнення."); mark("carry"); }
+    else setStatus($("carryStatus"), false, "Ні. Встанови A = 0111 і B = 1001 і порахуй підсвічені «c=1» в рядку суматорів, разом з переносом, що вилетів ліворуч.");
+  });
+
+  /* ---- 6: puzzles ---- */
+  const PZ = [
+    { title: "Схема 1: збери ВИКЛЮЧНЕ АБО", target: (a, b) => a ^ b },
+    { title: "Схема 2: збери «РІВНІСТЬ» (1, коли біти однакові)", target: (a, b) => 1 - (a ^ b) },
+  ];
+  const OPTS = ["AND", "OR", "NAND", "NOR"];
+  const solved = [false, false];
+  const pzEl = $("puzzles");
+  PZ.forEach((p, pi) => {
+    const sel = n => `<select id="pz${pi}g${n}" aria-label="Вентиль ${n}">${OPTS.map(o => `<option value="${o}">${UA[o]}</option>`).join("")}</select>`;
+    const d = document.createElement("div"); d.style.display = "grid"; d.style.gap = "10px";
+    d.innerHTML = `<h3>${p.title}</h3><div class="formula">Вихід = ${sel(3)} ( ${sel(1)} (A, B), ${sel(2)} (A, B) )</div><div class="tbl-scroll"><table style="width:auto"><thead><tr><th>A</th><th>B</th><th>Вентиль 1</th><th>Вентиль 2</th><th>Вихід</th><th>Ціль</th></tr></thead><tbody></tbody></table></div><p class="status"></p>`;
+    pzEl.appendChild(d);
+    const r = () => {
+      const g1 = $(`pz${pi}g1`).value, g2 = $(`pz${pi}g2`).value, g3 = $(`pz${pi}g3`).value;
+      let ok = 0;
+      d.querySelector("tbody").innerHTML = ROWS.map(([a, b]) => {
+        const x = G[g1](a, b), y = G[g2](a, b), o = G[g3](x, y), t = p.target(a, b); if (o === t) ok++;
+        return `<tr class="${o === t ? "hit" : "miss"}"><td class="mono">${a}</td><td class="mono">${b}</td><td class="mono">${x}</td><td class="mono">${y}</td><td class="mono"><b>${o}</b></td><td class="mono">${t}</td></tr>`;
+      }).join("");
+      const st = d.querySelector(".status");
+      solved[pi] = ok === 4;
+      if (solved[pi]) { st.textContent = "Зібрано! Усі чотири рядки збігаються."; st.className = "status ok"; } else { st.textContent = "Збігається рядків: " + ok + " з 4"; st.className = "status"; }
+      if (solved.every(Boolean)) mark("puzzle");
+    };
+    $(`pz${pi}g1`).value = "AND"; $(`pz${pi}g2`).value = "AND"; $(`pz${pi}g3`).value = "AND";
+    [1, 2, 3].forEach(n => $(`pz${pi}g${n}`).addEventListener("change", r));
+    r();
+  });
+
+  /* ---- quiz ---- */
+  const Q = [
+    { q: "A = 1, B = 0. Чому дорівнює A І B?", a: ["0", "1", "10", "2"], c: 0, e: "І дає 1 тільки тоді, коли обидва входи дорівнюють 1." },
+    { q: "Який вентиль описує світло на сходах з двома вимикачами?", a: ["І", "АБО", "ВИКЛЮЧНЕ АБО", "НЕ"], c: 2, e: "Будь-яке клацання змінює стан. Світло горить, коли вимикачі в різних положеннях." },
+    { q: "З яких вентилів складається півсуматор?", a: ["І та АБО", "ВИКЛЮЧНЕ АБО (сума) та І (перенос)", "НЕ та АБО", "Тільки з І"], c: 1, e: "Сума дорівнює 1, коли біти різні (ВИКЛ. АБО), а перенос дорівнює 1, коли обидва дорівнюють 1 (І)." },
+    { q: "Скільки повних суматорів потрібно, щоб додавати 64-бітні числа?", a: ["8", "32", "64", "128"], c: 2, e: "Один повний суматор на кожен розряд." },
+    { q: "Що таке переповнення?", a: ["Коли процесор перегрівся", "Коли результат не вміщується в доступну кількість бітів", "Коли пам'ять заповнена файлами", "Коли число від'ємне"], c: 1, e: "Наприклад, 7 + 9 = 16 не вміщується в 4 біти. Так загинула ракета «Аріан-5»." },
+  ];
+  const quizEl = $("quiz");
+  quizEl.innerHTML = Q.map((x, i) => `<fieldset class="q" style="border:0;margin:0"><legend style="padding:0;font-weight:700">${i + 1}. ${x.q}</legend>${x.a.map((o, j) => `<label><input type="radio" name="q${i}" id="q${i}_${j}" value="${j}"> <span>${o}</span></label>`).join("")}<div class="expl" hidden></div></fieldset>`).join("");
+  $("quizCheck").addEventListener("click", () => {
+    let score = 0;
+    Q.forEach((x, i) => {
+      const sel = quizEl.querySelector(`input[name=q${i}]:checked`), ex = quizEl.querySelectorAll(".expl")[i];
+      ex.hidden = false;
+      if (!sel) { ex.className = "expl bad"; ex.textContent = "Ти не обрав відповідь."; return; }
+      const ok = +sel.value === x.c; if (ok) score++;
+      ex.className = "expl " + (ok ? "ok" : "bad"); ex.textContent = (ok ? "Правильно. " : "Ні. ") + x.e;
+    });
+    setStatus($("quizStatus"), score >= 4, score + " з " + Q.length + (score === Q.length ? ". Чудово!" : score >= 4 ? ". Добре!" : ". Перечитай пояснення і спробуй ще."));
+    if (score >= 4) mark("quiz");
+  });
+
+  /* ---- self-checks, copy, reset ---- */
+  document.querySelectorAll("input[data-task]").forEach(cb => { cb.checked = !!done[cb.dataset.task]; cb.addEventListener("change", () => mark(cb.dataset.task, cb.checked)); });
+  document.querySelectorAll(".copy").forEach(btn => btn.addEventListener("click", () => {
+    const pre = btn.parentElement.querySelector("pre");
+    const ok = () => { btn.textContent = "Скопійовано"; setTimeout(() => btn.textContent = "Копіювати", 1500); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "Виділено: Ctrl+C"; };
+    try { navigator.clipboard.writeText(pre.textContent).then(ok, fallback); } catch (e) { fallback(); }
+  }));
+  const rb = $("resetBtn");
+  rb.addEventListener("click", () => {
+    if (rb.dataset.armed) { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); return; }
+    rb.dataset.armed = "1"; rb.textContent = "Точно скинути? Натисни ще раз";
+    setTimeout(() => { delete rb.dataset.armed; rb.textContent = "Скинути прогрес цього заняття"; }, 4000);
+  });
+  renderProg();
+})();
+</script>
+</body>
+</html>
