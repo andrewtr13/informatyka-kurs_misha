@@ -205,6 +205,10 @@ tr.hit td { background: var(--ok-soft); }
 .sumbit.on { background: var(--sky); border-color: var(--sky); color: var(--surface); }
 .sumbit.over { border-style: dashed; }
 .adder-scroll { overflow-x: auto; padding-bottom: 4px; }
+.colsum { font-family: var(--f-mono); font-size: 19px; line-height: 1.45; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 20px; width: max-content; max-width: 100%; overflow-x: auto; white-space: pre; }
+.c-carry { color: var(--accent); }
+.c-sum { color: var(--sky); }
+th.c-carry, th.c-sum, td.c-carry, td.c-sum { font-weight: 700; }
 </style>
 </head>
 <body>
@@ -296,15 +300,44 @@ tr.hit td { background: var(--ok-soft); }
   <section class="step" id="s4">
     <div class="step-head"><span class="step-no">Крок 4 · інтерактив · 10 хв</span><h2>Як додати два біти</h2></div>
     <div class="text">
-      <p>Тепер найважливіше: як вентилі <b>рахують</b>. Почнемо з найменшого: додамо два біти. Варіантів лише чотири:</p>
-      <div class="tbl-scroll"><table style="width:auto"><thead><tr><th>A</th><th>B</th><th>A + B</th><th>у двійковій</th></tr></thead><tbody>
-        <tr><td class="mono">0</td><td class="mono">0</td><td class="mono">0</td><td class="mono">00</td></tr>
-        <tr><td class="mono">0</td><td class="mono">1</td><td class="mono">1</td><td class="mono">01</td></tr>
-        <tr><td class="mono">1</td><td class="mono">0</td><td class="mono">1</td><td class="mono">01</td></tr>
-        <tr><td class="mono">1</td><td class="mono">1</td><td class="mono">2</td><td class="mono">10</td></tr>
+      <p>Тепер найважливіше: як вентилі <b>рахують</b>. Розберемо по кроках.</p>
+
+      <h3>А. Згадай додавання в стовпчик</h3>
+      <p>Як ти додаєш 27 + 15 на папері? Справа наліво, по одному стовпчику:</p>
+      <div class="colsum"><span class="c-carry">  1</span>      <span class="c-carry">← «1 в умі»</span>
+  2 7
++ 1 5
+─────
+  4 <span class="c-sum">2</span></div>
+      <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+        <li>Правий стовпчик: 7 + 5 = 12. Цифра 12 у клітинку не влазить, тому <span class="c-sum"><b>пишемо 2</b></span>, а <span class="c-carry"><b>1 тримаємо в умі</b></span> і переносимо в наступний стовпчик.</li>
+        <li>Лівий стовпчик: 2 + 1 + <span class="c-carry"><b>1 з уму</b></span> = 4.</li>
+      </ul>
+      <p>Отже, в кожному стовпчику виходять дві речі: цифра, яку <span class="c-sum"><b>пишемо</b></span>, і цифра, яку <span class="c-carry"><b>переносимо</b></span> далі.</p>
+
+      <h3>Б. Те саме в двійковій</h3>
+      <p>У двійковій системі є тільки цифри 0 і 1. Додамо два біти, всього чотири варіанти:</p>
+      <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+        <li>0 + 0 = 0. Пишемо 0, в умі 0.</li>
+        <li>0 + 1 = 1. Пишемо 1, в умі 0.</li>
+        <li>1 + 0 = 1. Пишемо 1, в умі 0.</li>
+        <li>1 + 1 = два. Але цифри «2» у двійковій немає! Два записується як <b>10</b> (згадай заняття 1: ваги 2 і 1). Тому <span class="c-sum"><b>пишемо 0</b></span>, а <span class="c-carry"><b>1 в умі</b></span>. Так само як у десятковій 5 + 5 = 10: пишемо 0, 1 в умі.</li>
+      </ul>
+
+      <h3>В. Знаходимо вентилі</h3>
+      <p>Запишемо ці чотири варіанти в таблицю. Цифру, яку пишемо, назвемо <span class="c-sum"><b>сума (S)</b></span>, а цифру в умі <span class="c-carry"><b>перенос (C)</b></span>, від англійського carry, «нести». Поруч поставимо таблиці двох вентилів з кроку 2:</p>
+      <div class="tbl-scroll"><table style="width:auto"><thead><tr><th>A</th><th>B</th><th class="c-carry">в умі C</th><th class="c-sum">пишемо S</th><th style="border-left:2px solid var(--line)">A І B</th><th>A ВИКЛ. АБО B</th></tr></thead><tbody>
+        <tr><td class="mono">0</td><td class="mono">0</td><td class="mono c-carry">0</td><td class="mono c-sum">0</td><td class="mono c-carry" style="border-left:2px solid var(--line)">0</td><td class="mono c-sum">0</td></tr>
+        <tr><td class="mono">0</td><td class="mono">1</td><td class="mono c-carry">0</td><td class="mono c-sum">1</td><td class="mono c-carry" style="border-left:2px solid var(--line)">0</td><td class="mono c-sum">1</td></tr>
+        <tr><td class="mono">1</td><td class="mono">0</td><td class="mono c-carry">0</td><td class="mono c-sum">1</td><td class="mono c-carry" style="border-left:2px solid var(--line)">0</td><td class="mono c-sum">1</td></tr>
+        <tr><td class="mono">1</td><td class="mono">1</td><td class="mono c-carry">1</td><td class="mono c-sum">0</td><td class="mono c-carry" style="border-left:2px solid var(--line)">1</td><td class="mono c-sum">0</td></tr>
       </tbody></table></div>
-      <p>Результат має дві цифри. Права зветься <b>сума</b> (S), ліва зветься <b>перенос</b> (C, від carry). Як «1 в умі», коли додаєш у стовпчик. Подивись уважно на стовпчики: права цифра дорівнює 1, коли біти <b>різні</b>. Це ж ВИКЛЮЧНЕ АБО! А ліва дорівнює 1, коли <b>обидва</b> біти 1. Це І!</p>
-      <p>Два вентилі разом утворюють схему, яка зветься <b>півсуматор</b>:</p>
+      <p>Порівняй стовпчики однакового кольору зверху вниз:</p>
+      <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+        <li><span class="c-carry"><b>«В умі»</b></span> (0, 0, 0, 1) збігається з вентилем <b>І</b>. Логічно: переносимо, тільки коли <b>обидва</b> біти дорівнюють 1.</li>
+        <li><span class="c-sum"><b>«Пишемо»</b></span> (0, 1, 1, 0) збігається з вентилем <b>ВИКЛЮЧНЕ АБО</b>. Пишемо 1, тільки коли біти <b>різні</b>.</li>
+      </ul>
+      <p>Виходить, що для додавання двох бітів достатньо двох вентилів. Разом вони утворюють схему, яка зветься <b>півсуматор</b>. Спробуй:</p>
     </div>
     <div class="panel">
       <div class="ha">
@@ -325,8 +358,21 @@ tr.hit td { background: var(--ok-soft); }
   <section class="step" id="s5">
     <div class="step-head"><span class="step-no">Крок 5 · інтерактив · 15 хв</span><h2>Чотирибітний суматор</h2></div>
     <div class="text">
-      <p>Щоб додати довгі числа, потрібна схема, яка вміє додати <b>три</b> біти: біт числа A, біт числа B і перенос з попереднього розряду. Така схема зветься <b>повний суматор</b> (ПС), і вона складається з двох півсуматорів.</p>
-      <p>Поставимо чотири повних суматори в ряд і передаватимемо перенос справа наліво, як при додаванні в стовпчик. Вийде калькулятор для чисел від 0 до 15. Клацай біти чисел A і B.</p>
+      <p>Тепер додамо довгі числа. Візьмемо 6 + 3. У двійковій 6 = 0110, 3 = 0011. Додаємо в стовпчик справа наліво, так само як 27 + 15 вище:</p>
+      <div class="colsum"><span class="c-carry"> 1 1</span>      <span class="c-carry">← в умі</span>
+ 0 1 1 0      (6)
++0 0 1 1      (3)
+────────
+ <span class="c-sum">1 0 0 1</span>      (9)</div>
+      <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+        <li>1-й стовпчик (справа): 0 + 1 = 1. Пишемо 1, в умі нічого.</li>
+        <li>2-й: 1 + 1 = 10. Пишемо 0, <span class="c-carry"><b>1 в умі</b></span>.</li>
+        <li>3-й: 1 + 0 + <span class="c-carry"><b>1 з уму</b></span> = 10. Пишемо 0, <span class="c-carry"><b>1 в умі</b></span>.</li>
+        <li>4-й: 0 + 0 + <span class="c-carry"><b>1 з уму</b></span> = 1. Пишемо 1.</li>
+      </ul>
+      <p>Вийшло 1001 = 8 + 1 = 9. Правильно!</p>
+      <p>Зверни увагу: у 3-му стовпчику довелося додавати вже <b>три</b> біти: два біти чисел і один «з уму». Півсуматор так не вміє. Для цього є <b>повний суматор</b> (ПС): він складається з двох півсуматорів і додає три біти.</p>
+      <p>Поставимо чотири повних суматори в ряд, по одному на стовпчик, і передаватимемо перенос справа наліво. Вийде калькулятор для чисел від 0 до 15. Клацай біти чисел A і B. Спершу набери 6 + 3 і подивись, чи збігається з прикладом.</p>
     </div>
     <div class="panel">
       <div class="adder-scroll"><div class="adder" id="adder"></div></div>
