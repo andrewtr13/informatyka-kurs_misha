@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Заняття 4. Мій комп'ютер</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; lesson 4 adds a parts board, passport form and key trainer; each section is a numbered step of the lesson, interactive instruments sit on surface panels. */
+:root {
+  --bg: #EEF1F6; --surface: #FFFFFF; --ink: #141B2D; --muted: #586178; --line: #D3D9E4;
+  --accent: #B8620A; --accent-ink: #FFFFFF; --accent-soft: #FBEBD6; --sky: #2E4A9E; --sky-soft: #E2E8F7;
+  --ok: #1D7447; --ok-soft: #DDF1E5; --bad: #B3261E; --bad-soft: #F8E1DF;
+  --sq-l: #E9DFC9; --sq-d: #A8B4C9; --code-bg: #1A2236; --code-ink: #E3E8F4;
+  --f-display: "Unbounded", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0D1220; --surface: #151C2E; --ink: #E6EAF2; --muted: #9AA3B8; --line: #2A3350;
+  --accent: #F2A23A; --accent-ink: #1A1206; --accent-soft: #3A2A12; --sky: #9DB3F2; --sky-soft: #1E2945;
+  --ok: #63C690; --ok-soft: #15301F; --bad: #F29088; --bad-soft: #3A1A18;
+  --sq-l: #3B4560; --sq-d: #232B42; --code-bg: #0A0F1B; --code-ink: #E3E8F4; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0D1220; --surface: #151C2E; --ink: #E6EAF2; --muted: #9AA3B8; --line: #2A3350;
+  --accent: #F2A23A; --accent-ink: #1A1206; --accent-soft: #3A2A12; --sky: #9DB3F2; --sky-soft: #1E2945;
+  --ok: #63C690; --ok-soft: #15301F; --bad: #F29088; --bad-soft: #3A1A18;
+  --sq-l: #3B4560; --sq-d: #232B42; --code-bg: #0A0F1B; --code-ink: #E3E8F4; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px; }
+.wrap { max-width: 760px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(30px, 6vw, 46px); font-weight: 700; }
+h2 { font-size: clamp(21px, 3.6vw, 26px); font-weight: 700; }
+h3 { font-size: 17px; font-weight: 500; }
+p { margin: 0; }
+a { color: var(--sky); }
+code, .mono { font-family: var(--f-mono); font-size: 0.92em; }
+:not(pre) > code { background: var(--sky-soft); padding: 1px 5px; border-radius: 4px; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+
+/* top bar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.course { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.prog { display: flex; align-items: center; gap: 10px; font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+button.prog { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.todo { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 52px); z-index: 4; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: grid; gap: 6px; margin-top: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.todo[hidden] { display: none; }
+.todo a { color: var(--ink); text-decoration: none; display: flex; gap: 10px; align-items: baseline; }
+.todo a:hover span:last-child { text-decoration: underline; }
+.todo .ok { color: var(--ok); } .todo .no { color: var(--muted); }
+.todo .hd { font-weight: 700; }
+.prog-bar { width: 110px; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.prog-bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .4s; }
+
+header.hero { padding-block: 40px 8px; display: grid; gap: 16px; }
+.eyebrow { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.lead { font-size: 19px; color: var(--muted); max-width: 62ch; }
+.hero-bits { font-family: var(--f-mono); font-size: 13px; color: var(--muted); letter-spacing: 0.15em; overflow: hidden; white-space: nowrap; }
+.plan { display: flex; flex-wrap: wrap; gap: 8px; }
+.plan a { text-decoration: none; font-size: 14px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: var(--surface); }
+.plan a.done { border-color: var(--ok); color: var(--ok); }
+
+section.step { padding-block: 44px 0; display: grid; gap: 18px; }
+.step-head { display: grid; gap: 6px; }
+.step-no { font-family: var(--f-mono); font-size: 13px; color: var(--accent); font-weight: 600; }
+.text { display: grid; gap: 14px; max-width: 66ch; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.fact { border-left: 3px solid var(--sky); padding: 4px 0 4px 16px; color: var(--ink); max-width: 66ch; }
+.fact b { color: var(--sky); }
+.task { background: var(--accent-soft); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; }
+.task .lbl { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+.status { font-weight: 700; }
+.status.ok { color: var(--ok); }
+.status.bad { color: var(--bad); }
+
+/* bits */
+.panel > *, .step > * { min-width: 0; }
+.bits { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+.bit button { min-width: 0; padding: 0; }
+.bit { display: grid; gap: 6px; justify-items: center; }
+.bit button { width: 100%; max-width: 64px; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--line); background: var(--bg);
+  cursor: pointer; font-family: var(--f-mono); font-size: 20px; font-weight: 600; color: var(--muted); transition: background .15s, box-shadow .15s; }
+.bit button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 0 18px var(--accent); }
+.bit small { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.readout { display: flex; flex-wrap: wrap; gap: 8px 28px; align-items: baseline; font-variant-numeric: tabular-nums; }
+.readout .big { font-family: var(--f-display); font-size: 40px; font-weight: 700; }
+.readout .sub { font-family: var(--f-mono); color: var(--muted); }
+.targets { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-family: var(--f-mono); font-size: 14px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+.chip.cur { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chip.done { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+
+/* grains */
+.slider-row { display: grid; gap: 6px; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-variant-numeric: tabular-nums; }
+.kv dt { color: var(--muted); font-size: 15px; }
+.kv dd { margin: 0; font-family: var(--f-mono); font-size: 15px; min-width: 0; overflow-wrap: anywhere; }
+
+/* board */
+.board-wrap { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 640px) { .board-wrap { grid-template-columns: 1fr; } }
+.board { display: grid; grid-template-columns: 18px repeat(8, 1fr); gap: 0; max-width: 360px; width: 100%; }
+.board .coord { font-family: var(--f-mono); font-size: 11px; color: var(--muted); display: grid; place-items: center; }
+.sq { aspect-ratio: 1; border: 0; cursor: pointer; display: grid; place-items: center; padding: 0; position: relative; }
+.sq.l { background: var(--sq-l); } .sq.d { background: var(--sq-d); }
+.sq.on::after { content: ""; width: 56%; height: 56%; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.bin64 { font-family: var(--f-mono); font-size: 13px; line-height: 1.7; word-break: break-all; }
+.bin64 .one { color: var(--accent); font-weight: 600; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 14px; cursor: pointer; font-weight: 600; font-size: 15px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn:hover { border-color: var(--accent); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* text table */
+.tbl-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); font-size: 15px; white-space: nowrap; }
+th { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+td.mono { font-family: var(--f-mono); }
+input[type=text], input[type=number] { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 7px 10px; min-width: 0; }
+input[type=number] { width: 80px; }
+
+/* message */
+.msg-grid { display: grid; gap: 2px; width: max-content; max-width: 100%; }
+.msg-grid span { width: 14px; height: 14px; background: var(--line); border-radius: 2px; }
+.msg-grid span.one { background: var(--accent); }
+.msg-scroll { overflow-x: auto; padding-bottom: 4px; }
+.bitstream { font-family: var(--f-mono); font-size: 12px; color: var(--muted); word-break: break-all; line-height: 1.5; }
+
+/* code */
+pre { background: var(--code-bg); color: var(--code-ink); padding: 14px 16px; border-radius: 8px; overflow-x: auto; margin: 0; font-family: var(--f-mono); font-size: 14px; line-height: 1.55; }
+.code-box { position: relative; min-width: 0; }
+.copy { position: absolute; top: 8px; right: 8px; font-size: 12px; padding: 3px 8px; border-radius: 6px; border: 1px solid #3A4566; background: #232D47; color: #E3E8F4; cursor: pointer; }
+details { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+details > summary { cursor: pointer; padding: 9px 14px; font-weight: 600; font-size: 15px; }
+details > div { padding: 0 14px 14px; display: grid; gap: 10px; }
+details.sol > summary { color: var(--muted); }
+.py-task { display: grid; gap: 12px; padding-block: 18px; border-top: 1px solid var(--line); }
+.py-task:first-of-type { border-top: 0; padding-top: 0; }
+.selfcheck { display: flex; gap: 8px; align-items: center; font-weight: 600; cursor: pointer; }
+.selfcheck input { width: 18px; height: 18px; accent-color: var(--ok); }
+
+/* quiz */
+.q { display: grid; gap: 8px; padding-block: 14px; border-top: 1px solid var(--line); }
+.q:first-child { border-top: 0; padding-top: 0; }
+.q label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.q input { margin-top: 6px; accent-color: var(--accent); }
+.q .expl { font-size: 15px; padding: 8px 12px; border-radius: 6px; }
+.q .expl.ok { background: var(--ok-soft); color: var(--ok); }
+.q .expl.bad { background: var(--bad-soft); color: var(--bad); }
+
+.ask { background: var(--sky-soft); border-radius: 10px; padding: 18px 20px; display: grid; gap: 10px; }
+.ask ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+footer { padding-block: 48px 0; color: var(--muted); display: grid; gap: 6px; }
+.star { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* ---- lesson 4 ---- */
+.board4 { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: minmax(54px, auto); gap: 8px; padding: 14px; border-radius: 10px; background: var(--sky-soft); border: 1px solid var(--line); }
+.part { border: 2px solid var(--line); background: var(--surface); border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; padding: 6px; display: grid; place-items: center; text-align: center; line-height: 1.25; }
+.part small { display: block; font-weight: 400; font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
+.part:hover { border-color: var(--accent); }
+.part[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.p-cpu { grid-column: 2 / 4; grid-row: 1 / 3; }
+.p-ram { grid-column: 4 / 5; grid-row: 1 / 3; }
+.p-ssd { grid-column: 5 / 7; grid-row: 1 / 2; }
+.p-psu { grid-column: 5 / 7; grid-row: 2 / 3; }
+.p-gpu { grid-column: 1 / 5; grid-row: 3 / 4; }
+.p-mb { grid-column: 1 / 2; grid-row: 1 / 3; }
+.p-fan { grid-column: 5 / 7; grid-row: 3 / 4; }
+@media (max-width: 520px) { .board4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .board4 .part { grid-column: auto; grid-row: auto; min-height: 54px; } .p-cpu { grid-column: 1 / 3 !important; } }
+.partinfo { display: grid; gap: 6px; min-height: 6em; }
+.partinfo h3 { color: var(--accent); }
+.form-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 16px; }
+@media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font-weight: 600; font-size: 15px; }
+.field .where { font-size: 13px; color: var(--muted); }
+.field input, .field select { width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 7px 10px; }
+.howto { display: grid; gap: 10px; }
+.howto li { margin-bottom: 4px; }
+kbd { font-family: var(--f-mono); font-size: 0.85em; border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 5px; padding: 1px 6px; background: var(--surface); white-space: nowrap; }
+.facts { display: grid; gap: 10px; }
+.facts .fx { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; }
+.facts .fx.empty { border-color: var(--line); color: var(--muted); }
+.order { display: grid; gap: 6px; padding: 0; margin: 0; list-style: none; }
+.order li { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--surface); }
+.order li span.t { flex: 1; min-width: 0; }
+.order li .n { font-family: var(--f-mono); color: var(--muted); width: 1.5em; }
+.order button { border: 1px solid var(--line); background: var(--bg); border-radius: 6px; width: 34px; height: 30px; cursor: pointer; font-size: 15px; }
+.keys { display: grid; gap: 6px; }
+.keyrow { display: grid; grid-template-columns: minmax(130px, auto) 1fr auto; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.keyrow:last-child { border-bottom: 0; }
+@media (max-width: 520px) { .keyrow { grid-template-columns: 1fr auto; } .keyrow .k { grid-column: 1 / -1; } }
+.keyrow .mark { font-weight: 700; color: var(--muted); }
+.keyrow.got .mark { color: var(--ok); }
+.trainer textarea { width: 100%; min-height: 90px; font: inherit; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); padding: 10px 12px; }
+.passport { border: 2px solid var(--ink); border-radius: 12px; padding: 18px 20px; display: grid; gap: 10px; background: var(--surface); }
+.passport h3 { font-family: var(--f-display); font-size: 18px; }
+.passport dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+.passport dt { color: var(--muted); font-size: 14px; }
+.passport dd { margin: 0; font-family: var(--f-mono); font-size: 14px; min-width: 0; overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<p style="padding-top:12px;margin:0;font-size:14px"><a href="../index.html">← Усі заняття курсу</a></p>
+<div class="wrap">
+  <div class="topbar">
+    <span class="course">Інформатика · Модуль 2</span>
+    <button class="prog" id="progBtn" type="button" aria-expanded="false" aria-controls="todo"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 7</span><span aria-hidden="true">▾</span></button>
+  </div>
+  <div class="todo" id="todo" hidden></div>
+
+  <header class="hero">
+    <span class="eyebrow">Заняття 4 · ≈ 90 хвилин · працюємо на своєму комп'ютері</span>
+    <h1>Мій комп'ютер</h1>
+    <p class="lead">Ти вже знаєш, як працюють біти, вентилі і процесор. Тепер подивимось на справжній комп'ютер, на якому ти зараз сидиш: з чого він зібраний, який у нього процесор, скільки пам'яті і що відбувається, коли ти натискаєш кнопку живлення. В кінці в тебе буде паспорт твого комп'ютера.</p>
+    <nav class="plan" id="plan" aria-label="Зміст заняття">
+      <a href="#s1">1. Деталі</a><a href="#s2">2. Паспорт</a><a href="#s3">3. Твої числа</a><a href="#s4">4. Пам'ять і диск</a>
+      <a href="#s5">5. Увімкнення</a><a href="#s6">6. Гарячі клавіші</a><a href="#s7">7. Тест</a><a href="#s8">★ Челендж</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="step" id="s1">
+    <div class="step-head"><span class="step-no">Крок 1 · інтерактив · 15 хв</span><h2>З чого зібраний комп'ютер</h2></div>
+    <div class="text">
+      <p>Пам'ятаєш кухню з минулого заняття? У справжньому комп'ютері теж є кухар, полиці і склад. Нижче спрощена схема того, що всередині корпусу або ноутбука. Клацай на деталі.</p>
+    </div>
+    <div class="panel">
+      <div class="board4" id="board4" role="group" aria-label="Деталі комп'ютера"></div>
+      <div class="partinfo" id="partinfo" aria-live="polite"><p style="color:var(--muted)">Обери деталь, щоб прочитати про неї.</p></div>
+    </div>
+    <p class="fact"><b>Безпека.</b> Не відкривай корпус комп'ютера без дорослих і ніколи не роби цього, коли він увімкнений у розетку. Ноутбук краще взагалі не розкручувати.</p>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 1</span>
+        <p>Яка деталь відповідає за кожну річ?</p>
+        <div id="matchQ" style="display:grid; gap:10px"></div>
+        <div class="row"><button class="btn primary" type="button" id="matchCheck">Перевірити</button><span class="status" id="matchStatus"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2">
+    <div class="step-head"><span class="step-no">Крок 2 · дослідження · 20 хв</span><h2>Паспорт твого комп'ютера</h2></div>
+    <div class="text">
+      <p>Тепер стань детективом. Уся інформація про комп'ютер є у самій Windows, треба тільки знати, де дивитись. Знайди дані у трьох місцях і заповни паспорт нижче. Він збережеться в браузері.</p>
+    </div>
+    <div class="panel howto">
+      <h3>Місце 1 · Про систему</h3>
+      <ol style="margin:0; padding-left:22px">
+        <li>Клацни <b>правою</b> кнопкою миші на кнопку «Пуск» (значок Windows унизу екрана).</li>
+        <li>Обери <b>«Система»</b>.</li>
+        <li>Тут видно: <b>Процесор</b> (модель і частоту), <b>Встановлена оперативна пам'ять</b>, <b>Тип системи</b> (64-розрядна), а нижче версію Windows.</li>
+      </ol>
+      <h3>Місце 2 · Диспетчер задач</h3>
+      <ol style="margin:0; padding-left:22px">
+        <li>Натисни разом <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Esc</kbd>.</li>
+        <li>Якщо вікно маленьке, натисни «Докладніше». Відкрий вкладку <b>«Продуктивність»</b> (у Windows 11 це значок графіка ліворуч).</li>
+        <li><b>ЦП</b> (процесор): унизу є «Ядра» і «Логічні процесори». <b>Пам'ять</b>: скільки всього і скільки використано зараз. <b>Диск</b>: праворуч угорі написано SSD чи HDD. <b>Графічний процесор</b>: це твоя відеокарта.</li>
+      </ol>
+      <h3>Місце 3 · Провідник</h3>
+      <ol style="margin:0; padding-left:22px">
+        <li>Натисни <kbd>Win</kbd> + <kbd>E</kbd> і ліворуч обери <b>«Цей ПК»</b>.</li>
+        <li>Біля диска C: видно, скільки на ньому <b>вільно</b> і скільки <b>всього</b>.</li>
+      </ol>
+      <p class="fact" style="margin-top:4px">Якщо Windows у тебе англійською: «Система» = System → About, «Диспетчер задач» = Task Manager, «Продуктивність» = Performance, «Ядра» = Cores, «Логічні процесори» = Logical processors.</p>
+    </div>
+    <div class="panel">
+      <div class="form-grid" id="ppForm">
+        <div class="field"><label for="pp_cpu">Процесор (модель)</label><input id="pp_cpu" type="text" placeholder="наприклад, Intel Core i5-12400"><span class="where">Про систему</span></div>
+        <div class="field"><label for="pp_ghz">Частота процесора, ГГц</label><input id="pp_ghz" type="number" step="0.01" min="0.5" max="7" placeholder="наприклад, 2.5"><span class="where">Про систему або Диспетчер задач → ЦП → «Базова швидкість»</span></div>
+        <div class="field"><label for="pp_cores">Ядра</label><input id="pp_cores" type="number" min="1" max="128" placeholder="наприклад, 6"><span class="where">Диспетчер задач → ЦП</span></div>
+        <div class="field"><label for="pp_threads">Логічні процесори</label><input id="pp_threads" type="number" min="1" max="256" placeholder="наприклад, 12"><span class="where">Диспетчер задач → ЦП</span></div>
+        <div class="field"><label for="pp_ram">Оперативна пам'ять, ГБ</label><input id="pp_ram" type="number" step="0.1" min="1" max="1024" placeholder="наприклад, 16"><span class="where">Про систему</span></div>
+        <div class="field"><label for="pp_bits">Тип системи</label><select id="pp_bits"><option value="">обери…</option><option>64-розрядна</option><option>32-розрядна</option></select><span class="where">Про систему</span></div>
+        <div class="field"><label for="pp_disktype">Тип диска C:</label><select id="pp_disktype"><option value="">обери…</option><option>SSD</option><option>HDD</option><option>Не написано</option></select><span class="where">Диспетчер задач → Диск</span></div>
+        <div class="field"><label for="pp_disk">Розмір диска C:, ГБ</label><input id="pp_disk" type="number" min="1" max="100000" placeholder="наприклад, 476"><span class="where">Провідник → Цей ПК</span></div>
+        <div class="field"><label for="pp_free">Вільно на диску C:, ГБ</label><input id="pp_free" type="number" min="0" max="100000" placeholder="наприклад, 210"><span class="where">Провідник → Цей ПК</span></div>
+        <div class="field"><label for="pp_gpu">Відеокарта</label><input id="pp_gpu" type="text" placeholder="наприклад, NVIDIA GeForce GTX 1650"><span class="where">Диспетчер задач → Графічний процесор</span></div>
+        <div class="field"><label for="pp_win">Windows</label><select id="pp_win"><option value="">обери…</option><option>Windows 11</option><option>Windows 10</option><option>Інша</option></select><span class="where">Про систему, внизу</span></div>
+      </div>
+      <p class="status" id="ppStatus"></p>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3">
+    <div class="step-head"><span class="step-no">Крок 3 · що означають твої числа · 5 хв</span><h2>Твій комп'ютер у цифрах</h2></div>
+    <div class="text"><p>Ці факти рахуються з твого паспорта. Заповни його вище, і вони з'являться.</p></div>
+    <div class="facts" id="facts"></div>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4">
+    <div class="step-head"><span class="step-no">Крок 4 · пам'ять проти диска · 15 хв</span><h2>Навіщо дві пам'яті</h2></div>
+    <div class="text">
+      <p>У комп'ютері дві різні «пам'яті», і їх часто плутають:</p>
+      <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+        <li><b>Оперативна пам'ять (RAM)</b> — це стіл кухаря. На ньому лежить усе, з чим працюєш просто зараз: відкриті програми, вкладки браузера, гра. Вона дуже швидка, але <b>стирається, коли комп'ютер вимикається</b>.</li>
+        <li><b>Диск (SSD або HDD)</b> — це комора. Там зберігається все надовго: Windows, ігри, фото. Він великий, але повільніший.</li>
+      </ul>
+      <p>Коли ти запускаєш гру, комп'ютер переносить її з диска в оперативну пам'ять. Тому перший запуск триває довго, а потім усе працює швидко.</p>
+      <p>Наскільки диск повільніший? Уявімо, що взяти число з оперативної пам'яті займає <b>1 секунду</b>. Тоді в тому самому масштабі:</p>
+    </div>
+    <div class="tbl-scroll"><table style="width:auto"><thead><tr><th>Звідки беремо</th><th>Насправді</th><th>Якби RAM = 1 секунда</th></tr></thead><tbody>
+      <tr><td>Регістр процесора</td><td class="mono">≈ 0,3 нс</td><td>миттєво</td></tr>
+      <tr><td>Оперативна пам'ять</td><td class="mono">≈ 100 нс</td><td><b>1 секунда</b></td></tr>
+      <tr><td>Диск SSD</td><td class="mono">≈ 0,1 мс</td><td><b>≈ 17 хвилин</b></td></tr>
+      <tr><td>Диск HDD</td><td class="mono">≈ 10 мс</td><td><b>понад добу</b></td></tr>
+    </tbody></table></div>
+    <div class="text"><p>Чому HDD такий повільний? Усередині нього крутиться металевий диск, а над ним рухається головка, як у програвачі платівок. Щоб прочитати дані, треба дочекатись, поки потрібне місце докрутиться. У SSD рухомих частин немає зовсім: це мікросхеми пам'яті, тому він швидший і не боїться ударів.</p></div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 2 · експеримент</span>
+        <ol style="margin:0; padding-left:22px; display:grid; gap:4px">
+          <li>Відкрий Диспетчер задач (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Esc</kbd>) → «Продуктивність» → «Пам'ять». Запиши, скільки ГБ використовується зараз.</li>
+          <li>Відкрий у браузері 10 різних сайтів у нових вкладках (наприклад, новини, YouTube, Вікіпедію).</li>
+          <li>Подивись знову і запиши нове число.</li>
+          <li>Закрий вкладки і подивись, що станеться.</li>
+        </ol>
+        <div class="form-grid">
+          <div class="field"><label for="ex_before">Було використано, ГБ</label><input id="ex_before" type="number" step="0.1" min="0"></div>
+          <div class="field"><label for="ex_after">Стало після 10 вкладок, ГБ</label><input id="ex_after" type="number" step="0.1" min="0"></div>
+        </div>
+        <p class="status" id="exStatus"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5">
+    <div class="step-head"><span class="step-no">Крок 5 · головоломка · 10 хв</span><h2>Що відбувається, коли натискаєш кнопку</h2></div>
+    <div class="text">
+      <p>Від натискання кнопки живлення до появи робочого столу минає 10–30 секунд. За цей час відбувається ціла естафета. Перша програма, яку виконує процесор, зберігається не на диску, а в маленькій мікросхемі на материнській платі. Вона зветься <b>UEFI</b> (раніше BIOS). Вона перевіряє, чи все на місці, і знаходить диск, з якого можна завантажити Windows.</p>
+    </div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 3</span>
+        <p>Розстав кроки в правильному порядку кнопками ↑ і ↓.</p>
+        <ul class="order" id="order"></ul>
+        <div class="row"><button class="btn primary" type="button" id="orderCheck">Перевірити</button><span class="status" id="orderStatus"></span></div>
+      </div>
+    </div>
+    <p class="fact"><b>Спробуй.</b> Одразу після натискання кнопки живлення на багатьох комп'ютерах можна натиснути <kbd>Del</kbd>, <kbd>F2</kbd> або <kbd>F10</kbd> і потрапити в налаштування UEFI. Подивитись можна, але <b>нічого не змінюй</b> без дорослих: вийди без збереження (Exit without saving).</p>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6">
+    <div class="step-head"><span class="step-no">Крок 6 · гарячі клавіші · 15 хв</span><h2>Працюй без мишки</h2></div>
+    <div class="text">
+      <p>Гарячі клавіші — це комбінації, які роблять дію одразу, без пошуку в меню. Програмісти та всі, хто багато працює за комп'ютером, користуються ними постійно: це в рази швидше. Дві комбінації ти вже використав сьогодні.</p>
+      <p>Як натискати: <b>затисни</b> першу клавішу (наприклад, <kbd>Win</kbd>, значок Windows) і, не відпускаючи, натисни другу.</p>
+    </div>
+    <div class="panel">
+      <h3>Клавіші Windows</h3>
+      <p style="color:var(--muted); font-size:15px">Спробуй кожну і відміть галочкою.</p>
+      <div class="keys" id="winKeys"></div>
+    </div>
+    <div class="panel trainer">
+      <h3>Тренажер: клавіші для тексту</h3>
+      <p>Ці комбінації працюють майже всюди: у Word, у браузері, в IDLE, коли пишеш код. Клацни в поле нижче і пробуй комбінації. Тренажер сам помітить кожну.</p>
+      <textarea id="trainer" spellcheck="false" aria-label="Поле для тренування">Ракета стартує о 10:00. Екіпаж готовий до польоту на Місяць.</textarea>
+      <div class="keys" id="txtKeys"></div>
+      <p class="status" id="keysStatus"></p>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7">
+    <div class="step-head"><span class="step-no">Крок 7 · тест · 5 хв</span><h2>Перевір себе</h2></div>
+    <div class="panel" id="quiz"></div>
+    <div class="row"><button class="btn primary" id="quizCheck" type="button">Перевірити відповіді</button><span class="status" id="quizStatus"></span></div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8">
+    <div class="step-head"><span class="step-no star">★ Челендж на тиждень · необов'язково</span><h2>Ще глибше</h2></div>
+    <div class="text">
+      <ol style="margin:0; padding-left:22px; display:grid; gap:6px">
+        <li>У Диспетчері задач → «Продуктивність» → «Пам'ять» знайди рядок <b>«Використано гнізд»</b>. Скільки всього гнізд для планок пам'яті і скільки зайнято? Чи можна додати пам'яті, не викидаючи старі планки?</li>
+        <li>Знайди в інтернеті модель свого процесора. У якому році він вийшов? Скільки в ньому транзисторів (якщо виробник це повідомляє)? Порівняй з процесором Intel 4004 1971 року: у ньому було 2300 транзисторів.</li>
+        <li>Натисни <kbd>Win</kbd> + <kbd>R</kbd>, напиши <code>msinfo32</code> і натисни Enter. Це «Відомості про систему» з усіма подробицями. Знайди там версію UEFI/BIOS і дату.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <div class="py-task" style="padding:0">
+        <h3>★ Бонус на Python</h3>
+        <p>Python теж уміє дізнатися про комп'ютер. Запусти в IDLE і порівняй з паспортом:</p>
+        <div class="code-box"><pre>import os
+import shutil
+import platform
+
+print("Система:", platform.system(), platform.release())
+print("Розрядність:", platform.machine())
+print("Логічних процесорів:", os.cpu_count())
+
+total, used, free = shutil.disk_usage("C:\\")
+print("Диск C: всього", total // 1024**3, "ГБ, вільно", free // 1024**3, "ГБ")</pre><button class="copy" type="button">Копіювати</button></div>
+        <p style="font-size:15px; color:var(--muted)">Чому числа диска можуть трохи відрізнятися від Провідника? Підказка: 1 ГБ — це 1024 × 1024 × 1024 байтів, а виробники дисків рахують 1 ГБ як 1 000 000 000 байтів.</p>
+      </div>
+    </div>
+    <label class="selfcheck"><input type="checkbox" data-task="ch"> Челендж виконано</label>
+
+    <div class="ask">
+      <h3>Цікаво? Запитай Claude</h3>
+      <ul>
+        <li>«Мій процесор — [модель]. Він добрий для ігор і програмування?»</li>
+        <li>«Чому в процесора 6 ядер, але 12 логічних процесорів?»</li>
+        <li>«Чим відеокарта відрізняється від процесора і чому нею навчають штучний інтелект?»</li>
+        <li>«Що буде, якщо оперативна пам'ять закінчиться?»</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span class="step-no">Наступне заняття</span>
+    <h3>Windows зсередини: процеси і диспетчер задач</h3>
+    <p>У тебе кілька ядер, а програм одночасно працюють сотні. Як Windows ділить між ними процесор? Ти навантажиш процесор власною програмою і побачиш це на графіку.</p>
+    <div class="row" style="margin-top:24px"><button class="btn" id="resetBtn" type="button">Скинути прогрес цього заняття</button></div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const KEY = "inf-l4";
+  const TASKS = ["match", "passport", "memexp", "boot", "winkeys", "keys", "quiz"];
+  const LABELS = { match: ["s1", "Завдання 1: яка деталь за що відповідає"], passport: ["s2", "Паспорт: заповнити основні поля"],
+    memexp: ["s4", "Завдання 2: експеримент з вкладками"], boot: ["s5", "Завдання 3: порядок увімкнення"],
+    winkeys: ["s6", "Клавіші Windows: спробувати всі"], keys: ["s6", "Тренажер клавіш для тексту"],
+    quiz: ["s7", "Тест: щонайменше 4 з 5"], ch: ["s8", "★ Челендж (необов'язково)"] };
+  const SECTION_OF = { match: "s1", passport: "s2", memexp: "s4", boot: "s5", winkeys: "s6", keys: "s6", quiz: "s7", ch: "s8" };
+  let done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { done = {}; }
+  done.pp = done.pp || {}; done.wk = done.wk || {}; done.tk = done.tk || {};
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} };
+  function mark(t, v = true) { if (done[t] !== v) { done[t] = v; } renderProg(); }
+  function renderProg() {
+    const n = TASKS.filter(t => done[t]).length;
+    done._n = n; done._total = TASKS.length; save();
+    document.getElementById("progTxt").textContent = n + " / " + TASKS.length;
+    document.getElementById("progBar").style.width = (n / TASKS.length * 100) + "%";
+    document.getElementById("todo").innerHTML = '<span class="hd">' + (n === TASKS.length ? "Заняття пройдено! Залишився тільки челендж ★, якщо хочеш." : "Що ще залишилось:") + "</span>" +
+      Object.entries(LABELS).map(([t, [sec, txt]]) => `<a href="#${sec}"><span class="${done[t] ? "ok" : "no"}">${done[t] ? "✓" : "○"}</span><span>${txt}</span></a>`).join("");
+    const secDone = {};
+    for (const [t, s] of Object.entries(SECTION_OF)) secDone[s] = (secDone[s] ?? true) && !!done[t];
+    document.querySelectorAll("#plan a").forEach(a => { const s = a.getAttribute("href").slice(1); a.classList.toggle("done", !!secDone[s]); });
+  }
+  const $ = id => document.getElementById(id);
+  const pb = $("progBtn"), todo = $("todo");
+  pb.addEventListener("click", () => { todo.hidden = !todo.hidden; pb.setAttribute("aria-expanded", String(!todo.hidden)); });
+  todo.addEventListener("click", e => { if (e.target.closest("a")) { todo.hidden = true; pb.setAttribute("aria-expanded", "false"); } });
+  const setStatus = (el, ok, txt) => { el.textContent = txt; el.className = "status " + (ok ? "ok" : "bad"); };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const fmt = n => Math.round(n).toLocaleString("uk-UA");
+
+  /* ---- 1: parts ---- */
+  const PARTS = [
+    { id: "mb", cls: "p-mb", name: "Материнська плата", en: "motherboard", t: "Велика плата, до якої під'єднуються всі інші деталі. По ній, як коридорами кухні, біжать сигнали між процесором, пам'яттю і диском. Тут же живе мікросхема з UEFI — першою програмою, яка запускається при увімкненні." },
+    { id: "cpu", cls: "p-cpu", name: "Процесор", en: "CPU", t: "Наш кухар. Виконує команди програм, як «Зірка-8», тільки команд знає сотні і робить мільярди кроків на секунду. Сучасний процесор має кілька ядер: це кілька кухарів на одній кухні. Він сильно гріється, тому зверху стоїть радіатор з вентилятором." },
+    { id: "ram", cls: "p-ram", name: "Оперативна пам'ять", en: "RAM", t: "Стіл кухаря. Тут лежить усе, з чим працюєш просто зараз: відкриті програми, вкладки, гра. Дуже швидка, але стирається, коли комп'ютер вимикається. Виглядає як довгі вузькі планки, вставлені в гнізда на материнській платі." },
+    { id: "ssd", cls: "p-ssd", name: "Диск", en: "SSD / HDD", t: "Комора. Зберігає Windows, ігри, фото і документи навіть без живлення. SSD складається з мікросхем і дуже швидкий. HDD має всередині металевий диск, що крутиться, і повільніший, зате дешевший за кожен гігабайт." },
+    { id: "gpu", cls: "p-gpu", name: "Відеокарта", en: "GPU", t: "Малює картинку на екрані. Якщо процесор — це кілька дуже розумних кухарів, то відеокарта — тисячі простих помічників, які одночасно розфарбовують кожен піксель. Саме тому на відеокартах зараз навчають штучний інтелект: там теж треба зробити мільйони простих обчислень одночасно. Буває окремою платою або вбудованою в процесор." },
+    { id: "psu", cls: "p-psu", name: "Блок живлення", en: "PSU", t: "Перетворює 220 вольт із розетки на низьку напругу (12, 5 і 3,3 вольта), яка потрібна деталям. У ноутбуці його роль виконують зарядний пристрій і батарея." },
+    { id: "fan", cls: "p-fan", name: "Охолодження", en: "кулери", t: "Вентилятори і радіатори. Мільярди транзисторів, що перемикаються, виділяють багато тепла. Якщо процесор перегрівається, він сам знижує частоту, щоб не згоріти. Тому ноутбук гальмує, коли стоїть на ковдрі і не може «дихати»." },
+  ];
+  const b4 = $("board4");
+  b4.innerHTML = PARTS.map(p => `<button type="button" class="part ${p.cls}" data-p="${p.id}" aria-pressed="false">${p.name}<small>${p.en}</small></button>`).join("");
+  b4.addEventListener("click", e => {
+    const b = e.target.closest("[data-p]"); if (!b) return;
+    b4.querySelectorAll("[data-p]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    const p = PARTS.find(x => x.id === b.dataset.p);
+    $("partinfo").innerHTML = `<h3>${p.name} <span class="mono" style="font-size:13px;color:var(--muted)">${p.en}</span></h3><p>${p.t}</p>`;
+  });
+  const MOPTS = ["Процесор", "Оперативна пам'ять", "Диск", "Відеокарта", "Блок живлення", "Материнська плата"];
+  const MQ = [
+    ["Де лежать твої фото та ігри, коли комп'ютер вимкнений?", "Диск"],
+    ["Хто виконує команди програм (наш «кухар»)?", "Процесор"],
+    ["Що зберігає відкриті програми і стирається при вимкненні?", "Оперативна пам'ять"],
+    ["Хто малює картинку на екрані, особливо в іграх?", "Відеокарта"],
+    ["До чого під'єднуються всі інші деталі?", "Материнська плата"],
+  ];
+  $("matchQ").innerHTML = MQ.map(([q], i) => `<div class="field"><label for="mq${i}">${q}</label><select id="mq${i}"><option value="">обери…</option>${MOPTS.map(o => `<option>${o}</option>`).join("")}</select></div>`).join("");
+  $("matchCheck").addEventListener("click", () => {
+    const wrong = MQ.filter(([, a], i) => $("mq" + i).value !== a).length;
+    if (!wrong) { setStatus($("matchStatus"), true, "Усе правильно!"); mark("match"); }
+    else setStatus($("matchStatus"), false, "Неправильних відповідей: " + wrong + ". Поклацай деталі на схемі вище і перечитай.");
+  });
+
+  /* ---- 2-3: passport & facts ---- */
+  const PP = ["pp_cpu", "pp_ghz", "pp_cores", "pp_threads", "pp_ram", "pp_bits", "pp_disktype", "pp_disk", "pp_free", "pp_gpu", "pp_win"];
+  const REQ = ["pp_cpu", "pp_ghz", "pp_cores", "pp_ram", "pp_disktype", "pp_disk"];
+  PP.forEach(id => { if (done.pp[id] != null) $(id).value = done.pp[id]; $(id).addEventListener("input", onPP); $(id).addEventListener("change", onPP); });
+  function num(id) { const v = parseFloat(String(done.pp[id] ?? "").replace(",", ".")); return isFinite(v) && v > 0 ? v : null; }
+  function onPP() { PP.forEach(id => done.pp[id] = $(id).value.trim()); renderPP(); }
+  function renderPP() {
+    const missing = REQ.filter(id => !done.pp[id]);
+    if (!missing.length) { setStatus($("ppStatus"), true, "Основні поля заповнено! Прокрути нижче: там твій комп'ютер у цифрах."); mark("passport"); }
+    else { $("ppStatus").textContent = "Залишилось заповнити основних полів: " + missing.length; $("ppStatus").className = "status"; mark("passport", false); }
+    const F = [];
+    const ghz = num("pp_ghz"), cores = num("pp_cores"), thr = num("pp_threads"), ram = num("pp_ram"), disk = num("pp_disk"), free = num("pp_free");
+    F.push(ghz ? `Твій процесор робить близько <b>${ghz.toLocaleString("uk-UA")} млрд тактів на секунду</b>. За один такт світло встигає пролетіти лише <b>${(30 / ghz).toLocaleString("uk-UA", { maximumFractionDigits: 1 })} см</b>.` : null);
+    F.push(cores ? `У тебе <b>${cores} ${cores === 1 ? "ядро" : cores < 5 ? "ядра" : "ядер"}</b>, тобто ${cores} кухарів на одній кухні.` + (thr && thr === 2 * cores ? ` Логічних процесорів удвічі більше (${thr}): кожне ядро вміє вести дві справи одночасно, поки одна чекає на дані з пам'яті.` : thr ? ` Логічних процесорів ${thr}.` : "") : null);
+    F.push(ram ? `Оперативна пам'ять ${ram} ГБ — це <b>${fmt(ram * 1024 ** 3)} байтів</b>, тобто стільки комірок пам\'яті. У «Зірки-8» їх було 16! Це у <b>${fmt(ram * 1024 * 1024 / 4)} разів більше</b>, ніж у бортового комп'ютера «Аполлона», в якого було близько 4 КБ оперативної пам'яті.` : null);
+    F.push(disk && free ? `На диску C: вільно <b>${Math.round(free / disk * 100)}%</b>. Туди вмістилося б ще приблизно <b>${fmt(free * 1024 / 5)} фотографій</b> по 5 МБ.` + (free / disk < 0.1 ? " Місця мало: Windows починає гальмувати, коли диск майже заповнений." : "") : null);
+    F.push(done.pp.pp_bits === "64-розрядна" ? `Система <b>64-розрядна</b>: процесор обробляє 64-бітні числа за одну дію. Згадай заняття 1: найбільше таке число дорівнює кількості зерен на всій шаховій дошці.` : null);
+    F.push(done.pp.pp_disktype === "HDD" ? "Диск C: у тебе HDD. Якщо колись комп'ютер оновлюватимуть, заміна на SSD дасть найпомітніше прискорення." : done.pp.pp_disktype === "SSD" ? "Диск C: у тебе SSD, тому Windows і програми запускаються швидко." : null);
+    $("facts").innerHTML = F.filter(Boolean).length ? F.filter(Boolean).map(f => `<div class="fx">${f}</div>`).join("") : '<div class="fx empty">Тут з\'являться факти про твій комп\'ютер, коли заповниш паспорт.</div>';
+    renderPassportCard();
+  }
+  function renderPassportCard() {
+    const rows = [["Процесор", "pp_cpu"], ["Частота", "pp_ghz", " ГГц"], ["Ядра / логічні", null], ["Оперативна пам'ять", "pp_ram", " ГБ"], ["Диск C:", null], ["Відеокарта", "pp_gpu"], ["Система", null]];
+    const v = id => done.pp[id] || "—";
+    const html = rows.map(([k, id, u]) => {
+      let val;
+      if (k === "Ядра / логічні") val = v("pp_cores") + " / " + v("pp_threads");
+      else if (k === "Диск C:") val = v("pp_disktype") + ", " + v("pp_disk") + " ГБ (вільно " + v("pp_free") + " ГБ)";
+      else if (k === "Система") val = v("pp_win") + ", " + v("pp_bits");
+      else val = v(id) + (done.pp[id] && u ? u : "");
+      return `<dt>${k}</dt><dd>${esc(val)}</dd>`;
+    }).join("");
+    let card = $("ppCard");
+    if (!card) { card = document.createElement("div"); card.id = "ppCard"; card.className = "passport"; $("facts").after(card); }
+    card.innerHTML = `<h3>Паспорт мого комп'ютера</h3><dl>${html}</dl>`;
+  }
+  renderPP();
+
+  /* ---- 4: experiment ---- */
+  ["ex_before", "ex_after"].forEach(id => { if (done.pp[id] != null) $(id).value = done.pp[id]; $(id).addEventListener("input", onEx); });
+  function onEx() {
+    done.pp.ex_before = $("ex_before").value; done.pp.ex_after = $("ex_after").value;
+    const a = parseFloat(done.pp.ex_before), b = parseFloat(done.pp.ex_after);
+    if (isFinite(a) && isFinite(b) && a > 0 && b > 0) {
+      const d = (b - a) * 1024;
+      setStatus($("exStatus"), true, d > 0 ? `10 вкладок зайняли приблизно ${fmt(d)} МБ, тобто близько ${fmt(d / 10)} МБ на вкладку. Сучасний сайт — це ціла програма!` : "Пам'ять майже не змінилась. Можливо, браузер ще не завантажив вкладки: клацни по кожній і подивись ще раз.");
+      mark("memexp");
+    } else { $("exStatus").textContent = ""; }
+    save();
+  }
+  onEx();
+
+  /* ---- 5: boot order ---- */
+  const BOOT = [
+    "Натискаєш кнопку живлення, і блок живлення подає струм на всі деталі.",
+    "Процесор запускає UEFI — програму з мікросхеми на материнській платі.",
+    "UEFI перевіряє обладнання: чи на місці пам'ять, процесор, клавіатура.",
+    "UEFI знаходить диск і запускає з нього завантажувач Windows.",
+    "Завантажується ядро Windows і драйвери для всіх пристроїв.",
+    "З'являється екран входу, після входу запускаються програми з автозавантаження.",
+  ];
+  let ord = [3, 5, 1, 0, 4, 2];
+  const ordEl = $("order");
+  function renderOrder() {
+    ordEl.innerHTML = ord.map((k, i) => `<li><span class="n">${i + 1}.</span><span class="t">${BOOT[k]}</span><button type="button" data-mv="-1" data-i="${i}" aria-label="Вгору" ${i === 0 ? "disabled" : ""}>↑</button><button type="button" data-mv="1" data-i="${i}" aria-label="Вниз" ${i === ord.length - 1 ? "disabled" : ""}>↓</button></li>`).join("");
+  }
+  ordEl.addEventListener("click", e => {
+    const b = e.target.closest("[data-mv]"); if (!b) return;
+    const i = +b.dataset.i, j = i + +b.dataset.mv;
+    [ord[i], ord[j]] = [ord[j], ord[i]]; renderOrder();
+    const nb = ordEl.querySelectorAll("li")[j]?.querySelector(`[data-mv="${b.dataset.mv}"]`); if (nb && !nb.disabled) nb.focus();
+  });
+  renderOrder();
+  $("orderCheck").addEventListener("click", () => {
+    const right = ord.filter((k, i) => k === i).length;
+    if (right === BOOT.length) { setStatus($("orderStatus"), true, "Правильно! Уся естафета триває кілька секунд."); mark("boot"); }
+    else setStatus($("orderStatus"), false, "На своєму місці кроків: " + right + " з " + BOOT.length + ". Підказка: Windows не може запуститися, поки хтось не знайшов диск.");
+  });
+
+  /* ---- 6: keys ---- */
+  const WK = [
+    ["wE", "<kbd>Win</kbd> + <kbd>E</kbd>", "Відкрити Провідник (файли і папки)"],
+    ["wI", "<kbd>Win</kbd> + <kbd>I</kbd>", "Відкрити Параметри"],
+    ["wT", "<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Esc</kbd>", "Диспетчер задач"],
+    ["wD", "<kbd>Win</kbd> + <kbd>D</kbd>", "Згорнути все і показати робочий стіл (ще раз, щоб повернути)"],
+    ["aT", "<kbd>Alt</kbd> + <kbd>Tab</kbd>", "Перемикання між вікнами: тримай Alt і тисни Tab кілька разів"],
+    ["wA", "<kbd>Win</kbd> + <kbd>←</kbd> / <kbd>→</kbd>", "Поставити вікно на пів екрана: зручно, коли відкрите заняття і IDLE поруч"],
+    ["wS", "<kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>", "Знімок частини екрана (потім вставити через Ctrl + V)"],
+    ["wL", "<kbd>Win</kbd> + <kbd>L</kbd>", "Заблокувати комп'ютер, коли відходиш"],
+  ];
+  $("winKeys").innerHTML = WK.map(([id, k, t]) => `<label class="keyrow ${done.wk[id] ? "got" : ""}" style="cursor:pointer"><span class="k">${k}</span><span>${t}</span><input type="checkbox" data-wk="${id}" ${done.wk[id] ? "checked" : ""} style="width:18px;height:18px;accent-color:var(--ok)" aria-label="Спробував"></label>`).join("");
+  $("winKeys").addEventListener("change", e => {
+    const cb = e.target.closest("[data-wk]"); if (!cb) return;
+    done.wk[cb.dataset.wk] = cb.checked; cb.closest(".keyrow").classList.toggle("got", cb.checked);
+    mark("winkeys", WK.every(([id]) => done.wk[id]));
+  });
+  const TK = [
+    ["ca", "<kbd>Ctrl</kbd> + <kbd>A</kbd>", "Виділити все", e => e.ctrlKey && !e.shiftKey && e.code === "KeyA"],
+    ["cc", "<kbd>Ctrl</kbd> + <kbd>C</kbd>", "Копіювати виділене", e => e.ctrlKey && !e.shiftKey && e.code === "KeyC"],
+    ["cv", "<kbd>Ctrl</kbd> + <kbd>V</kbd>", "Вставити", e => e.ctrlKey && !e.shiftKey && e.code === "KeyV"],
+    ["cx", "<kbd>Ctrl</kbd> + <kbd>X</kbd>", "Вирізати (копіювати і видалити)", e => e.ctrlKey && !e.shiftKey && e.code === "KeyX"],
+    ["cz", "<kbd>Ctrl</kbd> + <kbd>Z</kbd>", "Скасувати останню дію: рятує від помилок!", e => e.ctrlKey && !e.shiftKey && e.code === "KeyZ"],
+    ["hm", "<kbd>Home</kbd>", "Курсор на початок рядка", e => !e.ctrlKey && !e.shiftKey && e.key === "Home"],
+    ["en", "<kbd>End</kbd>", "Курсор у кінець рядка", e => !e.ctrlKey && !e.shiftKey && e.key === "End"],
+    ["cw", "<kbd>Ctrl</kbd> + <kbd>←</kbd> / <kbd>→</kbd>", "Стрибнути на ціле слово", e => e.ctrlKey && !e.shiftKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")],
+    ["sa", "<kbd>Shift</kbd> + <kbd>→</kbd>", "Виділяти по одній літері", e => e.shiftKey && !e.ctrlKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")],
+    ["sw", "<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>→</kbd>", "Виділяти цілими словами", e => e.shiftKey && e.ctrlKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")],
+  ];
+  function renderTK() {
+    $("txtKeys").innerHTML = TK.map(([id, k, t]) => `<div class="keyrow ${done.tk[id] ? "got" : ""}"><span class="k">${k}</span><span>${t}</span><span class="mark">${done.tk[id] ? "✓" : "○"}</span></div>`).join("");
+    const n = TK.filter(([id]) => done.tk[id]).length;
+    if (n === TK.length) { setStatus($("keysStatus"), true, "Усі 10 комбінацій опановано!"); } else { $("keysStatus").textContent = "Знайдено: " + n + " з " + TK.length; $("keysStatus").className = "status"; }
+    mark("keys", n === TK.length);
+  }
+  $("trainer").addEventListener("keydown", e => {
+    for (const [id, , , test] of TK) if (!done.tk[id] && test(e)) { done.tk[id] = true; renderTK(); }
+  });
+  renderTK();
+
+  /* ---- quiz ---- */
+  const Q = [
+    { q: "Що стирається, коли комп'ютер вимикається?", a: ["Вміст диска", "Вміст оперативної пам'яті", "Windows", "Нічого"], c: 1, e: "Оперативна пам'ять зберігає дані, тільки поки є живлення. Тому незбережений документ зникає, якщо вимкнеться світло." },
+    { q: "Чому SSD швидший за HDD?", a: ["Він більший", "У ньому немає рухомих частин, лише мікросхеми", "Він новіший за кольором", "Він під'єднаний до інтернету"], c: 1, e: "У HDD треба чекати, поки диск докрутиться до потрібного місця. SSD читає дані з мікросхем одразу." },
+    { q: "Що таке ядро процесора?", a: ["Найгарячіше місце", "Окремий «кухар», який виконує команди", "Частина відеокарти", "Файл Windows"], c: 1, e: "Кілька ядер можуть виконувати різні програми одночасно." },
+    { q: "Яка програма запускається найпершою, коли вмикаєш комп'ютер?", a: ["Windows", "Браузер", "UEFI (BIOS) з материнської плати", "Антивірус"], c: 2, e: "UEFI перевіряє обладнання і знаходить диск, з якого завантажується Windows." },
+    { q: "Яка комбінація відкриває Диспетчер задач?", a: ["Win + E", "Ctrl + Shift + Esc", "Alt + Tab", "Ctrl + Z"], c: 1, e: "Win + E відкриває Провідник, Alt + Tab перемикає вікна, Ctrl + Z скасовує." },
+  ];
+  const quizEl = $("quiz");
+  quizEl.innerHTML = Q.map((x, i) => `<fieldset class="q" style="border:0;margin:0"><legend style="padding:0;font-weight:700">${i + 1}. ${x.q}</legend>${x.a.map((o, j) => `<label><input type="radio" name="q${i}" id="q${i}_${j}" value="${j}"> <span>${o}</span></label>`).join("")}<div class="expl" hidden></div></fieldset>`).join("");
+  $("quizCheck").addEventListener("click", () => {
+    let score = 0;
+    Q.forEach((x, i) => {
+      const sel = quizEl.querySelector(`input[name=q${i}]:checked`), ex = quizEl.querySelectorAll(".expl")[i];
+      ex.hidden = false;
+      if (!sel) { ex.className = "expl bad"; ex.textContent = "Ти не обрав відповідь."; return; }
+      const ok = +sel.value === x.c; if (ok) score++;
+      ex.className = "expl " + (ok ? "ok" : "bad"); ex.textContent = (ok ? "Правильно. " : "Ні. ") + x.e;
+    });
+    setStatus($("quizStatus"), score >= 4, score + " з " + Q.length + (score === Q.length ? ". Чудово!" : score >= 4 ? ". Добре!" : ". Перечитай пояснення і спробуй ще."));
+    if (score >= 4) mark("quiz");
+  });
+
+  /* ---- self-checks, copy, reset ---- */
+  document.querySelectorAll("input[data-task]").forEach(cb => { cb.checked = !!done[cb.dataset.task]; cb.addEventListener("change", () => mark(cb.dataset.task, cb.checked)); });
+  document.querySelectorAll(".copy").forEach(btn => btn.addEventListener("click", () => {
+    const pre = btn.parentElement.querySelector("pre");
+    const ok = () => { btn.textContent = "Скопійовано"; setTimeout(() => btn.textContent = "Копіювати", 1500); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "Виділено: Ctrl+C"; };
+    try { navigator.clipboard.writeText(pre.textContent).then(ok, fallback); } catch (e) { fallback(); }
+  }));
+  const rb = $("resetBtn");
+  rb.addEventListener("click", () => {
+    if (rb.dataset.armed) { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); return; }
+    rb.dataset.armed = "1"; rb.textContent = "Точно скинути? Натисни ще раз";
+    setTimeout(() => { delete rb.dataset.armed; rb.textContent = "Скинути прогрес цього заняття"; }, 4000);
+  });
+  renderProg();
+})();
+</script>
+</body>
+</html>
