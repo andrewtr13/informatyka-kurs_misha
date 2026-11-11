@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Заняття 3. Процесор і пам'ять</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; lesson 3 adds the Zirka-8 emulator panels; each section is a numbered step of the lesson, interactive instruments sit on surface panels. */
+:root {
+  --bg: #EEF1F6; --surface: #FFFFFF; --ink: #141B2D; --muted: #586178; --line: #D3D9E4;
+  --accent: #B8620A; --accent-ink: #FFFFFF; --accent-soft: #FBEBD6; --sky: #2E4A9E; --sky-soft: #E2E8F7;
+  --ok: #1D7447; --ok-soft: #DDF1E5; --bad: #B3261E; --bad-soft: #F8E1DF;
+  --sq-l: #E9DFC9; --sq-d: #A8B4C9; --code-bg: #1A2236; --code-ink: #E3E8F4;
+  --f-display: "Unbounded", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0D1220; --surface: #151C2E; --ink: #E6EAF2; --muted: #9AA3B8; --line: #2A3350;
+  --accent: #F2A23A; --accent-ink: #1A1206; --accent-soft: #3A2A12; --sky: #9DB3F2; --sky-soft: #1E2945;
+  --ok: #63C690; --ok-soft: #15301F; --bad: #F29088; --bad-soft: #3A1A18;
+  --sq-l: #3B4560; --sq-d: #232B42; --code-bg: #0A0F1B; --code-ink: #E3E8F4; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0D1220; --surface: #151C2E; --ink: #E6EAF2; --muted: #9AA3B8; --line: #2A3350;
+  --accent: #F2A23A; --accent-ink: #1A1206; --accent-soft: #3A2A12; --sky: #9DB3F2; --sky-soft: #1E2945;
+  --ok: #63C690; --ok-soft: #15301F; --bad: #F29088; --bad-soft: #3A1A18;
+  --sq-l: #3B4560; --sq-d: #232B42; --code-bg: #0A0F1B; --code-ink: #E3E8F4; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px; }
+.wrap { max-width: 760px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(30px, 6vw, 46px); font-weight: 700; }
+h2 { font-size: clamp(21px, 3.6vw, 26px); font-weight: 700; }
+h3 { font-size: 17px; font-weight: 500; }
+p { margin: 0; }
+a { color: var(--sky); }
+code, .mono { font-family: var(--f-mono); font-size: 0.92em; }
+:not(pre) > code { background: var(--sky-soft); padding: 1px 5px; border-radius: 4px; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+
+/* top bar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.course { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.prog { display: flex; align-items: center; gap: 10px; font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+button.prog { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.todo { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 52px); z-index: 4; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: grid; gap: 6px; margin-top: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.todo[hidden] { display: none; }
+.todo a { color: var(--ink); text-decoration: none; display: flex; gap: 10px; align-items: baseline; }
+.todo a:hover span:last-child { text-decoration: underline; }
+.todo .ok { color: var(--ok); } .todo .no { color: var(--muted); }
+.todo .hd { font-weight: 700; }
+.prog-bar { width: 110px; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.prog-bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .4s; }
+
+header.hero { padding-block: 40px 8px; display: grid; gap: 16px; }
+.eyebrow { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.lead { font-size: 19px; color: var(--muted); max-width: 62ch; }
+.hero-bits { font-family: var(--f-mono); font-size: 13px; color: var(--muted); letter-spacing: 0.15em; overflow: hidden; white-space: nowrap; }
+.plan { display: flex; flex-wrap: wrap; gap: 8px; }
+.plan a { text-decoration: none; font-size: 14px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: var(--surface); }
+.plan a.done { border-color: var(--ok); color: var(--ok); }
+
+section.step { padding-block: 44px 0; display: grid; gap: 18px; }
+.step-head { display: grid; gap: 6px; }
+.step-no { font-family: var(--f-mono); font-size: 13px; color: var(--accent); font-weight: 600; }
+.text { display: grid; gap: 14px; max-width: 66ch; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.fact { border-left: 3px solid var(--sky); padding: 4px 0 4px 16px; color: var(--ink); max-width: 66ch; }
+.fact b { color: var(--sky); }
+.task { background: var(--accent-soft); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; }
+.task .lbl { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+.status { font-weight: 700; }
+.status.ok { color: var(--ok); }
+.status.bad { color: var(--bad); }
+
+/* bits */
+.panel > *, .step > * { min-width: 0; }
+.bits { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+.bit button { min-width: 0; padding: 0; }
+.bit { display: grid; gap: 6px; justify-items: center; }
+.bit button { width: 100%; max-width: 64px; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--line); background: var(--bg);
+  cursor: pointer; font-family: var(--f-mono); font-size: 20px; font-weight: 600; color: var(--muted); transition: background .15s, box-shadow .15s; }
+.bit button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 0 18px var(--accent); }
+.bit small { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.readout { display: flex; flex-wrap: wrap; gap: 8px 28px; align-items: baseline; font-variant-numeric: tabular-nums; }
+.readout .big { font-family: var(--f-display); font-size: 40px; font-weight: 700; }
+.readout .sub { font-family: var(--f-mono); color: var(--muted); }
+.targets { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-family: var(--f-mono); font-size: 14px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+.chip.cur { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chip.done { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+
+/* grains */
+.slider-row { display: grid; gap: 6px; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-variant-numeric: tabular-nums; }
+.kv dt { color: var(--muted); font-size: 15px; }
+.kv dd { margin: 0; font-family: var(--f-mono); font-size: 15px; min-width: 0; overflow-wrap: anywhere; }
+
+/* board */
+.board-wrap { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 640px) { .board-wrap { grid-template-columns: 1fr; } }
+.board { display: grid; grid-template-columns: 18px repeat(8, 1fr); gap: 0; max-width: 360px; width: 100%; }
+.board .coord { font-family: var(--f-mono); font-size: 11px; color: var(--muted); display: grid; place-items: center; }
+.sq { aspect-ratio: 1; border: 0; cursor: pointer; display: grid; place-items: center; padding: 0; position: relative; }
+.sq.l { background: var(--sq-l); } .sq.d { background: var(--sq-d); }
+.sq.on::after { content: ""; width: 56%; height: 56%; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.bin64 { font-family: var(--f-mono); font-size: 13px; line-height: 1.7; word-break: break-all; }
+.bin64 .one { color: var(--accent); font-weight: 600; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 14px; cursor: pointer; font-weight: 600; font-size: 15px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn:hover { border-color: var(--accent); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* text table */
+.tbl-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); font-size: 15px; white-space: nowrap; }
+th { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+td.mono { font-family: var(--f-mono); }
+input[type=text], input[type=number] { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 7px 10px; min-width: 0; }
+input[type=number] { width: 80px; }
+
+/* message */
+.msg-grid { display: grid; gap: 2px; width: max-content; max-width: 100%; }
+.msg-grid span { width: 14px; height: 14px; background: var(--line); border-radius: 2px; }
+.msg-grid span.one { background: var(--accent); }
+.msg-scroll { overflow-x: auto; padding-bottom: 4px; }
+.bitstream { font-family: var(--f-mono); font-size: 12px; color: var(--muted); word-break: break-all; line-height: 1.5; }
+
+/* code */
+pre { background: var(--code-bg); color: var(--code-ink); padding: 14px 16px; border-radius: 8px; overflow-x: auto; margin: 0; font-family: var(--f-mono); font-size: 14px; line-height: 1.55; }
+.code-box { position: relative; min-width: 0; }
+.copy { position: absolute; top: 8px; right: 8px; font-size: 12px; padding: 3px 8px; border-radius: 6px; border: 1px solid #3A4566; background: #232D47; color: #E3E8F4; cursor: pointer; }
+details { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+details > summary { cursor: pointer; padding: 9px 14px; font-weight: 600; font-size: 15px; }
+details > div { padding: 0 14px 14px; display: grid; gap: 10px; }
+details.sol > summary { color: var(--muted); }
+.py-task { display: grid; gap: 12px; padding-block: 18px; border-top: 1px solid var(--line); }
+.py-task:first-of-type { border-top: 0; padding-top: 0; }
+.selfcheck { display: flex; gap: 8px; align-items: center; font-weight: 600; cursor: pointer; }
+.selfcheck input { width: 18px; height: 18px; accent-color: var(--ok); }
+
+/* quiz */
+.q { display: grid; gap: 8px; padding-block: 14px; border-top: 1px solid var(--line); }
+.q:first-child { border-top: 0; padding-top: 0; }
+.q label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.q input { margin-top: 6px; accent-color: var(--accent); }
+.q .expl { font-size: 15px; padding: 8px 12px; border-radius: 6px; }
+.q .expl.ok { background: var(--ok-soft); color: var(--ok); }
+.q .expl.bad { background: var(--bad-soft); color: var(--bad); }
+
+.ask { background: var(--sky-soft); border-radius: 10px; padding: 18px 20px; display: grid; gap: 10px; }
+.ask ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+footer { padding-block: 48px 0; color: var(--muted); display: grid; gap: 6px; }
+.star { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* ---- lesson 3: Zirka-8 emulator ---- */
+.emu { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 16px; align-items: start; }
+@media (max-width: 700px) { .emu { grid-template-columns: 1fr; } }
+.emu-col { display: grid; gap: 10px; min-width: 0; }
+.emu textarea { width: 100%; min-height: 230px; resize: vertical; font-family: var(--f-mono); font-size: 14px; line-height: 1.5; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); padding: 10px 12px; tab-size: 4; }
+.emu .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.emu .btn { font-size: 14px; padding: 6px 12px; }
+.regs { display: flex; flex-wrap: wrap; gap: 8px; }
+.reg { border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; background: var(--bg); display: grid; gap: 0; min-width: 88px; }
+.reg small { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.reg b { font-family: var(--f-mono); font-size: 20px; font-variant-numeric: tabular-nums; }
+.reg.flash { border-color: var(--accent); background: var(--accent-soft); }
+.mem { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+.cell { border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; background: var(--bg); font-family: var(--f-mono); display: grid; gap: 0; min-width: 0; }
+.cell .ad { font-size: 10px; color: var(--muted); }
+.cell .ins { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cell .val { font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cell.data .ins { color: var(--sky); }
+.cell.pc { border: 2px solid var(--accent); background: var(--accent-soft); }
+.cell.touch { border: 2px dashed var(--sky); }
+.phase { font-size: 15px; line-height: 1.5; background: var(--bg); border-radius: 8px; padding: 10px 12px; min-height: 3em; }
+.phase b { color: var(--accent); }
+.outbox { font-family: var(--f-mono); font-size: 16px; min-height: 2.2em; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; background: var(--code-bg); color: var(--code-ink); overflow-wrap: anywhere; }
+.outbox span { display: inline-block; margin-right: 12px; }
+.emu-err { color: var(--bad); font-weight: 600; font-size: 14px; white-space: pre-line; }
+.isa td:first-child { font-family: var(--f-mono); font-weight: 700; color: var(--accent); }
+.isa td:nth-child(2) { font-family: var(--f-mono); }
+.isa td { white-space: normal; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+</style>
+</head>
+<body>
+<p style="padding-top:12px;margin:0;font-size:14px"><a href="../index.html">← Усі заняття курсу</a></p>
+<div class="wrap">
+  <div class="topbar">
+    <span class="course">Інформатика · Модуль 1</span>
+    <button class="prog" id="progBtn" type="button" aria-expanded="false" aria-controls="todo"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 5</span><span aria-hidden="true">▾</span></button>
+  </div>
+  <div class="todo" id="todo" hidden></div>
+
+  <header class="hero">
+    <span class="eyebrow">Заняття 3 з 50 · ≈ 90 хвилин</span>
+    <h1>Процесор і пам'ять</h1>
+    <p class="lead">Суматор з минулого заняття вміє тільки додавати. Як процесор знає, що і коли додавати? Сьогодні ти познайомишся з процесором «Зірка-8», напишеш для нього програму зворотного відліку перед стартом ракети, а якщо захочеш, ще й збереш такий самий процесор на Python.</p>
+    <nav class="plan" id="plan" aria-label="Зміст заняття">
+      <a href="#s1">1. Що всередині</a><a href="#s2">2. Пам'ять</a><a href="#s3">3. Зірка-8</a><a href="#s4">4. Перша програма</a>
+      <a href="#s5">5. Цикли</a><a href="#s6">★ Python</a><a href="#s7">7. Тест</a><a href="#s8">★ Челендж</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="step" id="s1">
+    <div class="step-head"><span class="step-no">Крок 1 · теорія · 10 хв</span><h2>Кухар, рецепт і полиці</h2></div>
+    <div class="text">
+      <p>Уяви кухню. Там є <b>кухар</b>, <b>книга рецептів</b> і <b>полиці з продуктами</b>. Кухар читає рецепт по одному рядку і виконує кожен крок: «візьми з полиці борошно», «додай яйце», «перемішай». На столі перед ним стоїть маленька миска, у якій він тримає те, з чим працює просто зараз.</p>
+      <p>У комп'ютері все так само:</p>
+      <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+        <li><b>Процесор</b> — це кухар. Усередині нього є суматор та інші схеми з вентилів, тож рахувати він уміє.</li>
+        <li><b>Програма</b> — це рецепт: список простих команд, які виконуються одна за одною.</li>
+        <li><b>Пам'ять</b> — це полиці. Там лежать і числа, з якими працюємо, і сама програма.</li>
+        <li><b>Регістр</b> — це миска на столі. Крихітна пам'ять просто всередині процесора, дуже швидка. Регістрів мало, бо вони дорогі.</li>
+      </ul>
+      <p>Процесор безкінечно повторює три дії, які звуться <b>цикл команди</b>:</p>
+      <ol style="margin:0; padding-left:22px; display:grid; gap:4px">
+        <li><b>Вибрати:</b> взяти з пам'яті наступну команду.</li>
+        <li><b>Розшифрувати:</b> зрозуміти, що це за команда.</li>
+        <li><b>Виконати:</b> зробити її і перейти до наступної.</li>
+      </ol>
+      <p>Щоб пам'ятати, яку команду виконувати наступною, процесор має спеціальний регістр — <b>лічильник команд</b> (PC, program counter). Це закладка в книзі рецептів.</p>
+    </div>
+    <p class="fact"><b>Швидкість.</b> Процесор твого комп'ютера робить 3–5 мільярдів кроків на секунду (3–5 ГГц). За один такий крок навіть світло встигає пролетіти лише близько 10 сантиметрів. Тому інженери розміщують пам'ять якомога ближче до процесора: інакше він чекав би, поки дані «доїдуть».</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2">
+    <div class="step-head"><span class="step-no">Крок 2 · теорія · 10 хв</span><h2>Пам'ять — це ряд пронумерованих комірок</h2></div>
+    <div class="text">
+      <p>Пам'ять схожа на шахову дошку, тільки клітинки стоять в один довгий ряд. Кожна комірка зберігає одне число (зазвичай один байт: від 0 до 255) і має свій номер — <b>адресу</b>. Щоб узяти число, процесор каже «дай мені вміст комірки 14».</p>
+      <p>Адреса теж є просто числом у бітах. Що більше бітів в адресі, то більше комірок можна пронумерувати. У твоєму комп'ютері адреси мають 64 біти. Пам'ять у 16 ГБ — це приблизно 17 мільярдів комірок.</p>
+      <p>І найважливіша ідея цього заняття: <b>програма теж зберігається в пам'яті як числа</b>. Кожна команда має свій код. Процесор не знає, де число, а де команда: що лічильник команд покаже, те він і виконає. Таку будову придумали в 1940-х роках, і досі майже всі комп'ютери влаштовані саме так.</p>
+    </div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 1</span>
+        <p>Наш навчальний процесор «Зірка-8» має адреси з 4 бітів. Скільки комірок пам'яті в нього може бути?</p>
+        <div class="row"><input type="number" id="memIn" min="1" aria-label="Кількість комірок"><button class="btn primary" type="button" id="memCheck">Перевірити</button><span class="status" id="memStatus"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3">
+    <div class="step-head"><span class="step-no">Крок 3 · знайомство · 10 хв</span><h2>Процесор «Зірка-8»</h2></div>
+    <div class="text">
+      <p>«Зірка-8» — дуже простий процесор, але влаштований так само, як справжній. У нього 16 комірок пам'яті (адреси 0–15), регістр <b>A</b> для чисел і лічильник команд <b>PC</b>. Він знає вісім команд:</p>
+    </div>
+    <div class="tbl-scroll"><table class="isa"><thead><tr><th>Команда</th><th>Код</th><th>Що робить</th></tr></thead><tbody>
+      <tr><td>LOAD n</td><td>1</td><td>Завантажити: покласти в A число з комірки n</td></tr>
+      <tr><td>ADD n</td><td>2</td><td>Додати: A = A + число з комірки n</td></tr>
+      <tr><td>SUB n</td><td>3</td><td>Відняти: A = A − число з комірки n</td></tr>
+      <tr><td>STORE n</td><td>4</td><td>Зберегти: записати A в комірку n</td></tr>
+      <tr><td>JMP n</td><td>5</td><td>Стрибнути: наступною виконати команду з комірки n</td></tr>
+      <tr><td>JZ n</td><td>6</td><td>Стрибнути, якщо нуль: стрибнути на n, тільки якщо A = 0</td></tr>
+      <tr><td>OUT</td><td>7</td><td>Надрукувати число з A</td></tr>
+      <tr><td>HALT</td><td>0</td><td>Зупинитися</td></tr>
+    </tbody></table></div>
+    <div class="text">
+      <p>Ці назви не вигадані: команди <code>ADD</code>, <code>SUB</code>, <code>JMP</code>, <code>JZ</code> справді є в процесорі твого комп'ютера. Мова таких команд зветься <b>асемблер</b>.</p>
+    </div>
+    <details><summary>Для допитливих: як команда стає числом</summary><div>
+      <p>Кожна команда займає одну комірку (8 бітів). Старші 4 біти — код команди з таблиці, молодші 4 біти — адреса. Наприклад, LOAD 14 = 1 × 16 + 14 = <b>30</b>, у двійковій <code>0001 1110</code>: ліва половина <code>0001</code> означає «LOAD», права <code>1110</code> означає «14». Тому в емуляторі нижче під кожною командою написано її число.</p>
+      <p><b>Задачка:</b> яке число лежить у пам'яті, якщо там команда <code>ADD 15</code>?</p>
+      <div class="row"><input type="number" id="encIn" min="0" max="255" aria-label="Число"><button class="btn" type="button" id="encCheck">Перевірити</button><span class="status" id="encStatus"></span></div>
+    </div></details>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4">
+    <div class="step-head"><span class="step-no">Крок 4 · інтерактив · 15 хв</span><h2>Перша програма, крок за кроком</h2></div>
+    <div class="text">
+      <p>Ось програма, яка додає 5 і 7. Ліворуч її текст: <code>14: 5</code> означає «у комірку 14 поклади число 5». Після <code>;</code> іде коментар для людей, процесор його не читає. Праворуч пам'ять процесора.</p>
+      <p>Натискай <b>«Крок»</b> і читай пояснення під регістрами. Помаранчева рамка в пам'яті показує, куди вказує PC (яка команда буде наступною). Синя пунктирна рамка показує комірку, з якою щойно працювали.</p>
+    </div>
+    <div class="panel"><div class="emu-host" data-code="demo" data-task="demo100" data-expect="100"></div>
+      <div class="task">
+        <span class="lbl">Завдання 2</span>
+        <p>Спершу пройди програму кроками. Потім зміни числа в комірках 14 і 15 так, щоб програма надрукувала <b>100</b>. Натисни «Перевірити завдання».</p>
+      </div>
+    </div>
+    <p class="fact"><b>Подумай.</b> Що буде, якщо записати в комірки 200 і 100? У «Зірки-8» 8-бітні комірки. Згадай переповнення з минулого заняття.</p>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5">
+    <div class="step-head"><span class="step-no">Крок 5 · програмування · 20 хв</span><h2>Пишемо програми самі</h2></div>
+    <div class="text">
+      <p>Тепер ти програміст «Зірки-8». Програму пиши рядками: кожен рядок — одна комірка. Номер комірки на початку (<code>3:</code>) писати можна, але не обов'язково: без нього рядок піде в наступну комірку.</p>
+    </div>
+    <div class="panel">
+      <h3>Завдання 3 · Віднімання</h3>
+      <p>Напиши програму, яка надрукує 50 − 8. Числа вже лежать у комірках 14 і 15, перша команда теж є. Допиши решту.</p>
+      <div class="emu-host" data-code="sub" data-task="sub42" data-expect="42"></div>
+      <details><summary>Підказка</summary><div><p>Подивись на програму з кроку 4. Що треба замінити, щоб вона віднімала, а не додавала?</p></div></details>
+      <details class="sol"><summary>Розв'язок</summary><div><pre>0: LOAD 14
+1: SUB 15
+2: OUT
+3: HALT
+14: 50
+15: 8</pre></div></details>
+    </div>
+
+    <div class="text">
+      <p><b>Цикли.</b> Тепер найцікавіше: команда <code>JMP</code> змушує процесор повернутися назад і виконати ті самі команди ще раз. Так з'являються цикли, як <code>while</code> у Python. А <code>JZ</code> дозволяє вийти з циклу, коли A стане нулем. По суті це <code>if</code>.</p>
+    </div>
+    <div class="panel">
+      <h3>Завдання 4 · Зворотний відлік перед стартом</h3>
+      <p>Програма має надрукувати 5, 4, 3, 2, 1 і зупинитися. Майже все готово, лишилося дописати адреси стрибків замість <code>___</code>. Подумай: куди треба стрибнути, щоб повторити друк? А куди, щоб завершити?</p>
+      <div class="emu-host" data-code="count" data-task="count" data-expect="5,4,3,2,1"></div>
+      <details><summary>Підказка</summary><div><p><code>JZ</code> має вести на HALT, коли лічильник дійшов до нуля. Яка адреса в HALT? <code>JMP</code> має повернути назад до команди <code>OUT</code>.</p></div></details>
+      <details class="sol"><summary>Розв'язок</summary><div><p><code>4: JZ 6</code> і <code>5: JMP 1</code>.</p></div></details>
+    </div>
+    <p class="fact"><b>Справжня історія.</b> Зворотний відлік «10, 9, 8…» перед стартом ракети вигадали не інженери, а кінорежисер Фріц Ланг у фільмі 1929 року «Жінка на Місяці», щоб глядачам було цікавіше. Ідея так сподобалась, що її стали використовувати справжні ракетники.</p>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6">
+    <div class="step-head"><span class="step-no star">★ Бонус · Python · необов'язково</span><h2>Збираємо «Зірку-8» на Python</h2></div>
+    <div class="text">
+      <p>Ця частина для тих, кому сподобалось і хочеться більше. Заняття зараховується і без неї. Емулятор — це програма, яка вдає з себе інший комп'ютер. Ти щойно користувався емулятором «Зірки-8» на цій сторінці. Тепер напишемо свій. Як завжди: <b>IDLE → File → New File</b>, встав, F5.</p>
+      <p>Для простоти команди в нашій Python-пам'яті зберігатимемо не числами, а парами <code>["LOAD", 14]</code>. Нове слово <code>elif</code> означає «інакше, якщо»: Python перевіряє умови по черзі, доки не знайде правдиву.</p>
+    </div>
+    <div class="panel">
+      <div class="py-task">
+        <h3>6.1 · Готовий процесор, який уміє 4 команди</h3>
+        <p>Прочитай код і запусти. Знайди в ньому три кроки циклу команди: вибрати, розшифрувати, виконати.</p>
+        <div class="code-box"><pre>memory = [
+    ["LOAD", 14],   # комірка 0
+    ["ADD", 15],    # комірка 1
+    ["OUT", 0],     # комірка 2
+    ["HALT", 0],    # комірка 3
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   # комірки 4–13 порожні
+    5,              # комірка 14
+    7,              # комірка 15
+]
+
+pc = 0     # лічильник команд
+a = 0      # регістр A
+
+while True:
+    command, address = memory[pc]   # 1. вибрати команду
+    pc = pc + 1                     #    і пересунути закладку
+
+    if command == "LOAD":           # 2. розшифрувати і 3. виконати
+        a = memory[address]
+    elif command == "ADD":
+        a = a + memory[address]
+    elif command == "OUT":
+        print(a)
+    elif command == "HALT":
+        print("Зупинка.")
+        break</pre><button class="copy" type="button">Копіювати</button></div>
+        <p><b>Завдання.</b> Зміни числа в комірках 14 і 15 і перевір, що програма друкує їхню суму. Додай рядок <code>print("PC =", pc, " команда:", command)</code> одразу після <code>pc = pc + 1</code>, щоб бачити кожен крок, як на сторінці.</p>
+        
+      </div>
+
+      <div class="py-task">
+        <h3>6.2 · Команда SUB</h3>
+        <p>Навчи процесор віднімати. Додай ці рядки перед <code>elif command == "OUT":</code> і заповни пропуск. Змінивши пам'ять на <code>["SUB", 15]</code> у комірці 1 і числа 50 та 8, перевір, що програма друкує 42.</p>
+        <div class="code-box"><pre>    elif command == "SUB":
+        a = a ___ memory[address]</pre><button class="copy" type="button">Копіювати</button></div>
+        <details><summary>Підказка</summary><div><p>Подивись на рядок для ADD трохи вище. Відрізняється лише один знак. І зверни увагу на відступи: <code>elif</code> стоїть на тому самому рівні, що й інші <code>elif</code>.</p></div></details>
+        <details class="sol"><summary>Розв'язок</summary><div><p><code>a = a - memory[address]</code></p></div></details>
+        
+      </div>
+
+      <div class="py-task">
+        <h3>6.3 · Цикли: STORE, JMP, JZ</h3>
+        <p>Додай ще три команди (теж перед <code>OUT</code>) і заповни пропуски. Потім заміни пам'ять на програму зворотного відліку нижче. Якщо все правильно, вона надрукує 5, 4, 3, 2, 1.</p>
+        <div class="code-box"><pre>    elif command == "STORE":
+        memory[address] = ___      # що записуємо в пам'ять?
+    elif command == "JMP":
+        pc = ___                   # куди переставляємо закладку?
+    elif command == "JZ":
+        if a == 0:
+            pc = ___</pre><button class="copy" type="button">Копіювати</button></div>
+        <div class="code-box"><pre>memory = [
+    ["LOAD", 15],    # 0: A = лічильник
+    ["OUT", 0],      # 1: друкуємо
+    ["SUB", 14],     # 2: A = A - 1
+    ["STORE", 15],   # 3: зберігаємо лічильник
+    ["JZ", 6],       # 4: якщо 0, стрибаємо на HALT
+    ["JMP", 1],      # 5: інакше повторюємо
+    ["HALT", 0],     # 6
+    0, 0, 0, 0, 0, 0, 0,   # 7–13
+    1,               # 14: одиниця, яку віднімаємо
+    5,               # 15: лічильник
+]</pre><button class="copy" type="button">Копіювати</button></div>
+        <details><summary>Підказка</summary><div><p>STORE записує вміст регістра A. JMP і JZ переставляють PC на адресу з команди. Як у коді звуться регістр A і адреса з команди?</p></div></details>
+        <details class="sol"><summary>Розв'язок</summary><div><p><code>memory[address] = a</code>, а у JMP і JZ: <code>pc = address</code>.</p></div></details>
+        <label class="selfcheck"><input type="checkbox" data-task="p2"> Відлік 5, 4, 3, 2, 1 працює</label>
+      </div>
+    </div>
+    <p class="fact"><b>Ти щойно написав емулятор.</b> Так само працюють емулятори старих ігрових приставок: програма на сучасному комп'ютері по одній читає команди старого процесора і виконує їх. Тільки команд там не 8, а кілька сотень.</p>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7">
+    <div class="step-head"><span class="step-no">Крок 7 · тест · 5 хв</span><h2>Перевір себе</h2></div>
+    <div class="panel" id="quiz"></div>
+    <div class="row"><button class="btn primary" id="quizCheck" type="button">Перевірити відповіді</button><span class="status" id="quizStatus"></span></div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8">
+    <div class="step-head"><span class="step-no star">★ Челендж на тиждень · необов'язково</span><h2>Множення без множення</h2></div>
+    <div class="text">
+      <p>У «Зірки-8» немає команди множення. Але 6 × 7 — це 7 + 7 + 7 + 7 + 7 + 7. Напиши програму, яка надрукує <b>42</b>, додаючи 7 шість разів у циклі. Справжні прості процесори саме так і множать.</p>
+      <p>Тобі знадобляться чотири комірки з даними: число 7, результат (спочатку 0), лічильник (спочатку 6) і одиниця. Вони вже є.</p>
+    </div>
+    <div class="panel"><div class="emu-host" data-code="mul" data-task="ch" data-expect="42"></div></div>
+    <details><summary>Підказка 1</summary><div><p>У циклі треба зробити дві речі: додати 7 до результату (LOAD 13, ADD 12, STORE 13) і зменшити лічильник на 1 (LOAD 14, SUB 15, STORE 14).</p></div></details>
+    <details><summary>Підказка 2</summary><div><p>Після зменшення лічильника A дорівнює лічильнику. Якщо він 0, стрибай (JZ) туди, де результат завантажується і друкується. Інакше стрибай (JMP) на початок.</p></div></details>
+    <p class="fact"><b>★★ Ще складніше.</b> Додай у свій Python-емулятор лічильник кроків і надрукуй, скільки команд виконав процесор для множення. Скільки кроків знадобиться для 6 × 7, а скільки для 7 × 6? Чому по-різному?</p>
+
+    <div class="ask">
+      <h3>Застряг? Запитай Claude</h3>
+      <p>Можна скопіювати свій код і запитати, наприклад:</p>
+      <ul>
+        <li>«Моя програма для Зірки-8 зациклилась, ось вона. Не кажи відповідь, дай підказку».</li>
+        <li>«Чим оперативна пам'ять відрізняється від диска?»</li>
+        <li>«Що таке кеш процесора і навіщо він?»</li>
+        <li>«Скільки команд у справжньому процесорі x86?»</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span class="step-no">Наступне заняття</span>
+    <h3>Windows зсередини: програми, процеси, диспетчер задач</h3>
+    <p>На твоєму комп'ютері одночасно працюють сотні програм, а процесорів лише кілька. Хто вирішує, яка програма працює зараз? Ти зазирнеш у Windows і побачиш, що там насправді відбувається.</p>
+    <div class="row" style="margin-top:24px"><button class="btn" id="resetBtn" type="button">Скинути прогрес цього заняття</button></div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const KEY = "inf-l3";
+  const TASKS = ["mem", "demo100", "sub42", "count", "quiz"];
+  const LABELS = { mem: ["s2", "Завдання 1: скільки комірок"], 
+    demo100: ["s4", "Завдання 2: програма друкує 100"], sub42: ["s5", "Завдання 3: віднімання"],
+    count: ["s5", "Завдання 4: зворотний відлік"], quiz: ["s7", "Тест: щонайменше 4 з 5"], p2: ["s6", "★ Бонус: процесор на Python (необов'язково)"], ch: ["s8", "★ Челендж (необов'язково)"] };
+  const SECTION_OF = { mem: "s2", demo100: "s4", sub42: "s5", count: "s5", p2: "s6", quiz: "s7", ch: "s8" };
+  let done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { done = {}; }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} };
+  function mark(t, v = true) { done[t] = v; renderProg(); }
+  function renderProg() {
+    const n = TASKS.filter(t => done[t]).length;
+    done._n = n; done._total = TASKS.length; save();
+    document.getElementById("progTxt").textContent = n + " / " + TASKS.length;
+    document.getElementById("progBar").style.width = (n / TASKS.length * 100) + "%";
+    document.getElementById("todo").innerHTML = '<span class="hd">' + (n === TASKS.length ? "Заняття пройдено! Залишився тільки челендж ★, якщо хочеш." : "Що ще залишилось:") + "</span>" +
+      Object.entries(LABELS).map(([t, [sec, txt]]) => `<a href="#${sec}"><span class="${done[t] ? "ok" : "no"}">${done[t] ? "✓" : "○"}</span><span>${txt}</span></a>`).join("");
+    const secDone = {};
+    for (const [t, s] of Object.entries(SECTION_OF)) secDone[s] = (secDone[s] ?? true) && !!done[t];
+    document.querySelectorAll("#plan a").forEach(a => { const s = a.getAttribute("href").slice(1); a.classList.toggle("done", !!secDone[s]); });
+  }
+  const $ = id => document.getElementById(id);
+  const pb = $("progBtn"), todo = $("todo");
+  pb.addEventListener("click", () => { todo.hidden = !todo.hidden; pb.setAttribute("aria-expanded", String(!todo.hidden)); });
+  todo.addEventListener("click", e => { if (e.target.closest("a")) { todo.hidden = true; pb.setAttribute("aria-expanded", "false"); } });
+  const setStatus = (el, ok, txt) => { el.textContent = txt; el.className = "status " + (ok ? "ok" : "bad"); };
+
+  /* ---- simple tasks ---- */
+  $("memCheck").addEventListener("click", () => {
+    const v = +$("memIn").value;
+    if (v === 16) { setStatus($("memStatus"), true, "Так! 2⁴ = 16 адрес: від 0000 до 1111, тобто від 0 до 15."); mark("mem"); }
+    else if (v === 15) setStatus($("memStatus"), false, "Майже! Найбільша адреса 15, але є ще адреса 0.");
+    else setStatus($("memStatus"), false, "Ні. Згадай заняття 1: скільки різних чисел можна записати 4 бітами?");
+  });
+  $("encCheck").addEventListener("click", () => {
+    const v = +$("encIn").value;
+    if (v === 47) setStatus($("encStatus"), true, "Так! 2 × 16 + 15 = 47, у двійковій 0010 1111.");
+    else setStatus($("encStatus"), false, "Ні. Код ADD дорівнює 2. Порахуй: код × 16 + адреса.");
+  });
+
+  /* ---- Zirka-8 ---- */
+  const OPS = ["HALT", "LOAD", "ADD", "SUB", "STORE", "JMP", "JZ", "OUT"];
+  const NOADDR = new Set(["HALT", "OUT"]);
+  const CODES = {
+    demo: "; Додаємо два числа\n0: LOAD 14   ; A = число з комірки 14\n1: ADD 15    ; A = A + число з комірки 15\n2: OUT       ; друкуємо A\n3: HALT      ; стоп\n\n14: 5\n15: 7",
+    sub: "; Надрукуй 50 - 8\n0: LOAD 14\n; допиши команди тут\n\n\n\n14: 50\n15: 8",
+    count: "; Зворотний відлік: 5, 4, 3, 2, 1\n0: LOAD 15   ; A = лічильник\n1: OUT       ; друкуємо\n2: SUB 14    ; A = A - 1\n3: STORE 15  ; зберігаємо лічильник\n4: JZ ___    ; якщо A = 0, кінець\n5: JMP ___   ; інакше повторюємо\n6: HALT\n\n14: 1        ; одиниця\n15: 5        ; лічильник",
+    mul: "; Надрукуй 6 × 7 = 42\n0: LOAD 13   ; результат\n; твоя програма\n\n\n\n\n12: 7        ; що додаємо\n13: 0        ; результат\n14: 6        ; лічильник\n15: 1        ; одиниця",
+  };
+  const esc = s => String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+  function parse(src) {
+    const mem = Array(16).fill(0), kind = Array(16).fill(""), errs = [];
+    let addr = 0;
+    src.split("\n").forEach((raw, li) => {
+      const n = li + 1;
+      let line = raw.replace(/[;#].*$/, "").trim();
+      if (!line) return;
+      const m = line.match(/^(\d+)\s*:\s*(.*)$/);
+      if (m) { addr = +m[1]; line = m[2].trim(); if (!line) return; }
+      if (addr > 15) { errs.push(`Рядок ${n}: комірки ${addr} немає, у пам'яті лише комірки 0–15.`); return; }
+      if (line.includes("_")) { errs.push(`Рядок ${n}: заміни ___ на число.`); addr++; return; }
+      let val;
+      if (/^\d+$/.test(line)) {
+        val = +line;
+        if (val > 255) { errs.push(`Рядок ${n}: число ${val} не вміщується в 8 бітів (найбільше 255).`); addr++; return; }
+      } else {
+        const p = line.split(/\s+/), op = p[0].toUpperCase(), k = OPS.indexOf(op);
+        if (k < 0) { errs.push(`Рядок ${n}: «${p[0]}» — невідома команда. Є такі: ${OPS.join(", ")}.`); addr++; return; }
+        if (NOADDR.has(op)) {
+          if (p.length > 1) { errs.push(`Рядок ${n}: команді ${op} адреса не потрібна.`); addr++; return; }
+          val = k * 16;
+        } else {
+          if (p.length < 2 || !/^\d+$/.test(p[1])) { errs.push(`Рядок ${n}: після ${op} напиши номер комірки (0–15).`); addr++; return; }
+          const a = +p[1];
+          if (a > 15) { errs.push(`Рядок ${n}: комірки ${a} немає (є тільки 0–15).`); addr++; return; }
+          val = k * 16 + a;
+        }
+      }
+      if (kind[addr]) errs.push(`Рядок ${n}: у комірку ${addr} вже щось записано вище.`);
+      mem[addr] = val; kind[addr] = /^\d+$/.test(line) ? "data" : "ins"; addr++;
+    });
+    return { mem, kind, errs };
+  }
+  const nm = v => { const op = OPS[v >> 4]; if (op === undefined) return null; return NOADDR.has(op) ? op : op + " " + (v & 15); };
+
+  function step(st) {
+    const here = st.pc, v = st.mem[here], op = OPS[v >> 4], ad = v & 15;
+    st.pc = (st.pc + 1) % 16; st.steps++;
+    st.touched = null;
+    const f = `<b>Вибрати:</b> PC = ${here}, беру вміст комірки ${here}. `;
+    if (op === undefined) { st.halted = true; st.pc = here; return f + `<b>Розшифрувати:</b> число ${v} не є командою (коди лише 0–7). Процесор не знає, що робити, і зупиняється. Можливо, програма «забігла» в дані?`; }
+    const d = `<b>Розшифрувати:</b> це команда ${nm(v)}. `;
+    let x;
+    switch (op) {
+      case "HALT": st.halted = true; st.pc = here; x = "<b>Виконати:</b> стоп. Програма завершена."; break;
+      case "LOAD": st.a = st.mem[ad]; st.touched = ad; x = `<b>Виконати:</b> кладу в A число з комірки ${ad}. Тепер A = ${st.a}.`; break;
+      case "ADD": { const s = st.a + st.mem[ad]; st.touched = ad; x = `<b>Виконати:</b> суматор рахує ${st.a} + ${st.mem[ad]} = ${s}.`; if (s > 255) x += ` Але 8 бітів вміщують лише до 255: переповнення! A = ${s % 256}.`; st.a = s % 256; break; }
+      case "SUB": { const s = st.a - st.mem[ad]; st.touched = ad; x = `<b>Виконати:</b> ${st.a} − ${st.mem[ad]} = ${s}.`; if (s < 0) x += ` Від'ємних чисел «Зірка-8» не знає, тому вийшло ${s + 256}.`; st.a = (s + 256) % 256; break; }
+      case "STORE": st.mem[ad] = st.a; st.kind[ad] = "data"; st.touched = ad; x = `<b>Виконати:</b> записую A = ${st.a} у комірку ${ad}.`; break;
+      case "JMP": st.pc = ad; x = `<b>Виконати:</b> переставляю PC на ${ad}. Наступною буде команда з комірки ${ad}.`; break;
+      case "JZ": if (st.a === 0) { st.pc = ad; x = `<b>Виконати:</b> A = 0, тому стрибаю: PC = ${ad}.`; } else x = `<b>Виконати:</b> A = ${st.a}, це не нуль, тому не стрибаю і йду далі до комірки ${st.pc}.`; break;
+      case "OUT": st.out.push(st.a); x = `<b>Виконати:</b> друкую A = ${st.a}.`; break;
+    }
+    return f + d + x;
+  }
+  function runHeadless(src, max = 3000) {
+    const p = parse(src); if (p.errs.length) return { errs: p.errs };
+    const st = { mem: p.mem.slice(), kind: p.kind.slice(), pc: 0, a: 0, out: [], halted: false, steps: 0 };
+    while (!st.halted && st.steps < max) step(st);
+    return { out: st.out, halted: st.halted, steps: st.steps };
+  }
+
+  function makeEmu(host) {
+    const code = CODES[host.dataset.code], expect = host.dataset.expect, task = host.dataset.task;
+    host.innerHTML = `<div class="emu">
+      <div class="emu-col">
+        <textarea spellcheck="false" wrap="off" aria-label="Програма для Зірки-8"></textarea>
+        <div class="btns"><button class="btn" type="button" data-a="step">Крок</button><button class="btn" type="button" data-a="run">Запуск</button><button class="btn" type="button" data-a="reset">Спочатку</button><button class="btn" type="button" data-a="orig">Повернути початковий код</button></div>
+        ${expect ? '<div class="btns"><button class="btn primary" type="button" data-a="check">Перевірити завдання</button></div><p class="status" data-r="task"></p>' : ""}
+        <div class="emu-err" data-r="err"></div>
+      </div>
+      <div class="emu-col">
+        <div class="regs"><div class="reg" data-r="pcbox"><small>PC</small><b data-r="pc">0</b></div><div class="reg" data-r="abox"><small>Регістр A</small><b data-r="a">0</b></div><div class="reg"><small>Кроків</small><b data-r="steps">0</b></div></div>
+        <div class="phase" data-r="phase">Натисни «Крок», щоб процесор виконав одну команду.</div>
+        <div><div class="step-no" style="margin-bottom:4px">Надруковано</div><div class="outbox" data-r="out"></div></div>
+        <div><div class="step-no" style="margin-bottom:4px">Пам'ять</div><div class="mem" data-r="mem"></div>
+        <div class="legend" style="margin-top:6px"><span><i style="border:2px solid var(--accent);background:var(--accent-soft)"></i>наступна команда (PC)</span><span><i style="border:2px dashed var(--sky)"></i>щойно використана</span><span><i style="background:var(--sky)"></i>дані</span></div></div>
+      </div></div>`;
+    const ta = host.querySelector("textarea"), R = k => host.querySelector(`[data-r="${k}"]`);
+    ta.value = code;
+    let st = null, timer = null;
+    const runBtn = host.querySelector('[data-a="run"]');
+    function load() {
+      const p = parse(ta.value);
+      R("err").textContent = p.errs.join("\n");
+      if (p.errs.length) { st = null; return false; }
+      st = { mem: p.mem, kind: p.kind, pc: 0, a: 0, out: [], halted: false, steps: 0, touched: null };
+      R("phase").innerHTML = "Програму завантажено в пам'ять. Натисни «Крок».";
+      return true;
+    }
+    function render(flash) {
+      const s = st || { mem: Array(16).fill(0), kind: Array(16).fill(""), pc: 0, a: 0, out: [], steps: 0, touched: null };
+      R("pc").textContent = s.pc; R("a").textContent = s.a; R("steps").textContent = s.steps;
+      R("abox").classList.toggle("flash", !!flash);
+      R("out").innerHTML = s.out.map(v => `<span>${v}</span>`).join("");
+      R("mem").innerHTML = s.mem.map((v, i) => {
+        const k = s.kind[i], ins = nm(v);
+        let main, sub;
+        if (k === "data") { main = String(v); sub = "число"; }
+        else if (k === "ins") { main = ins; sub = "код " + v; }
+        else { main = "0"; sub = "порожньо"; }
+        return `<div class="cell ${k === "data" ? "data" : ""} ${i === s.pc && !s.halted ? "pc" : ""} ${i === s.touched ? "touch" : ""}" title="Комірка ${i}: ${v} = ${v.toString(2).padStart(8, "0")}"><span class="ad">${i}</span><span class="ins">${esc(main)}</span><span class="val">${esc(sub)}</span></div>`;
+      }).join("");
+    }
+    function doStep() {
+      if (!st && !load()) { render(); return false; }
+      if (st.halted) { R("phase").innerHTML = "Програма вже зупинилась. Натисни «Спочатку», щоб запустити ще раз."; return false; }
+      const before = st.a;
+      R("phase").innerHTML = step(st);
+      render(st.a !== before);
+      if (st.steps >= 300 && !st.halted) { R("phase").innerHTML += "<br>Вже 300 кроків. Схоже, програма зациклилась і ніколи не дійде до HALT."; stop(); return false; }
+      return !st.halted;
+    }
+    function stop() { clearInterval(timer); timer = null; runBtn.textContent = "Запуск"; }
+    host.addEventListener("click", e => {
+      const b = e.target.closest("[data-a]"); if (!b) return;
+      const a = b.dataset.a;
+      if (a === "step") { stop(); doStep(); }
+      else if (a === "run") {
+        if (timer) { stop(); return; }
+        if (!st || st.halted) { if (!load()) { render(); return; } render(); }
+        runBtn.textContent = "Стоп";
+        timer = setInterval(() => { if (!doStep()) stop(); }, matchMedia("(prefers-reduced-motion: reduce)").matches ? 60 : 350);
+      }
+      else if (a === "reset") { stop(); load(); render(); }
+      else if (a === "orig") { stop(); ta.value = code; st = null; load(); render(); }
+      else if (a === "check") {
+        const r = runHeadless(ta.value), el = R("task");
+        if (r.errs) { setStatus(el, false, "У програмі є помилки, дивись нижче."); R("err").textContent = r.errs.join("\n"); return; }
+        const want = expect.split(",").map(Number), got = r.out;
+        if (!r.halted) setStatus(el, false, "Програма не зупинилась навіть за 3000 кроків. Мабуть, вона зациклилась. Чи є шлях до HALT?");
+        else if (got.join(",") === want.join(",")) { setStatus(el, true, "Правильно! Програма надрукувала " + got.join(", ") + ". Процесор виконав команд: " + r.steps + "."); mark(task); }
+        else setStatus(el, false, "Програма надрукувала " + (got.length ? got.join(", ") : "нічого") + ", а треба " + want.join(", ") + ". Пройди її кроками, щоб знайти, де помилка.");
+      }
+    });
+    ta.addEventListener("input", () => { stop(); st = null; R("err").textContent = ""; });
+    load(); render();
+  }
+  document.querySelectorAll(".emu-host").forEach(makeEmu);
+
+  /* ---- quiz ---- */
+  const Q = [
+    { q: "Що робить лічильник команд (PC)?", a: ["Рахує, скільки програм запущено", "Зберігає адресу наступної команди", "Рахує помилки", "Додає числа"], c: 1, e: "Це закладка: процесор бере наступну команду саме з тієї комірки, на яку вказує PC." },
+    { q: "У якому порядку процесор виконує цикл команди?", a: ["Виконати → вибрати → розшифрувати", "Розшифрувати → вибрати → виконати", "Вибрати → розшифрувати → виконати", "Тільки виконати"], c: 2, e: "Спершу взяти команду з пам'яті, потім зрозуміти її, потім зробити." },
+    { q: "Де зберігається програма, поки вона виконується?", a: ["У пам'яті, поруч із даними, як числа", "Тільки в процесорі", "На моніторі", "В інтернеті"], c: 0, e: "Команди — це теж числа в пам'яті. Процесор не відрізняє їх від даних." },
+    { q: "Яка команда «Зірки-8» дозволяє зробити цикл?", a: ["ADD", "OUT", "JMP", "STORE"], c: 2, e: "JMP повертає PC назад, і ті самі команди виконуються знову." },
+    { q: "Навіщо процесору регістри, якщо є пам'ять?", a: ["Регістри дешевші за пам'ять", "Регістри всередині процесора і працюють набагато швидше", "Пам'ять не вміє зберігати числа", "Регістри потрібні тільки для ігор"], c: 1, e: "Регістри — це «миска на столі» кухаря. Їх мало, але до них не треба нікуди ходити." },
+  ];
+  const quizEl = $("quiz");
+  quizEl.innerHTML = Q.map((x, i) => `<fieldset class="q" style="border:0;margin:0"><legend style="padding:0;font-weight:700">${i + 1}. ${x.q}</legend>${x.a.map((o, j) => `<label><input type="radio" name="q${i}" id="q${i}_${j}" value="${j}"> <span>${o}</span></label>`).join("")}<div class="expl" hidden></div></fieldset>`).join("");
+  $("quizCheck").addEventListener("click", () => {
+    let score = 0;
+    Q.forEach((x, i) => {
+      const sel = quizEl.querySelector(`input[name=q${i}]:checked`), ex = quizEl.querySelectorAll(".expl")[i];
+      ex.hidden = false;
+      if (!sel) { ex.className = "expl bad"; ex.textContent = "Ти не обрав відповідь."; return; }
+      const ok = +sel.value === x.c; if (ok) score++;
+      ex.className = "expl " + (ok ? "ok" : "bad"); ex.textContent = (ok ? "Правильно. " : "Ні. ") + x.e;
+    });
+    setStatus($("quizStatus"), score >= 4, score + " з " + Q.length + (score === Q.length ? ". Чудово!" : score >= 4 ? ". Добре!" : ". Перечитай пояснення і спробуй ще."));
+    if (score >= 4) mark("quiz");
+  });
+
+  /* ---- self-checks, copy, reset ---- */
+  document.querySelectorAll("input[data-task]").forEach(cb => { cb.checked = !!done[cb.dataset.task]; cb.addEventListener("change", () => mark(cb.dataset.task, cb.checked)); });
+  document.querySelectorAll(".copy").forEach(btn => btn.addEventListener("click", () => {
+    const pre = btn.parentElement.querySelector("pre");
+    const ok = () => { btn.textContent = "Скопійовано"; setTimeout(() => btn.textContent = "Копіювати", 1500); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "Виділено: Ctrl+C"; };
+    try { navigator.clipboard.writeText(pre.textContent).then(ok, fallback); } catch (e) { fallback(); }
+  }));
+  const rb = $("resetBtn");
+  rb.addEventListener("click", () => {
+    if (rb.dataset.armed) { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); return; }
+    rb.dataset.armed = "1"; rb.textContent = "Точно скинути? Натисни ще раз";
+    setTimeout(() => { delete rb.dataset.armed; rb.textContent = "Скинути прогрес цього заняття"; }, 4000);
+  });
+  renderProg();
+})();
+</script>
+</body>
+</html>
