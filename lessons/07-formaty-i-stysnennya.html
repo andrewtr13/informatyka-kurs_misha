@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Заняття 7. Що всередині файлу</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/lesson.css">
+<style>
+.hex { display: grid; gap: 8px; background: var(--code-bg); color: var(--code-ink); border-radius: 8px; padding: 12px 14px; overflow-x: auto; }
+.hex-row { display: grid; grid-template-columns: repeat(8, max-content); gap: 4px 10px; font-family: var(--f-mono); font-size: 17px; }
+.hex-row .hb.z { opacity: .45; }
+.hex-txt { font-family: var(--f-mono); font-size: 17px; letter-spacing: .35em; color: #F2A23A; white-space: pre; }
+.btn.sample[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.jpeg-wrap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .jpeg-wrap { grid-template-columns: 1fr; } }
+.jpeg-wrap figure { margin: 0; display: grid; gap: 6px; min-width: 0; }
+.jpeg-wrap canvas, .jpeg-wrap img { width: 100%; height: auto; border-radius: 6px; image-rendering: pixelated; display: block; }
+.jpeg-wrap figcaption { font-size: 14px; color: var(--muted); }
+</style>
+</head>
+<body>
+<p style="padding-top:12px;margin:0;font-size:14px"><a href="../index.html">← Усі заняття курсу</a></p>
+<div class="wrap">
+  <div class="topbar">
+    <span class="course">Інформатика · Модуль 2</span>
+    <button class="prog" id="progBtn" type="button" aria-expanded="false" aria-controls="todo"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 8</span><span aria-hidden="true">▾</span></button>
+  </div>
+  <div class="todo" id="todo" hidden></div>
+
+  <header class="hero">
+    <span class="eyebrow">Заняття 7 · ≈ 90 хвилин · працюємо на своєму комп'ютері</span>
+    <h1>Що всередині файлу</h1>
+    <p class="lead">Для диска будь-який файл — просто ряд байтів. Як тоді комп'ютер відрізняє фото від пісні? І як ZIP-архів зменшує файл у десять разів, нічого не втративши? Сьогодні ти зазирнеш усередину файлів і сам стиснеш дані.</p>
+    <nav class="plan" id="plan" aria-label="Зміст заняття">
+      <a href="#s1">1. Байти файлу</a><a href="#s2">2. Фото в Блокноті</a><a href="#s3">3. Пікселі</a><a href="#s4">4. Стиснення</a>
+      <a href="#s5">5. ZIP</a><a href="#s6">6. JPEG</a><a href="#s7">7. Клавіші</a><a href="#s8">8. Тест</a><a href="#s9">★ Челендж</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="step" id="s1">
+    <div class="step-head"><span class="step-no">Крок 1 · інтерактив · 15 хв</span><h2>Магічні числа</h2></div>
+    <div class="text">
+      <p><b>Формат</b> — це домовленість, як читати байти файлу: які з них означають ширину картинки, які кольори пікселів, які звук. А щоб програма одразу зрозуміла, що перед нею, більшість форматів починаються з особливих байтів-підписів. Програмісти звуть їх <b>магічними числами</b>.</p>
+      <p>Нижче перші 16 байтів справжніх файлів. Байти записані в <b>шістнадцятковій</b> системі: це як двійкова, тільки цифр 16 (0–9 і A–F), тому один байт записується рівно двома символами. Наприклад, <code>FF</code> = 255. Праворуч ті самі байти, показані як літери (крапка, якщо байт не схожий на літеру).</p>
+    </div>
+    <div class="panel">
+      <div class="row" id="sampleBtns"></div>
+      <div class="hex" id="hex"></div>
+      <p id="hexNote"></p>
+    </div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 1</span>
+        <div id="sigQ" style="display:grid; gap:10px"></div>
+        <div class="row"><button class="btn primary" type="button" id="sigCheck">Перевірити</button><span class="status" id="sigStatus"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2">
+    <div class="step-head"><span class="step-no">Крок 2 · експеримент · 10 хв</span><h2>Відкрий фото в Блокноті</h2></div>
+    <div class="text">
+      <p>Блокнот вважає, що будь-який файл — це текст, і показує кожен байт як літеру. Подивимось, що з цього вийде:</p>
+    </div>
+    <div class="panel howto">
+      <ol style="margin:0; padding-left:22px">
+        <li>Знайди будь-яке фото <code>.jpg</code> (наприклад, у «Зображеннях»).</li>
+        <li>Клацни на нього правою кнопкою → «Відкрити за допомогою» → «Блокнот». Якщо Блокнота немає в списку, обери «Вибрати іншу програму».</li>
+        <li>Подивись на самий початок: там будуть символи <code>ÿØÿà</code> або <code>ÿØÿá</code>. Це і є магічні байти <code>FF D8 FF</code>, тільки показані як літери. Далі може бути слово <code>JFIF</code> або <code>Exif</code>.</li>
+        <li>Прокрути трохи: подекуди видно назву камери чи телефона, якими зроблено фото.</li>
+        <li><b>Закрий Блокнот без збереження!</b> Якщо зберегти, фото зіпсується.</li>
+      </ol>
+      <label class="selfcheck"><input type="checkbox" data-task="notepad"> Побачив магічні байти JPEG</label>
+    </div>
+    <p class="fact"><b>Розширення — лише підказка.</b> Якщо перейменувати <code>фото.jpg</code> на <code>фото.txt</code>, всередині нічого не зміниться: це ті самі байти. Просто Windows відкриє файл не тією програмою. Щоб справді змінити формат, потрібна програма-конвертер.</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3">
+    <div class="step-head"><span class="step-no">Крок 3 · математика · 10 хв</span><h2>Скільки важить картинка</h2></div>
+    <div class="text">
+      <p>Картинка складається з <b>пікселів</b> — крихітних кольорових квадратиків. Колір кожного пікселя записується трьома числами: скільки в ньому червоного (Red), зеленого (Green) і синього (Blue), кожне від 0 до 255. Тобто <b>3 байти на піксель</b>. Наприклад, жовтий — це (255, 255, 0): багато червоного і зеленого, без синього.</p>
+    </div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 2</span>
+        <p>Екран Full HD має 1920 × 1080 пікселів. Скільки МБ займе одна картинка на весь екран, якщо зберегти кожен піксель трьома байтами без стиснення? Округли до десятих.</p>
+        <details><summary>Підказка</summary><div><p>Пікселів: 1920 × 1080. Байтів: × 3. Щоб отримати МБ, поділи на 1024 і ще раз на 1024.</p></div></details>
+        <div class="row"><input type="text" id="hdIn" style="width:110px" aria-label="Мегабайтів"> МБ <button class="btn primary" type="button" id="hdCheck">Перевірити</button></div>
+        <p class="status" id="hdStatus"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4">
+    <div class="step-head"><span class="step-no">Крок 4 · інтерактив · 10 хв</span><h2>Як стиснути дані без втрат</h2></div>
+    <div class="text">
+      <p>Найпростіша ідея стиснення: замість «ААААААААББББ» записати «8А4Б». Цей спосіб зветься <b>RLE</b> (кодування довжин серій). Розпакувати назад легко, нічого не втрачається. Так стискають картинки з великими однотонними ділянками: небо, фон, схеми.</p>
+      <p>Справжні архіватори (ZIP) розумніші: вони шукають не лише однакові літери підряд, а й слова та шматки, що повторюються, і замінюють повтори короткими посиланнями «як 200 байтів тому».</p>
+    </div>
+    <div class="panel">
+      <label for="rleIn" style="font-weight:600">Напиши текст:</label>
+      <input type="text" id="rleIn" value="ЗЗЗЗЗЗЗІІІІРРРРРККККККА" spellcheck="false" style="width:100%; font-family:var(--f-mono)">
+      <div class="phase mono" id="rleOut" style="overflow-wrap:anywhere"></div>
+      <p class="status" id="rleStatus"></p>
+      <div class="task">
+        <span class="lbl">Завдання 3</span>
+        <p>Знайди текст хоча б з 5 символів, який після RLE стає <b>довшим</b>, ніж був. Подумай, чому так буває.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5">
+    <div class="step-head"><span class="step-no">Крок 5 · експеримент · 15 хв</span><h2>ZIP на твоєму комп'ютері</h2></div>
+    <div class="panel howto">
+      <ol style="margin:0; padding-left:22px">
+        <li>Натисни кнопку нижче: вона скопіює довгий текст, у якому одна фраза повторюється 3000 разів.<br><button class="btn" type="button" id="copyLong" style="margin-top:6px">Скопіювати довгий текст</button></li>
+        <li>Відкрий Блокнот (<kbd>Win</kbd> + <kbd>R</kbd> → <code>notepad</code>), встав текст (<kbd>Ctrl</kbd> + <kbd>V</kbd>) і збережи як <code>тест.txt</code> у своїй папці <code>Інформатика</code> (<kbd>Ctrl</kbd> + <kbd>S</kbd>).</li>
+        <li>Клацни на файл правою кнопкою. <b>Windows 11:</b> «Стиснути до ZIP-файлу». <b>Windows 10:</b> «Надіслати» → «Стиснена ZIP-папка».</li>
+        <li>Подивись розміри обох файлів: виділи і натисни <kbd>Alt</kbd> + <kbd>Enter</kbd>, рядок «Розмір». Запиши в КБ.</li>
+        <li>Зроби те саме з будь-яким фото <code>.jpg</code> (скопіюй його в папку <code>Інформатика</code> і стисни копію).</li>
+      </ol>
+      <div class="form-grid">
+        <div class="field"><label for="z_txt">тест.txt, КБ</label><input id="z_txt" type="number" min="0" step="0.1"></div>
+        <div class="field"><label for="z_txtzip">тест.zip, КБ</label><input id="z_txtzip" type="number" min="0" step="0.1"></div>
+        <div class="field"><label for="z_jpg">фото.jpg, КБ</label><input id="z_jpg" type="number" min="0" step="0.1"></div>
+        <div class="field"><label for="z_jpgzip">фото.zip, КБ</label><input id="z_jpgzip" type="number" min="0" step="0.1"></div>
+      </div>
+      <div class="facts" id="zipFacts"></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6">
+    <div class="step-head"><span class="step-no">Крок 6 · інтерактив · 10 хв</span><h2>Стиснення з втратами: JPEG</h2></div>
+    <div class="text">
+      <p>Фото погано стискається ZIP-ом, бо воно <b>вже стиснуте</b>. Формат JPEG робить хитру річ: викидає дрібні деталі, які око майже не помічає. Розпакувати назад точно вже не вийде, тому це зветься <b>стиснення з втратами</b>. Так само MP3 викидає звуки, які вухо не чує, а відео на YouTube викидає ще більше.</p>
+      <p>Рухай повзунок якості і дивись, як змінюється картинка та її розмір. На якій якості ти починаєш помічати «квадратики»?</p>
+    </div>
+    <div class="panel">
+      <div class="jpeg-wrap"><figure><canvas id="orig" width="320" height="200" aria-label="Оригінал"></canvas><figcaption>Оригінал (без втрат, PNG): <b id="pngSize"></b></figcaption></figure>
+      <figure><img id="jpgImg" alt="Та сама картинка після стиснення JPEG" width="320" height="200"><figcaption>JPEG: <b id="jpgSize"></b></figcaption></figure></div>
+      <div class="slider-row"><label for="q">Якість JPEG: <b id="qTxt">80</b>%</label><input type="range" id="q" min="1" max="100" value="80"></div>
+      <p class="status" id="jpgStatus"></p>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7">
+    <div class="step-head"><span class="step-no">Крок 7 · гарячі клавіші · 10 хв</span><h2>Клавіші для файлів і вкладок</h2></div>
+    <div class="panel">
+      <p style="color:var(--muted); font-size:15px">Ці комбінації працюють майже в усіх програмах. Спробуй кожну в Блокноті або в браузері і відміть галочкою.</p>
+      <div class="keys" id="keys7"></div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8">
+    <div class="step-head"><span class="step-no">Крок 8 · тест · 5 хв</span><h2>Перевір себе</h2></div>
+    <div class="panel" id="quiz"></div>
+    <div class="row"><button class="btn primary" id="quizCheck" type="button">Перевірити відповіді</button><span class="status" id="quizStatus"></span></div>
+  </section>
+
+  <!-- 9 -->
+  <section class="step" id="s9">
+    <div class="step-head"><span class="step-no star">★ Челендж на тиждень · необов'язково</span><h2>Документ Word — це архів</h2></div>
+    <div class="text">
+      <ol style="margin:0; padding-left:22px; display:grid; gap:6px">
+        <li>Подивись у кроці 1 на магічні байти «Документа Word»: <code>50 4B</code>, тобто «PK». Такі самі, як у ZIP! Це ініціали Філа Катца, автора формату ZIP.</li>
+        <li>Зроби <b>копію</b> будь-якого файлу <code>.docx</code>, перейменуй копію на <code>.zip</code> (F2) і відкрий її подвійним клацанням.</li>
+        <li>Усередині папки і файли! Знайди <code>word\document.xml</code>: там твій текст. А в <code>word\media</code> лежать картинки з документа.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h3>★ Бонус на Python: свій переглядач байтів</h3>
+      <p>Ця програма друкує перші 16 байтів будь-якого файлу, як у кроці 1. Зміни шлях на справжній файл зі свого комп'ютера. Буква <code>r</code> перед лапками потрібна, щоб Python не плутався з рисками <code>\</code>.</p>
+      <div class="code-box"><pre>path = r"C:\Windows\System32\notepad.exe"   # зміни на свій файл
+
+with open(path, "rb") as f:     # "rb" = читати байти, а не текст
+    data = f.read(16)
+
+for b in data:
+    print(format(b, "02X"), end=" ")   # байт у шістнадцятковій
+print()</pre><button class="copy" type="button">Копіювати</button></div>
+      <p style="font-size:15px; color:var(--muted)">Для notepad.exe має вийти <code>4D 5A ...</code>, тобто «MZ», підпис програм Windows.</p>
+    </div>
+    <label class="selfcheck"><input type="checkbox" data-task="ch"> Челендж виконано</label>
+
+    <div class="ask">
+      <h3>Цікаво? Запитай Claude</h3>
+      <ul>
+        <li>«Чим PNG відрізняється від JPEG і коли що краще використовувати?»</li>
+        <li>«Як саме ZIP знаходить повтори в тексті? Поясни алгоритм LZ77 на прикладі».</li>
+        <li>«Чому MP3 звучить майже як оригінал, хоча важить у 10 разів менше?»</li>
+        <li>«Як передають фото з марсоходів, якщо зв'язок із Марсом дуже повільний?»</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span class="step-no">Наступне заняття</span>
+    <h3><a href="08-bezpeka-i-poryadok.html">Безпека і порядок →</a></h3>
+    <p>Облікові записи і права, надійні паролі, оновлення, антивірус і резервні копії: як не втратити свої файли і не пустити в комп'ютер чужих.</p>
+    <div class="row" style="margin-top:24px"><button class="btn" id="resetBtn" type="button">Скинути прогрес цього заняття</button></div>
+  </footer>
+</div>
+
+<script src="../assets/lesson.js"></script>
+<script>
+(() => {
+  const L = Lesson({
+    key: "inf-l7",
+    tasks: ["sig", "notepad", "fullhd", "rle", "zip", "jpeg", "keys", "quiz"],
+    labels: { sig: ["s1", "Завдання 1: магічні числа"], notepad: ["s2", "Фото в Блокноті (відміть галочку)"],
+      fullhd: ["s3", "Завдання 2: розмір Full HD картинки"], rle: ["s4", "Завдання 3: текст, що стає довшим"],
+      zip: ["s5", "Експеримент з ZIP"], jpeg: ["s6", "Спробувати якість JPEG 5% і 100%"],
+      keys: ["s7", "Гарячі клавіші: спробувати всі"], quiz: ["s8", "Тест: щонайменше 4 з 5"], ch: ["s9", "★ Челендж (необов'язково)"] },
+  });
+  const { $, esc, fmt, mark, setStatus, num, done, save } = L;
+
+  /* 1: hex viewer */
+  const SAMPLES = [
+    ["Текст .txt", "48 65 6C 6C 6F 2C 20 4D 6F 6F 6E 21 0D 0A 31 39", "Звичайний текст не має магічного числа: тут одразу самі літери «Hello, Moon!», потім 0D 0A — це перехід на новий рядок."],
+    ["Фото .jpg", "FF D8 FF E0 00 10 4A 46 49 46 00 01 01 01 00 48", "JPEG завжди починається з FF D8 FF. Далі часто видно слово JFIF."],
+    ["Картинка .png", "89 50 4E 47 0D 0A 1A 0A 00 00 00 0D 49 48 44 52", "PNG починається з байта 89 і слова PNG. Далі блок IHDR: там записані ширина і висота."],
+    ["Пісня .mp3", "49 44 33 04 00 00 00 00 01 0A 54 49 54 32 00 00", "Багато MP3 починаються з ID3: це блок з назвою пісні і виконавцем. TIT2 — це назва (title)."],
+    ["Документ .docx", "50 4B 03 04 14 00 06 00 08 00 00 00 21 00 DF A4", "PK — підпис ZIP-архіву! Документ Word насправді є архівом. Перевір це в челенджі."],
+    ["Програма .exe", "4D 5A 90 00 03 00 00 00 04 00 00 00 FF FF 00 00", "MZ — підпис програм Windows. Це ініціали Марка Збіковського, одного з авторів MS-DOS, ще з 1980-х."],
+  ];
+  function showSample(i) {
+    const [name, hex, note] = SAMPLES[i];
+    const bytes = hex.split(" ").map(h => parseInt(h, 16));
+    $("hex").innerHTML = `<div class="hex-row">${bytes.map(b => `<span class="hb ${b === 0 ? "z" : ""}">${b.toString(16).toUpperCase().padStart(2, "0")}</span>`).join("")}</div><div class="hex-txt">${bytes.map(b => esc(b >= 32 && b < 127 ? String.fromCharCode(b) : "·")).join("")}</div>`;
+    $("hexNote").textContent = note;
+    $("sampleBtns").querySelectorAll("button").forEach((b, j) => b.setAttribute("aria-pressed", String(j === i)));
+  }
+  $("sampleBtns").innerHTML = SAMPLES.map(([n], i) => `<button type="button" class="btn sample" data-i="${i}" aria-pressed="false">${n}</button>`).join("");
+  $("sampleBtns").addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b) showSample(+b.dataset.i); });
+  showSample(1);
+  L.selectTask({ el: "sigQ", btn: "sigCheck", status: "sigStatus", task: "sig", ok: "Правильно! Тепер ти можеш упізнати формат навіть без розширення.",
+    options: ["JPEG-фото", "PNG-картинка", "ZIP-архів", "Програма .exe", "Текст"],
+    items: [["Файл починається з 4D 5A («MZ»)", "Програма .exe"], ["Файл починається з FF D8 FF", "JPEG-фото"], ["Файл починається з 50 4B («PK»)", "ZIP-архів"], ["Файл починається з 89 50 4E 47", "PNG-картинка"]] });
+
+  /* 3: Full HD */
+  L.inputTask({ input: "hdIn", btn: "hdCheck", status: "hdStatus", task: "fullhd", check: v => {
+    const n = num(v);
+    if (n === null) return [false, "Введи число."];
+    if (n >= 5.8 && n <= 6.0) return [true, `Так! 1920 × 1080 × 3 = 6 220 800 байтів ≈ 5,9 МБ. А фото такого розміру в JPEG важить близько 0,5 МБ: у 10 разів менше. Як це можливо? Дивись далі.`];
+    if (n >= 6.1 && n <= 6.3) return [false, "Майже! Ти, мабуть, поділив на 1000. У Windows 1 МБ = 1024 × 1024 байтів."];
+    if (n > 1.9 && n < 2.1) return [false, "Забув помножити на 3 байти на піксель."];
+    return [false, "Ні. Порахуй по кроках з підказки."];
+  } });
+
+  /* 4: RLE */
+  function rle(s) { const a = Array.from(s), out = []; for (let i = 0; i < a.length;) { let j = i; while (j < a.length && a[j] === a[i]) j++; out.push((j - i) + a[i]); i = j; } return out.join(""); }
+  function onRle() {
+    const s = $("rleIn").value, e = rle(s), n = Array.from(s).length, m = Array.from(e).length;
+    $("rleOut").textContent = s ? e : "…";
+    if (!s) { $("rleStatus").textContent = ""; return; }
+    if (m < n) setStatus($("rleStatus"), true, `Було ${n} символів, стало ${m}: стиснуто до ${Math.round(m / n * 100)}%.`);
+    else setStatus($("rleStatus"), false, `Було ${n} символів, стало ${m}: текст став ${m === n ? "не коротшим" : "довшим"}!`);
+    if (n >= 5 && m > n) { setStatus($("rleStatus"), true, `Знайшов! Було ${n}, стало ${m}. Коли повторів немає, RLE додає до кожної літери цифру «1», і текст росте. Жоден спосіб стиснення не може зменшити будь-які дані: деякі він обов'язково збільшить.`); mark("rle"); }
+  }
+  $("rleIn").addEventListener("input", onRle); onRle();
+
+  /* 5: ZIP */
+  $("copyLong").addEventListener("click", () => {
+    const t = "Ракета «Зірка-8» стартує до Місяця о 10:00. ".repeat(3000);
+    const b = $("copyLong");
+    const ok = () => { b.textContent = "Скопійовано! Тепер встав у Блокнот"; };
+    try { navigator.clipboard.writeText(t).then(ok, () => { b.textContent = "Не вдалося скопіювати: напиши в Блокноті будь-яке речення і встав його сотні разів (Ctrl+V)"; }); } catch (e) { b.textContent = "Не вдалося скопіювати"; }
+  });
+  L.fields(["z_txt", "z_txtzip", "z_jpg", "z_jpgzip"], v => {
+    const a = num(v.z_txt), b = num(v.z_txtzip), c = num(v.z_jpg), d = num(v.z_jpgzip), F = [];
+    if (a && b) F.push(`Текст стиснувся у <b>${(a / b).toLocaleString("uk-UA", { maximumFractionDigits: 0 })} разів</b>: з ${a} КБ до ${b} КБ. ZIP помітив, що одна фраза повторюється, і записав її майже один раз.`);
+    if (c && d) F.push(`Фото змінилось лише на <b>${Math.round((1 - d / c) * 100)}%</b>${d >= c ? " (а може, навіть виросло!)" : ""}. Воно вже стиснуте JPEG-ом, повторів у ньому майже немає.`);
+    $("zipFacts").innerHTML = F.map(f => `<div class="fx">${f}</div>`).join("");
+    mark("zip", !!(a && b && c && d));
+  });
+
+  /* 6: JPEG */
+  const cv = $("orig"), g = cv.getContext("2d");
+  (function drawScene() {
+    const sky = g.createLinearGradient(0, 0, 0, 200); sky.addColorStop(0, "#0b1430"); sky.addColorStop(1, "#3a4f8f");
+    g.fillStyle = sky; g.fillRect(0, 0, 320, 200);
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 90; i++) { g.fillStyle = `rgba(255,255,255,${0.4 + rnd() * 0.6})`; g.fillRect(rnd() * 320, rnd() * 130, 1.5, 1.5); }
+    const moon = g.createRadialGradient(215, 70, 6, 225, 80, 50); moon.addColorStop(0, "#fffbe8"); moon.addColorStop(1, "#c9c3a8");
+    g.fillStyle = moon; g.beginPath(); g.arc(225, 80, 48, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(120,112,90,.45)"; [[205, 65, 9], [240, 95, 12], [232, 58, 6], [212, 100, 5], [250, 72, 4]].forEach(([x, y, r]) => { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); });
+    g.fillStyle = "#1d2a1a"; g.beginPath(); g.moveTo(0, 200); g.lineTo(0, 165); g.lineTo(60, 140); g.lineTo(120, 160); g.lineTo(190, 135); g.lineTo(260, 158); g.lineTo(320, 145); g.lineTo(320, 200); g.fill();
+    g.fillStyle = "#f2a23a"; g.font = "bold 22px sans-serif"; g.fillText("МІСЯЦЬ", 18, 40);
+    g.strokeStyle = "#e6eaf2"; g.lineWidth = 2; g.beginPath(); g.moveTo(70, 150); g.lineTo(70, 112); g.stroke();
+    g.fillStyle = "#e6eaf2"; g.beginPath(); g.moveTo(64, 120); g.lineTo(70, 100); g.lineTo(76, 120); g.fill();
+    // photo grain: real photos are never perfectly smooth
+    const img = g.getImageData(0, 0, 320, 200), d = img.data;
+    for (let i = 0; i < d.length; i += 4) { const n = (rnd() - 0.5) * 22; d[i] += n; d[i + 1] += n; d[i + 2] += n; }
+    g.putImageData(img, 0, 0);
+  })();
+  const kb = url => ((url.length - url.indexOf(",") - 1) * 3 / 4 / 1024);
+  $("pngSize").textContent = kb(cv.toDataURL("image/png")).toLocaleString("uk-UA", { maximumFractionDigits: 1 }) + " КБ";
+  const seen = done.x.jpgSeen || { lo: false, hi: false };
+  function onQ() {
+    const q = +$("q").value;
+    $("qTxt").textContent = q;
+    const url = cv.toDataURL("image/jpeg", q / 100);
+    $("jpgImg").src = url;
+    $("jpgSize").textContent = kb(url).toLocaleString("uk-UA", { maximumFractionDigits: 1 }) + " КБ";
+    if (q <= 5) seen.lo = true; if (q >= 100) seen.hi = true;
+    done.x.jpgSeen = seen; save();
+    if (seen.lo && seen.hi) { setStatus($("jpgStatus"), true, "Бачиш? На 100% JPEG майже не відрізняється від оригіналу і все одно легший за PNG. На 5% він важить у десятки разів менше, зате видно квадратики 8 × 8 пікселів: саме такими блоками працює JPEG. Фото в інтернеті зазвичай мають якість 70–85%: різниці майже не видно, а важать у кілька разів менше."); mark("jpeg"); }
+    else $("jpgStatus").textContent = "Спробуй крайні значення: 5% і нижче, а також 100%.";
+  }
+  $("q").addEventListener("input", onQ); onQ();
+
+  /* 7: keys */
+  L.checklist({ el: "keys7", task: "keys", items: [
+    ["s_save", "<kbd>Ctrl</kbd> + <kbd>S</kbd>", "Зберегти. Натискай часто, звичка на все життя!"],
+    ["s_open", "<kbd>Ctrl</kbd> + <kbd>O</kbd>", "Відкрити файл"],
+    ["s_new", "<kbd>Ctrl</kbd> + <kbd>N</kbd>", "Новий документ або нове вікно"],
+    ["s_find", "<kbd>Ctrl</kbd> + <kbd>F</kbd>", "Знайти слово на сторінці чи в документі"],
+    ["s_repl", "<kbd>Ctrl</kbd> + <kbd>H</kbd>", "Знайти і замінити (у Блокноті та Word)"],
+    ["s_ctab", "<kbd>Ctrl</kbd> + <kbd>Tab</kbd>", "Наступна вкладка браузера"],
+    ["s_w", "<kbd>Ctrl</kbd> + <kbd>W</kbd>", "Закрити вкладку"],
+    ["s_t", "<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>", "Повернути випадково закриту вкладку"],
+  ] });
+
+  /* 8: quiz */
+  L.quiz([
+    { q: "Що таке магічне число файлу?", a: ["Розмір файлу", "Особливі перші байти, за якими впізнають формат", "Пароль до файлу", "Номер файлу на диску"], c: 1, e: "Наприклад, JPEG починається з FF D8 FF, а програми Windows з MZ." },
+    { q: "Що станеться, якщо перейменувати фото.jpg на фото.txt?", a: ["Фото перетвориться на текст", "Байти не зміняться, просто Windows відкриє його не тією програмою", "Фото видалиться", "Фото стане меншим"], c: 1, e: "Розширення — лише підказка для Windows. Вміст файлу не змінюється." },
+    { q: "Чому текст стискається ZIP-ом сильно, а фото майже ні?", a: ["Фото важче", "У тексті багато повторів, а фото вже стиснуте JPEG-ом", "ZIP не вміє працювати з фото", "Фото кольорове"], c: 1, e: "Стиснення без втрат працює за рахунок повторів. У стиснутих даних повторів майже не лишилось." },
+    { q: "Який формат стискає з втратами?", a: ["ZIP", "PNG", "JPEG", "TXT"], c: 2, e: "JPEG викидає дрібні деталі. ZIP і PNG зберігають усе точно." },
+    { q: "Скільки байтів займає один піксель у форматі RGB без стиснення?", a: ["1", "3", "8", "24"], c: 1, e: "По одному байту на червоний, зелений і синій. Тобто 24 біти." },
+  ]);
+  L.ready();
+})();
+</script>
+</body>
+</html>

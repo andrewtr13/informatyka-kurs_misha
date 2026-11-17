@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Заняття 6. Файли і папки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/lesson.css">
+<style>
+.addr { font-family: var(--f-mono); font-size: 15px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: var(--bg); overflow-wrap: anywhere; }
+.tree ul { list-style: none; margin: 0; padding-left: 20px; display: grid; gap: 2px; }
+.tree > ul { padding-left: 0; }
+.tree .folder { border: 0; background: none; cursor: pointer; font: inherit; color: var(--ink); padding: 3px 6px; border-radius: 6px; text-align: left; }
+.tree .folder:hover { background: var(--sky-soft); }
+.tree .folder small { color: var(--muted); }
+.tree .file { display: inline-block; padding: 3px 6px; font-family: var(--f-mono); font-size: 14px; }
+</style>
+</head>
+<body>
+<p style="padding-top:12px;margin:0;font-size:14px"><a href="../index.html">← Усі заняття курсу</a></p>
+<div class="wrap">
+  <div class="topbar">
+    <span class="course">Інформатика · Модуль 2</span>
+    <button class="prog" id="progBtn" type="button" aria-expanded="false" aria-controls="todo"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 8</span><span aria-hidden="true">▾</span></button>
+  </div>
+  <div class="todo" id="todo" hidden></div>
+
+  <header class="hero">
+    <span class="eyebrow">Заняття 6 · ≈ 90 хвилин · працюємо на своєму комп'ютері</span>
+    <h1>Файли і папки</h1>
+    <p class="lead">Де насправді лежать твої фото, ігри та програми? Що таке шлях до файлу і чому файл «фото.jpg.exe» може бути небезпечним? Сьогодні ти наведеш лад у своїх файлах і створиш папку для нашого курсу.</p>
+    <nav class="plan" id="plan" aria-label="Зміст заняття">
+      <a href="#s1">1. Дерево папок</a><a href="#s2">2. Шляхи</a><a href="#s3">3. Розширення</a><a href="#s4">4. Розміри</a>
+      <a href="#s5">5. Порядок</a><a href="#s6">6. Клавіші</a><a href="#s7">7. Тест</a><a href="#s8">★ Челендж</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="step" id="s1">
+    <div class="step-head"><span class="step-no">Крок 1 · теорія · 10 хв</span><h2>Файли, папки і дерево</h2></div>
+    <div class="text">
+      <p><b>Файл</b> — це шматок даних на диску, який має ім'я. Фото, пісня, програма, документ — усе це файли. Для диска вони однакові: просто послідовності байтів (пам'ятаєш, усе є числами).</p>
+      <p><b>Папка</b> — це контейнер для файлів та інших папок. Папки вкладаються одна в одну, і виходить <b>дерево</b>: на самому верху диск <code>C:</code> (корінь), від нього гілки-папки, а на кінцях листки-файли. Тільки програмісти малюють це дерево догори ногами: корінь угорі.</p>
+      <p>Ось спрощена копія того, що є на твоєму комп'ютері. Клацай на папки, щоб відкрити їх. Угорі адресний рядок показує, де ти зараз.</p>
+    </div>
+    <div class="panel">
+      <div class="addr" id="addr">C:\</div>
+      <div class="tree" id="tree"></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2">
+    <div class="step-head"><span class="step-no">Крок 2 · шляхи · 15 хв</span><h2>Шлях до файлу — це його адреса</h2></div>
+    <div class="text">
+      <p>Щоб знайти файл, треба знати, через які папки до нього йти. Цей маршрут зветься <b>шлях</b>. Наприклад:</p>
+      <p class="mono" style="font-size:17px; overflow-wrap:anywhere">C:\Users\Misha\Documents\Інформатика\Заняття 03\зірка8.txt</p>
+      <p>Читається він так: диск <code>C:</code> → папка <code>Users</code> (користувачі) → папка користувача <code>Misha</code> → <code>Documents</code> (документи) → і так далі до самого файлу. Між папками ставиться зворотна риска <code>\</code>. Майже як адреса: країна, місто, вулиця, будинок, квартира.</p>
+      <p>У Windows англійські назви системних папок Провідник показує українською: <code>Documents</code> як «Документи», <code>Pictures</code> як «Зображення», <code>Downloads</code> як «Завантаження». Але в шляху вони залишаються англійськими.</p>
+    </div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 1</span>
+        <p>Користуючись деревом з кроку 1, напиши повний шлях до файлу <b>місяць.jpg</b>.</p>
+        <input type="text" id="pathIn" spellcheck="false" style="width:100%; font-family:var(--f-mono)" placeholder="C:\..." aria-label="Шлях">
+        <div class="row"><button class="btn primary" type="button" id="pathCheck">Перевірити</button></div>
+        <p class="status" id="pathStatus"></p>
+      </div>
+      <div class="task">
+        <span class="lbl">Завдання 2</span>
+        <div id="whereQ" style="display:grid; gap:10px"></div>
+        <div class="row"><button class="btn primary" type="button" id="whereCheck">Перевірити</button><span class="status" id="whereStatus"></span></div>
+      </div>
+    </div>
+    <div class="panel howto">
+      <h3>Тепер на справжньому комп'ютері</h3>
+      <ol style="margin:0; padding-left:22px">
+        <li>Відкрий Провідник (<kbd>Win</kbd> + <kbd>E</kbd>) і зайди в папку «Документи».</li>
+        <li>Клацни на порожнє місце в адресному рядку вгорі (або натисни <kbd>Ctrl</kbd> + <kbd>L</kbd>). Замість гарних назв з'явиться справжній шлях, наприклад <code>C:\Users\Misha\Documents</code>. Якщо в шляху є <code>OneDrive</code>, твої документи ще й зберігаються в хмарі Microsoft.</li>
+        <li>Можна навпаки: надрукуй шлях в адресному рядку, натисни Enter, і Провідник відкриє цю папку. Спробуй <code>C:\Windows</code>.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3">
+    <div class="step-head"><span class="step-no">Крок 3 · розширення і безпека · 15 хв</span><h2>Що означає .jpg, .exe і .txt</h2></div>
+    <div class="text">
+      <p>Остання частина імені після крапки зветься <b>розширення</b>. За ним Windows вирішує, якою програмою відкрити файл: <code>.jpg</code> і <code>.png</code> — картинки, <code>.mp3</code> — музика, <code>.txt</code> — текст, <code>.py</code> — програма на Python, <code>.docx</code> — документ Word. А <code>.exe</code> означає <b>програму, яка запуститься і виконає свої команди</b>.</p>
+      <p>Проблема: Windows за замовчуванням <b>приховує розширення</b>. Шахраї цим користуються. Файл <code>фото.jpg.exe</code> виглядає як <code>фото.jpg</code>, а насправді це програма, яка може бути вірусом.</p>
+    </div>
+    <div class="panel howto">
+      <h3>Увімкни показ розширень</h3>
+      <ul style="margin:0; padding-left:20px">
+        <li><b>Windows 11:</b> у Провіднику вгорі «Переглянути» (Перегляд) → «Показати» → постав галочку «Розширення імен файлів».</li>
+        <li><b>Windows 10:</b> у Провіднику вкладка «Вигляд» → галочка «Розширення імен файлів».</li>
+      </ul>
+      <p>Тепер усі файли показуються з повними іменами. Залиш це увімкненим назавжди.</p>
+      <label class="selfcheck"><input type="checkbox" id="extOn"> Увімкнув, бачу розширення</label>
+    </div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 3</span>
+        <p>Друг (а може, й не друг) надіслав у месенджері ці файли. Відміть <b>усі</b>, які не можна відкривати, бо це програми.</p>
+        <div id="danger" style="display:grid; gap:6px"></div>
+        <div class="row"><button class="btn primary" type="button" id="dangerCheck">Перевірити</button></div>
+        <p class="status" id="dangerStatus"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4">
+    <div class="step-head"><span class="step-no">Крок 4 · розміри · 15 хв</span><h2>Байти, кілобайти, гігабайти</h2></div>
+    <div class="text">
+      <p>Розмір файлу вимірюють у байтах. Пам'ятаєш, байт — це 8 бітів. Байтів у файлах багато, тому вживають більші одиниці. У Windows кожна наступна в <b>1024</b> рази більша за попередню (1024 = 2¹⁰, знову степінь двійки):</p>
+    </div>
+    <div class="tbl-scroll"><table style="width:auto"><thead><tr><th>Одиниця</th><th>Скільки</th><th>Що приблизно таке важить</th></tr></thead><tbody>
+      <tr><td>1 байт</td><td class="mono">8 бітів</td><td>одна латинська літера</td></tr>
+      <tr><td>1 КБ (кілобайт)</td><td class="mono">1024 байти</td><td>пів сторінки тексту</td></tr>
+      <tr><td>1 МБ (мегабайт)</td><td class="mono">1024 КБ</td><td>хвилина музики в MP3</td></tr>
+      <tr><td>1 ГБ (гігабайт)</td><td class="mono">1024 МБ</td><td>година відео</td></tr>
+      <tr><td>1 ТБ (терабайт)</td><td class="mono">1024 ГБ</td><td>великий диск</td></tr>
+    </tbody></table></div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 4</span>
+        <p>Розстав файли від найменшого до найбільшого.</p>
+        <ul class="order" id="sizeOrder"></ul>
+        <div class="row"><button class="btn primary" type="button" id="sizeCheck">Перевірити</button><span class="status" id="sizeStatus"></span></div>
+      </div>
+      <div class="task">
+        <span class="lbl">Завдання 5</span>
+        <p>На флешці 2 ГБ вільного місця. Скільки це МБ (у Windows)?</p>
+        <div class="row"><input type="number" id="unitIn" aria-label="Мегабайтів"><button class="btn primary" type="button" id="unitCheck">Перевірити</button><span class="status" id="unitStatus"></span></div>
+      </div>
+    </div>
+    <div class="panel howto">
+      <h3>Скільки важить твоя папка?</h3>
+      <p>Клацни правою кнопкою на папку «Завантаження» → «Властивості» (або виділи її і натисни <kbd>Alt</kbd> + <kbd>Enter</kbd>). Windows порахує розмір і кількість файлів. Часто саме там лежать гігабайти забутих інсталяторів.</p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5">
+    <div class="step-head"><span class="step-no">Крок 5 · практика · 15 хв</span><h2>Наводимо лад: папка для курсу</h2></div>
+    <div class="text">
+      <p>Програмісти завжди тримають файли проєкту в одному місці. Створи собі таку структуру в «Документах»:</p>
+      <pre class="mono" style="background:var(--surface); color:var(--ink); border:1px solid var(--line)">Documents
+└── Інформатика
+    ├── Python        ← сюди зберігай програми з занять
+    ├── Нотатки       ← конспекти, якщо пишеш
+    └── Проєкти       ← твої власні ідеї</pre>
+      <p>Як створити папку: у Провіднику <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd>, напиши назву, Enter. Потім збережи туди хоча б одну програму з попередніх занять (у IDLE: File → Save As).</p>
+      <p><b>Видалення.</b> Видалений файл (клавіша <kbd>Delete</kbd>) спершу потрапляє в Кошик, звідки його можна повернути. А <kbd>Shift</kbd> + <kbd>Delete</kbd> видаляє одразу, без Кошика. Будь з цим обережний.</p>
+    </div>
+    <div class="panel">
+      <label class="selfcheck"><input type="checkbox" data-task="folders"> Створив папки і зберіг туди програму</label>
+    </div>
+    <div class="panel howto">
+      <h3>Пошук файлів</h3>
+      <p>Відкрий папку «Документи» і надрукуй у полі пошуку праворуч угорі <code>*.py</code>. Зірочка означає «будь-що», тож Windows знайде всі файли з розширенням <code>.py</code>, тобто всі твої програми на Python, в усіх вкладених папках.</p>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6">
+    <div class="step-head"><span class="step-no">Крок 6 · гарячі клавіші · 10 хв</span><h2>Клавіші Провідника</h2></div>
+    <div class="panel">
+      <p style="color:var(--muted); font-size:15px">Відкрий Провідник (<kbd>Win</kbd> + <kbd>E</kbd>), спробуй кожну і відміть галочкою. Тренуйся на своїй новій папці «Інформатика».</p>
+      <div class="keys" id="keys6"></div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7">
+    <div class="step-head"><span class="step-no">Крок 7 · тест · 5 хв</span><h2>Перевір себе</h2></div>
+    <div class="panel" id="quiz"></div>
+    <div class="row"><button class="btn primary" id="quizCheck" type="button">Перевірити відповіді</button><span class="status" id="quizStatus"></span></div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8">
+    <div class="step-head"><span class="step-no star">★ Челендж на тиждень · необов'язково</span><h2>Перший погляд у командний рядок</h2></div>
+    <div class="text">
+      <p>Ще до Провідника з мишкою люди працювали з файлами, друкуючи команди. Це досі вміють усі програмісти. Спробуй:</p>
+      <ol style="margin:0; padding-left:22px; display:grid; gap:6px">
+        <li><kbd>Win</kbd> + <kbd>R</kbd>, напиши <code>cmd</code>, Enter. Відкриється чорне вікно, командний рядок.</li>
+        <li>Напиши <code>cd Documents</code> і Enter: ти «зайшов» у папку Документи. Шлях видно ліворуч.</li>
+        <li>Напиши <code>dir</code> і Enter: список файлів і папок з розмірами.</li>
+        <li>Напиши <code>tree Інформатика /f</code> і Enter: дерево твоєї папки курсу, як у кроці 5!</li>
+        <li>Закрий вікно або напиши <code>exit</code>.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h3>★ Бонус на Python</h3>
+      <p>Програма показує, що лежить у папці і скільки важить кожен файл. Збережи її в папку <code>Інформатика\Python</code> і запусти:</p>
+      <div class="code-box"><pre>import os
+
+folder = os.path.expanduser("~\\Documents")   # ~ означає твою папку користувача
+if not os.path.isdir(folder):                  # якщо Документи синхронізуються з OneDrive
+    folder = os.path.expanduser("~\\OneDrive\\Documents")
+print("Папка:", folder)
+
+for name in os.listdir(folder):
+    path = os.path.join(folder, name)
+    if os.path.isfile(path):
+        print("файл ", name, os.path.getsize(path) // 1024, "КБ")
+    else:
+        print("папка", name)</pre><button class="copy" type="button">Копіювати</button></div>
+      <p style="font-size:15px; color:var(--muted)">Спробуй замінити <code>Documents</code> на <code>Downloads</code> чи <code>Pictures</code>.</p>
+    </div>
+    <label class="selfcheck"><input type="checkbox" data-task="ch"> Челендж виконано</label>
+
+    <div class="ask">
+      <h3>Цікаво? Запитай Claude</h3>
+      <ul>
+        <li>«Чому в шляхах Windows риска \, а в адресах сайтів /?»</li>
+        <li>«Що буде, якщо перейменувати файл .jpg на .txt?»</li>
+        <li>«Чому флешка на 32 ГБ показує в Windows лише 29 ГБ?»</li>
+        <li>«Які символи не можна використовувати в назвах файлів і чому?»</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span class="step-no">Наступне заняття</span>
+    <h3><a href="07-formaty-i-stysnennya.html">Формати і стиснення: що всередині файлу →</a></h3>
+    <p>Ти зазирнеш усередину картинки, побачиш «магічні числа», з яких починаються файли, і дізнаєшся, як ZIP зменшує файли у 10 разів.</p>
+    <div class="row" style="margin-top:24px"><button class="btn" id="resetBtn" type="button">Скинути прогрес цього заняття</button></div>
+  </footer>
+</div>
+
+<script src="../assets/lesson.js"></script>
+<script>
+(() => {
+  const L = Lesson({
+    key: "inf-l6",
+    tasks: ["path", "where", "danger", "order", "units", "folders", "keys", "quiz"],
+    labels: { path: ["s2", "Завдання 1: шлях до файлу"], where: ["s2", "Завдання 2: де лежить файл"],
+      danger: ["s3", "Завдання 3: небезпечні файли"], order: ["s4", "Завдання 4: розміри по порядку"],
+      units: ["s4", "Завдання 5: ГБ у МБ"], folders: ["s5", "Створити папку курсу (відміть галочку)"],
+      keys: ["s6", "Клавіші Провідника: спробувати всі"], quiz: ["s7", "Тест: щонайменше 4 з 5"], ch: ["s8", "★ Челендж (необов'язково)"] },
+  });
+  const { $, esc, mark, setStatus, done, save } = L;
+
+  /* 1: virtual explorer */
+  const TREE = { n: "C:", c: [
+    { n: "Program Files", c: [{ n: "Python", c: [{ n: "python.exe" }] }, { n: "Google", c: [{ n: "chrome.exe" }] }] },
+    { n: "Users", c: [{ n: "Misha", c: [
+      { n: "Desktop", c: [{ n: "IDLE.lnk" }] },
+      { n: "Documents", c: [
+        { n: "Інформатика", c: [{ n: "Заняття 03", c: [{ n: "зірка8.txt" }] }, { n: "Python", c: [{ n: "суматор.py" }] }] },
+        { n: "Школа", c: [{ n: "Математика", c: [{ n: "контрольна.docx" }] }, { n: "Історія", c: [{ n: "реферат.docx" }] }] },
+      ] },
+      { n: "Downloads", c: [{ n: "шахи.pgn" }, { n: "python-3.12.exe" }] },
+      { n: "Music", c: [{ n: "space-oddity.mp3" }] },
+      { n: "Pictures", c: [{ n: "Космос", c: [{ n: "місяць.jpg" }, { n: "сатурн.png" }] }, { n: "аватар.png" }] },
+    ] }] },
+    { n: "Windows", c: [{ n: "System32", c: [{ n: "notepad.exe" }, { n: "cmd.exe" }] }] },
+  ] };
+  const open = new Set(["C:"]);
+  const UA = { Desktop: "Робочий стіл", Documents: "Документи", Downloads: "Завантаження", Music: "Музика", Pictures: "Зображення", Users: "Користувачі" };
+  function draw(node, path) {
+    const p = path ? path + "\\" + node.n : node.n;
+    if (!node.c) return `<li><span class="file">📄 ${esc(node.n)}</span></li>`;
+    const isOpen = open.has(p);
+    return `<li><button type="button" class="folder" data-p="${esc(p)}" aria-expanded="${isOpen}">${isOpen ? "▾" : "▸"} 📁 ${esc(node.n)}${UA[node.n] ? ` <small>(${UA[node.n]})</small>` : ""}</button>${isOpen ? `<ul>${node.c.map(ch => draw(ch, p)).join("")}</ul>` : ""}</li>`;
+  }
+  let cur = "C:";
+  function render() { $("tree").innerHTML = `<ul>${draw(TREE, "")}</ul>`; $("addr").textContent = cur + "\\"; }
+  $("tree").addEventListener("click", e => {
+    const b = e.target.closest(".folder"); if (!b) return;
+    const p = b.dataset.p;
+    if (open.has(p) && cur === p) { open.delete(p); cur = p.split("\\").slice(0, -1).join("\\") || "C:"; } else { open.add(p); cur = p; }
+    render();
+    const nb = $("tree").querySelector(`.folder[data-p="${CSS.escape(p)}"]`); if (nb) nb.focus();
+  });
+  render();
+
+  /* 2: paths */
+  L.inputTask({ input: "pathIn", btn: "pathCheck", status: "pathStatus", task: "path", check: v => {
+    const n = v.replace(/\//g, "\\").replace(/\\+$/, "").replace(/\s*\\\s*/g, "\\").toLowerCase();
+    if (n === "c:\\users\\misha\\pictures\\космос\\місяць.jpg") return [true, "Правильно! Ти щойно написав повну адресу файлу."];
+    if (n.includes("зображення") || n.includes("користувачі")) return [false, "Майже! Але в шляху системні папки звуться англійською: Users, Pictures."];
+    if (!n.startsWith("c:\\")) return [false, "Шлях починається з диска: C:\\"];
+    if (!n.endsWith("місяць.jpg")) return [false, "Шлях має закінчуватися іменем файлу з розширенням: місяць.jpg"];
+    return [false, "Ще ні. Відкрий у дереві всі папки на шляху до місяць.jpg і подивись на адресний рядок."];
+  } });
+  L.selectTask({ el: "whereQ", btn: "whereCheck", status: "whereStatus", task: "where", ok: "Усе правильно!",
+    options: ["Downloads", "Documents\\Школа\\Математика", "Program Files\\Python", "Windows\\System32", "Pictures\\Космос"],
+    items: [["У якій папці лежить контрольна.docx?", "Documents\\Школа\\Математика"], ["Де лежить сама програма Python (python.exe)?", "Program Files\\Python"], ["Куди потрапив інсталятор python-3.12.exe, скачаний з інтернету?", "Downloads"], ["Де лежить Блокнот (notepad.exe), частина Windows?", "Windows\\System32"]] });
+
+  /* 3: dangerous files */
+  const FILES = [["фото_з_пляжу.jpg.exe", 1], ["пісня.mp3", 0], ["чіт_для_гри.exe", 1], ["реферат.docx", 0], ["оновлення_гри.bat", 1], ["Документ.pdf.scr", 1], ["місяць.jpg", 0], ["задача.py", 0]];
+  $("danger").innerHTML = FILES.map(([f], i) => `<label class="selfcheck" style="font-weight:400"><input type="checkbox" id="dg${i}"> <span class="mono">${esc(f)}</span></label>`).join("");
+  $("extOn").checked = !!done.x.extOn; $("extOn").addEventListener("change", e => { done.x.extOn = e.target.checked; save(); });
+  $("dangerCheck").addEventListener("click", () => {
+    const miss = FILES.filter(([, d], i) => d && !$("dg" + i).checked).map(([f]) => f);
+    const extra = FILES.filter(([, d], i) => !d && $("dg" + i).checked).map(([f]) => f);
+    if (!miss.length && !extra.length) { setStatus($("dangerStatus"), true, "Правильно! .exe, .bat і .scr — це програми. Особливо підступні подвійні розширення: справжнє завжди останнє. А .py теж програма, але її відкриває IDLE як текст, і запуститься вона, тільки якщо ти сам натиснеш F5."); mark("danger"); }
+    else setStatus($("dangerStatus"), false, (miss.length ? "Пропущено небезпечні: " + miss.join(", ") + ". " : "") + (extra.length ? "Ці безпечні: " + extra.join(", ") + ". " : "") + "Дивись на останнє розширення.");
+  });
+
+  /* 4: sizes */
+  L.orderTask({ el: "sizeOrder", btn: "sizeCheck", status: "sizeStatus", task: "order",
+    steps: ["Текстовий лист .txt (≈ 2 КБ)", "Сторінка заняття курсу .html (≈ 50 КБ)", "Фото з телефона .jpg (≈ 3 МБ)", "Фільм на 2 години .mp4 (≈ 4 ГБ)", "Сучасна велика гра (≈ 100 ГБ)"],
+    start: [3, 0, 4, 2, 1], ok: "Правильно! Між найменшим і найбільшим різниця в 50 мільйонів разів.", hint: "КБ < МБ < ГБ." });
+  L.inputTask({ input: "unitIn", btn: "unitCheck", status: "unitStatus", task: "units",
+    check: v => +v === 2048 ? [true, "Так! 2 × 1024 = 2048 МБ."] : +v === 2000 ? [false, "Майже! Але у Windows 1 ГБ = 1024 МБ, а не 1000."] : [false, "Ні. 1 ГБ = 1024 МБ."] });
+
+  /* 6: keys */
+  L.checklist({ el: "keys6", task: "keys", items: [
+    ["f_new", "<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd>", "Створити нову папку"],
+    ["f_ren", "<kbd>F2</kbd>", "Перейменувати виділений файл чи папку"],
+    ["f_prop", "<kbd>Alt</kbd> + <kbd>Enter</kbd>", "Властивості: розмір, дата, де лежить"],
+    ["f_up", "<kbd>Alt</kbd> + <kbd>↑</kbd>", "Піднятися на папку вище"],
+    ["f_back", "<kbd>Alt</kbd> + <kbd>←</kbd>", "Назад, туди, де був перед цим"],
+    ["f_addr", "<kbd>Ctrl</kbd> + <kbd>L</kbd>", "Перейти в адресний рядок і побачити шлях"],
+    ["f_undo", "<kbd>Ctrl</kbd> + <kbd>Z</kbd>", "Скасувати перейменування, переміщення чи видалення"],
+    ["f_zoom", "<kbd>Ctrl</kbd> + колесо миші", "Збільшити чи зменшити значки"],
+  ] });
+
+  /* 7: quiz */
+  L.quiz([
+    { q: "Що таке шлях до файлу?", a: ["Швидкість копіювання", "Послідовність папок від диска до файлу", "Розмір файлу", "Тип файлу"], c: 1, e: "Наприклад, C:\\Users\\Misha\\Documents\\задача.py." },
+    { q: "Який файл, найімовірніше, є програмою, хоч і маскується?", a: ["канікули.jpg", "канікули.jpg.exe", "канікули.png", "канікули.mp4"], c: 1, e: "Справжнє розширення останнє: .exe." },
+    { q: "Скільки КБ в 1 МБ у Windows?", a: ["100", "1000", "1024", "8"], c: 2, e: "1024 = 2¹⁰. Кожна наступна одиниця в 1024 рази більша." },
+    { q: "Ти натиснув Shift + Delete на файлі. Де він тепер?", a: ["У Кошику", "Видалений без Кошика", "У Завантаженнях", "На робочому столі"], c: 1, e: "Shift + Delete видаляє, минаючи Кошик. Звичайний Delete кладе у Кошик." },
+    { q: "Як побачити справжній шлях у Провіднику?", a: ["Натиснути F5", "Клацнути в адресний рядок або Ctrl + L", "Перезавантажити комп'ютер", "Ніяк"], c: 1, e: "Адресний рядок показує повний шлях до поточної папки." },
+  ]);
+  L.ready();
+})();
+</script>
+</body>
+</html>

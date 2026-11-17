@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Заняття 8. Безпека і порядок</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/lesson.css">
+<style>
+.pwbar { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; }
+.pwbar i { display: block; height: 100%; width: 0; transition: width .3s, background .3s; }
+</style>
+</head>
+<body>
+<p style="padding-top:12px;margin:0;font-size:14px"><a href="../index.html">← Усі заняття курсу</a></p>
+<div class="wrap">
+  <div class="topbar">
+    <span class="course">Інформатика · Модуль 2</span>
+    <button class="prog" id="progBtn" type="button" aria-expanded="false" aria-controls="todo"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 8</span><span aria-hidden="true">▾</span></button>
+  </div>
+  <div class="todo" id="todo" hidden></div>
+
+  <header class="hero">
+    <span class="eyebrow">Заняття 8 · ≈ 90 хвилин · працюємо на своєму комп'ютері</span>
+    <h1>Безпека і порядок</h1>
+    <p class="lead">Комп'ютер — як дім: у ньому мають бути замки, сигналізація і запасні ключі. Сьогодні ти дізнаєшся, хто має право змінювати Windows, як придумати пароль, який хакер підбиратиме мільйони років, і як не втратити свої файли, навіть якщо диск зламається.</p>
+    <nav class="plan" id="plan" aria-label="Зміст заняття">
+      <a href="#s1">1. Права</a><a href="#s2">2. Паролі</a><a href="#s3">3. Оновлення</a><a href="#s4">4. Антивірус</a>
+      <a href="#s5">5. Встановлення</a><a href="#s6">6. Копії</a><a href="#s7">7. Клавіші</a><a href="#s8">8. Тест</a><a href="#s9">★ Челендж</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="step" id="s1">
+    <div class="step-head"><span class="step-no">Крок 1 · облікові записи · 10 хв</span><h2>Хто в домі господар</h2></div>
+    <div class="text">
+      <p>У Windows кожен користувач має <b>обліковий запис</b>. Вони бувають двох типів:</p>
+      <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+        <li><b>Адміністратор</b> може все: встановлювати програми, змінювати налаштування системи, бачити файли інших користувачів.</li>
+        <li><b>Стандартний</b> користувач працює зі своїми файлами і програмами, але для змін у системі потрібен дозвіл адміністратора.</li>
+      </ul>
+      <p>Коли програма хоче щось змінити в системі, Windows затемнює екран і показує вікно <b>«Дозволити цій програмі вносити зміни на вашому пристрої?»</b>. Це <b>контроль облікових записів</b> (UAC). Він захищає від того, щоб шкідлива програма тихо зробила свою справу. У вікні написано <b>видавця</b> — хто зробив програму. Читай його завжди.</p>
+    </div>
+    <div class="panel howto">
+      <h3>Який у тебе обліковий запис?</h3>
+      <p><kbd>Win</kbd> + <kbd>I</kbd> → «Облікові записи» → «Ваші відомості». Під твоїм ім'ям написано «Адміністратор» або «Стандартний».</p>
+      <div class="field" style="max-width:320px"><label for="acct">Мій тип облікового запису</label><select id="acct"><option value="">обери…</option><option>Адміністратор</option><option>Стандартний</option></select></div>
+    </div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 1</span>
+        <p>З'явилось вікно UAC. Що робити в кожній ситуації?</p>
+        <div id="uacQ" style="display:grid; gap:10px"></div>
+        <div class="row"><button class="btn primary" type="button" id="uacCheck">Перевірити</button><span class="status" id="uacStatus"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2">
+    <div class="step-head"><span class="step-no">Крок 2 · паролі · 20 хв</span><h2>Пароль, який не зламати</h2></div>
+    <div class="text">
+      <p>Як хакери ламають паролі? Найчастіше просто перебирають варіанти, і роблять це дуже швидко: сучасна відеокарта перевіряє близько <b>10 мільярдів паролів на секунду</b>. Спершу пробують найпопулярніші (<code>123456</code>, <code>qwerty</code>, <code>password</code>), потім слова зі словника, потім усе підряд.</p>
+      <p>Скільки варіантів доведеться перебрати? Тут знову працюють степені, як із зернами на шаховій дошці. Якщо в паролі тільки маленькі латинські літери (26 штук), то на кожну позицію 26 варіантів, а для 8 літер 26⁸ ≈ 200 мільярдів. Здається багато, але це 20 секунд для відеокарти. А якщо пароль довгий, кожна нова літера множить кількість варіантів у десятки разів.</p>
+      <p><b>Не вводь тут свої справжні паролі!</b> Сторінка нікуди їх не надсилає, але правило «справжній пароль вводиться лише туди, куди треба входити» варто засвоїти назавжди.</p>
+    </div>
+    <div class="panel">
+      <label for="pw" style="font-weight:600">Придумай пароль для перевірки:</label>
+      <input type="text" id="pw" spellcheck="false" autocomplete="off" value="misha2012" style="width:100%; font-family:var(--f-mono); font-size:17px">
+      <div class="pwbar"><i id="pwBar"></i></div>
+      <dl class="kv" id="pwInfo"></dl>
+      <p class="status" id="pwStatus"></p>
+      <div class="task">
+        <span class="lbl">Завдання 2</span>
+        <p>Придумай пароль, на підбір якого піде <b>понад мільйон років</b>, але який легко запам'ятати. Найкращий спосіб — <b>фраза-пароль</b>: 4–5 випадкових слів, з'єднаних рисочками, наприклад <code>синій-кінь-їсть-сатурн</code>. Тільки свою придумай сам.</p>
+      </div>
+    </div>
+    <div class="text">
+      <p><b>Ще кілька правил:</b></p>
+      <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+        <li>Різні сайти — різні паролі. Якщо один сайт зламають, решта будуть у безпеці.</li>
+        <li>Нікому не кажи паролі, навіть друзям. Справжня служба підтримки ніколи не питає пароль.</li>
+        <li>Де можна, вмикай <b>двофакторну перевірку</b>: крім пароля, ще код із телефона.</li>
+        <li>Відходиш від комп'ютера — <kbd>Win</kbd> + <kbd>L</kbd>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3">
+    <div class="step-head"><span class="step-no">Крок 3 · оновлення · 10 хв</span><h2>Навіщо оновлювати Windows</h2></div>
+    <div class="text">
+      <p>У будь-якій великій програмі є помилки. Деякі з них — «дірки», через які шкідлива програма може пролізти в комп'ютер. Коли таку дірку знаходять, виробник випускає <b>оновлення</b>, яке її закриває.</p>
+    </div>
+    <p class="fact"><b>Справжня історія.</b> 2017 року вірус WannaCry за кілька днів заразив понад 200 тисяч комп'ютерів у 150 країнах: лікарні, заводи, залізниці. Він шифрував файли і вимагав викуп. Оновлення, яке закривало потрібну йому дірку, Microsoft випустила за два місяці до атаки. Постраждали ті, хто його не встановив.</p>
+    <div class="panel howto">
+      <h3>Перевір свій комп'ютер</h3>
+      <p><kbd>Win</kbd> + <kbd>I</kbd> → «Windows Update» (у Windows 10: «Оновлення та безпека» → «Центр оновлення Windows»). Там видно, чи все оновлено і коли була остання перевірка.</p>
+      <div class="field" style="max-width:420px"><label for="upd">Що там написано?</label><select id="upd"><option value="">обери…</option><option>Усе оновлено</option><option>Є оновлення, які чекають встановлення</option><option>Оновлення призупинено</option><option>Інше</option></select></div>
+      <p class="status" id="updStatus"></p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4">
+    <div class="step-head"><span class="step-no">Крок 4 · антивірус · 10 хв</span><h2>Сигналізація в комп'ютері</h2></div>
+    <div class="text">
+      <p>У Windows уже є вбудований антивірус: <b>«Безпека Windows»</b> (Microsoft Defender). Він перевіряє файли, коли ти їх скачуєш або відкриваєш, і знає мільйони відомих шкідливих програм за їхніми «відбитками».</p>
+    </div>
+    <div class="panel howto">
+      <ol style="margin:0; padding-left:22px">
+        <li>Натисни <kbd>Win</kbd>, надрукуй «Безпека Windows» і відкрий.</li>
+        <li>«Захист від вірусів і загроз» → <b>«Швидка перевірка»</b>. Вона займе кілька хвилин, можна займатися іншим.</li>
+        <li>Подивись на головну сторінку: усі значки мають бути із зеленими галочками.</li>
+      </ol>
+      <div class="field" style="max-width:420px"><label for="scan">Результат перевірки</label><select id="scan"><option value="">обери…</option><option>Загроз не знайдено</option><option>Знайдено загрози</option><option>У нас інший антивірус</option></select></div>
+      <p class="status" id="scanStatus"></p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5">
+    <div class="step-head"><span class="step-no">Крок 5 · встановлення програм · 10 хв</span><h2>Як не принести вірус самому</h2></div>
+    <div class="text">
+      <p>Найчастіше вірус потрапляє в комп'ютер не сам: користувач сам його скачує і запускає. Ось правила безпечного встановлення:</p>
+      <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+        <li>Скачуй програми тільки з <b>офіційного сайту</b> виробника або з Microsoft Store. Python — з <code>python.org</code>, а не з «скачати-python-безкоштовно.ру».</li>
+        <li>«Зламані» програми та ігри, чіти, генератори ключів — найпопулярніша приманка для вірусів.</li>
+        <li>Під час встановлення читай кожне вікно. Інсталятори часто пропонують «заодно» поставити браузер, панель інструментів чи антивірус. Знімай ці галочки.</li>
+        <li>Не впевнений — спитай дорослих або Claude перед тим, як натискати «Так».</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 3</span>
+        <div id="instQ" style="display:grid; gap:10px"></div>
+        <div class="row"><button class="btn primary" type="button" id="instCheck">Перевірити</button><span class="status" id="instStatus"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6">
+    <div class="step-head"><span class="step-no">Крок 6 · резервні копії · 15 хв</span><h2>Запасні ключі від твоїх файлів</h2></div>
+    <div class="text">
+      <p>Диски ламаються, ноутбуки падають, віруси шифрують файли, а люди випадково натискають <kbd>Shift</kbd> + <kbd>Delete</kbd>. Єдиний надійний захист — <b>резервна копія</b>: друга копія важливих файлів в іншому місці.</p>
+      <p>Професіонали дотримуються правила <b>3-2-1</b>: <b>3</b> копії файлів, на <b>2</b> різних носіях (наприклад, диск комп'ютера і флешка), і <b>1</b> з них в іншому місці (у хмарі або в іншому домі).</p>
+    </div>
+    <p class="fact"><b>Справжня історія.</b> 1998 року під час роботи над мультфільмом «Історія іграшок 2» хтось у студії Pixar випадково запустив команду видалення, і з серверів почали зникати файли мультфільму. Резервні копії виявились зіпсованими. Мультфільм врятувала технічна директорка Ґалін Сасман: вона працювала з дому і мала на своєму комп'ютері копію майже всього проєкту.</p>
+    <div class="panel howto">
+      <h3>Зроби свою першу резервну копію</h3>
+      <p>Скопіюй свою папку <code>Документи\Інформатика</code> в інше місце: на флешку або в OneDrive (якщо він налаштований). Виділи папку → <kbd>Ctrl</kbd> + <kbd>C</kbd> → відкрий флешку → <kbd>Ctrl</kbd> + <kbd>V</kbd>.</p>
+      <label class="selfcheck"><input type="checkbox" data-task="backup"> Зробив резервну копію папки курсу</label>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7">
+    <div class="step-head"><span class="step-no">Крок 7 · гарячі клавіші · 10 хв</span><h2>Корисні і просто цікаві клавіші</h2></div>
+    <div class="panel">
+      <p style="color:var(--muted); font-size:15px">Спробуй кожну і відміть галочкою.</p>
+      <div class="keys" id="keys8"></div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8">
+    <div class="step-head"><span class="step-no">Крок 8 · тест · 5 хв</span><h2>Перевір себе</h2></div>
+    <div class="panel" id="quiz"></div>
+    <div class="row"><button class="btn primary" id="quizCheck" type="button">Перевірити відповіді</button><span class="status" id="quizStatus"></span></div>
+  </section>
+
+  <!-- 9 -->
+  <section class="step" id="s9">
+    <div class="step-head"><span class="step-no star">★ Челендж на тиждень · необов'язково</span><h2>Генератор фраз-паролів</h2></div>
+    <div class="text">
+      <p>Люди погано вигадують випадкові слова: ми обираємо ті, що спадають на думку першими, а хакери це знають. Нехай слова обирає комп'ютер. Модуль <code>secrets</code> у Python створений спеціально для паролів: його випадковість неможливо передбачити.</p>
+    </div>
+    <div class="code-box"><pre>import secrets
+
+words = ["зірка", "ракета", "кінь", "ферзь", "комета", "місяць",
+         "орбіта", "пішак", "сатурн", "тура", "марс", "слон"]
+
+for i in range(5):
+    parts = []
+    for j in range(4):
+        parts.append(secrets.choice(words))
+    print("-".join(parts))</pre><button class="copy" type="button">Копіювати</button></div>
+    <div class="text">
+      <ol style="margin:0; padding-left:22px; display:grid; gap:6px">
+        <li>Запусти і подивись на 5 згенерованих паролів.</li>
+        <li>Порахуй: скільки всього різних паролів може видати програма? (Підказка: 12 слів на кожне з 4 місць.) Скільки часу знадобиться відеокарті, щоб перебрати їх усі?</li>
+        <li>Додай у список свої слова, щоб їх стало хоча б 100. У скільки разів зросла кількість варіантів?</li>
+      </ol>
+    </div>
+    <details><summary>Відповідь на питання 2</summary><div><p>12⁴ = 20 736 варіантів. Відеокарта перебере їх за кілька мікросекунд! Тому слів у списку має бути багато: у справжніх генераторах їх близько 7 776. Тоді для 5 слів виходить 7776⁵ ≈ 28 000 000 000 000 000 000 варіантів.</p></div></details>
+    <label class="selfcheck"><input type="checkbox" data-task="ch"> Челендж виконано</label>
+
+    <div class="ask">
+      <h3>Цікаво? Запитай Claude</h3>
+      <ul>
+        <li>«Як сайти зберігають паролі так, щоб навіть їхні працівники не могли їх прочитати?»</li>
+        <li>«Що таке менеджер паролів і чи варто ним користуватися?»</li>
+        <li>«Як працює двофакторна перевірка?»</li>
+        <li>«Як антивірус відрізняє вірус від звичайної програми?»</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span class="step-no">Модуль «Windows і мій комп'ютер» завершено!</span>
+    <h3>Далі: інтернет зсередини</h3>
+    <p>Як твій запит за мілісекунди долітає до сервера на іншому кінці світу і повертається. Тут ти вперше попрацюєш у командному рядку: <code>ping</code>, <code>tracert</code>, <code>ipconfig</code>.</p>
+    <div class="row" style="margin-top:24px"><button class="btn" id="resetBtn" type="button">Скинути прогрес цього заняття</button></div>
+  </footer>
+</div>
+
+<script src="../assets/lesson.js"></script>
+<script>
+(() => {
+  const L = Lesson({
+    key: "inf-l8",
+    tasks: ["uac", "pass", "updates", "scan", "install", "backup", "keys", "quiz"],
+    labels: { uac: ["s1", "Завдання 1: вікно UAC"], pass: ["s2", "Завдання 2: пароль на мільйон років"],
+      updates: ["s3", "Перевірити оновлення Windows"], scan: ["s4", "Швидка перевірка антивірусом"],
+      install: ["s5", "Завдання 3: безпечне встановлення"], backup: ["s6", "Резервна копія (відміть галочку)"],
+      keys: ["s7", "Гарячі клавіші: спробувати всі"], quiz: ["s8", "Тест: щонайменше 4 з 5"], ch: ["s9", "★ Челендж (необов'язково)"] },
+  });
+  const { $, esc, fmt, mark, setStatus } = L;
+
+  /* 1 */
+  L.fields(["acct"], () => {});
+  const YN = ["Натиснути «Так»", "Натиснути «Ні» і спитати дорослих"];
+  L.selectTask({ el: "uacQ", btn: "uacCheck", status: "uacStatus", task: "uac", options: YN, ok: "Правильно! Головне правило: «Так» тільки тоді, коли ти сам щойно запустив знайому програму від відомого видавця.", bad: "Подумай: хто запустив програму і чи відомий видавець?",
+    items: [
+      ["Ти щойно сам запустив інсталятор, скачаний з python.org. Видавець: Python Software Foundation.", YN[0]],
+      ["Ти нічого не запускав, а вікно з'явилось саме.", YN[1]],
+      ["Ти запустив «чіт_для_гри.exe», скачаний з форуму. Видавець: Невідомий.", YN[1]],
+      ["Друг у месенджері надіслав «прикольну програму» і просить запустити.", YN[1]],
+    ] });
+
+  /* 2: password strength */
+  const COMMON = ["123456", "123456789", "qwerty", "password", "12345678", "111111", "1234567", "123123", "qwerty123", "1q2w3e", "000000", "iloveyou", "admin", "abc123", "йцукен", "пароль", "misha", "minecraft", "football"];
+  const ru = n => n.toLocaleString("uk-UA", { maximumFractionDigits: 0 });
+  function human(sec) {
+    if (sec < 1) return "менше секунди";
+    const m = 60, h = 3600, d = 86400, y = 31557600;
+    if (sec < m) return ru(sec) + " с";
+    if (sec < h) return ru(sec / m) + " хв";
+    if (sec < d) return ru(sec / h) + " год";
+    if (sec < y) return ru(sec / d) + " днів";
+    const yrs = sec / y;
+    if (yrs < 1e6) return ru(yrs) + " років";
+    if (yrs < 1e9) return ru(yrs / 1e6) + " млн років";
+    if (yrs < 13.8e9) return ru(yrs / 1e9) + " млрд років";
+    return "довше, ніж існує Всесвіт (13,8 млрд років)";
+  }
+  function onPw() {
+    const p = $("pw").value, chars = Array.from(p);
+    let set = 0;
+    if (/[a-z]/.test(p)) set += 26; if (/[A-Z]/.test(p)) set += 26; if (/[0-9]/.test(p)) set += 10;
+    if (/[а-яґєіїщ]/.test(p)) set += 33; if (/[А-ЯҐЄІЇЩ]/.test(p)) set += 33;
+    if (/[^a-zA-Z0-9а-яА-ЯґєіїщҐЄІЇЩ]/.test(p)) set += 33;
+    const lower = p.toLowerCase();
+    const common = COMMON.some(c => lower.includes(c)) && p.length < 14;
+    const bits = chars.length * Math.log2(Math.max(set, 1));
+    let sec = Math.pow(2, bits) / 2 / 1e10;
+    if (common) sec = Math.min(sec, 0.001);
+    const words = p.split(/[-_ .]+/).filter(w => w.length >= 3).length;
+    $("pwInfo").innerHTML = `<dt>Довжина</dt><dd>${chars.length} символів</dd><dt>Різних видів символів</dt><dd>${set} на кожну позицію</dd><dt>Варіантів</dt><dd>${set}<sup>${chars.length}</sup> ≈ 2<sup>${Math.round(bits)}</sup></dd><dt>Час на підбір</dt><dd><b>${common ? "миттєво: такий пароль є в списках популярних" : human(sec)}</b></dd>`;
+    const pct = Math.min(100, bits / 90 * 100);
+    $("pwBar").style.width = (common ? 4 : pct) + "%";
+    $("pwBar").style.background = common || bits < 45 ? "var(--bad)" : bits < 65 ? "var(--accent)" : "var(--ok)";
+    const years = sec / 31557600;
+    if (!p) { $("pwStatus").textContent = ""; return; }
+    if (years >= 1e6 && !common) {
+      setStatus($("pwStatus"), true, words >= 3 ? "Чудово! Довга фраза з кількох слів: і надійно, і легко запам'ятати." : "Надійно! Але чи запам'ятаєш ти такий пароль? Фрази з кількох слів запам'ятовувати легше.");
+      mark("pass");
+    } else setStatus($("pwStatus"), false, common ? "У паролі є популярне слово чи послідовність. Хакери пробують такі першими." : "Поки замало. Спробуй додати ще одне-два слова: довжина важить більше, ніж хитрі символи.");
+  }
+  $("pw").addEventListener("input", onPw); onPw();
+
+  /* 3–4 */
+  L.fields(["upd"], v => {
+    if (!v.upd) { $("updStatus").textContent = ""; mark("updates", false); return; }
+    setStatus($("updStatus"), true, v.upd === "Усе оновлено" ? "Чудово, всі відомі дірки закрито." : v.upd.startsWith("Є") ? "Скажи дорослим: оновлення варто встановити найближчим часом. Збережи свої файли перед перезавантаженням." : "Скажи дорослим: оновлення варто ввімкнути, бо без них комп'ютер вразливий.");
+    mark("updates");
+  });
+  L.fields(["scan"], v => {
+    if (!v.scan) { $("scanStatus").textContent = ""; mark("scan", false); return; }
+    setStatus($("scanStatus"), v.scan !== "Знайдено загрози", v.scan === "Загроз не знайдено" ? "Чудово, комп'ютер чистий." : v.scan.startsWith("Знайдено") ? "Не панікуй і нічого не видаляй сам: покажи це вікно дорослим. Зазвичай Defender уже сам ізолював загрозу." : "Добре, головне, щоб антивірус був один і працював.");
+    mark("scan");
+  });
+
+  /* 5 */
+  const SU = ["Безпечно", "Небезпечно"];
+  L.selectTask({ el: "instQ", btn: "instCheck", status: "instStatus", task: "install", options: SU, ok: "Усе правильно! Тепер ти знаєш, як не принести вірус самому.", bad: "Згадай правила вище.",
+    items: [
+      ["Скачати Python з сайту python.org", SU[0]],
+      ["Скачати «Minecraft безкоштовно, повна версія» з невідомого сайту", SU[1]],
+      ["Встановити програму з Microsoft Store", SU[0]],
+      ["Інсталятор пропонує «заодно встановити корисну панель для браузера», галочку залишити", SU[1]],
+      ["Запустити «генератор ключів», який скачав разом з грою", SU[1]],
+    ] });
+
+  /* 7 */
+  L.checklist({ el: "keys8", task: "keys", items: [
+    ["b_l", "<kbd>Win</kbd> + <kbd>L</kbd>", "Заблокувати комп'ютер. Звичка: відходиш — блокуєш"],
+    ["b_x", "<kbd>Win</kbd> + <kbd>X</kbd>", "Меню для досвідчених: Диспетчер пристроїв, Керування дисками, Термінал"],
+    ["b_v", "<kbd>Win</kbd> + <kbd>V</kbd>", "Журнал буфера обміну: все, що ти копіював (треба увімкнути)"],
+    ["b_dot", "<kbd>Win</kbd> + <kbd>.</kbd>", "Панель емодзі і спецсимволів: ♞ ★ π ∞"],
+    ["b_prt", "<kbd>Win</kbd> + <kbd>PrtSc</kbd>", "Знімок усього екрана, зберігається в Зображення\\Знімки екрана"],
+    ["b_a", "<kbd>Win</kbd> + <kbd>A</kbd>", "Швидкі налаштування: Wi-Fi, звук, яскравість"],
+    ["b_gpu", "<kbd>Win</kbd> + <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd>", "Перезапуск відеодрайвера: екран блимне. Рятує, коли зображення «зависло»"],
+  ] });
+
+  /* 8 */
+  L.quiz([
+    { q: "Вікно UAC з'явилось, хоча ти нічого не запускав. Що робити?", a: ["Натиснути «Так», щоб воно зникло", "Натиснути «Ні» і сказати дорослим", "Перезавантажити роутер", "Нічого не робити кілька днів"], c: 1, e: "Невідома програма просить права адміністратора. Це підозріло." },
+    { q: "Який пароль найнадійніший?", a: ["Misha2012!", "qwerty123456", "кінь-тягне-ракету-до-марса", "P@ss"], c: 2, e: "Довжина важить найбільше. Чотири слова — це понад 25 символів, і запам'ятати легко." },
+    { q: "Навіщо встановлювати оновлення Windows?", a: ["Щоб змінився дизайн", "Щоб закрити знайдені дірки в безпеці", "Щоб звільнити місце", "Вони не потрібні"], c: 1, e: "Саме через невстановлене оновлення постраждали жертви WannaCry." },
+    { q: "Що означає правило резервних копій 3-2-1?", a: ["3 паролі, 2 антивіруси, 1 комп'ютер", "3 копії, на 2 різних носіях, 1 в іншому місці", "Робити копію раз на 3 роки", "3 флешки по 21 ГБ"], c: 1, e: "Тоді жодна одна біда (поломка, крадіжка, пожежа) не знищить усі копії." },
+    { q: "Звідки найбезпечніше скачувати програми?", a: ["З офіційного сайту виробника або Microsoft Store", "З першого сайту в пошуку", "З файлообмінника", "Від друзів у месенджері"], c: 0, e: "Офіційні джерела перевіряють свої файли." },
+  ]);
+  L.ready();
+})();
+</script>
+</body>
+</html>

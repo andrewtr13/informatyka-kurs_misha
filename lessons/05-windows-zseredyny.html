@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Заняття 5. Windows зсередини</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/lesson.css">
+<style>
+.sched { display: grid; gap: 8px; }
+.sched-row { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px; align-items: center; }
+.sched-lbl { font-size: 13px; font-weight: 700; color: var(--muted); }
+.sched-strip { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; }
+.sched-slot { height: 30px; border-radius: 4px; opacity: .35; }
+.sched-slot.now { opacity: 1; outline: 3px solid var(--ink); outline-offset: 1px; }
+</style>
+</head>
+<body>
+<p style="padding-top:12px;margin:0;font-size:14px"><a href="../index.html">← Усі заняття курсу</a></p>
+<div class="wrap">
+  <div class="topbar">
+    <span class="course">Інформатика · Модуль 2</span>
+    <button class="prog" id="progBtn" type="button" aria-expanded="false" aria-controls="todo"><span class="prog-bar"><i id="progBar"></i></span><span id="progTxt">0 / 7</span><span aria-hidden="true">▾</span></button>
+  </div>
+  <div class="todo" id="todo" hidden></div>
+
+  <header class="hero">
+    <span class="eyebrow">Заняття 5 · ≈ 90 хвилин · працюємо на своєму комп'ютері</span>
+    <h1>Windows зсередини</h1>
+    <p class="lead">У твоєму комп'ютері кілька ядер, а програм одночасно працюють сотні. Хто вирішує, яка з них зараз отримає процесор? Сьогодні ти зазирнеш у Диспетчер задач, навантажиш процесор на повну і навчишся закривати програму, яка зависла.</p>
+    <nav class="plan" id="plan" aria-label="Зміст заняття">
+      <a href="#s1">1. Що таке ОС</a><a href="#s2">2. Процеси</a><a href="#s3">3. Ділимо процесор</a><a href="#s4">4. Навантаження</a>
+      <a href="#s5">5. Зависла програма</a><a href="#s6">6. Автозапуск</a><a href="#s7">7. Клавіші</a><a href="#s8">8. Тест</a><a href="#s9">★ Челендж</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="step" id="s1">
+    <div class="step-head"><span class="step-no">Крок 1 · теорія · 10 хв</span><h2>Навіщо потрібна операційна система</h2></div>
+    <div class="text">
+      <p>Уяви ресторан. На кухні кілька кухарів (ядра процесора), є столи (оперативна пам'ять) і комора (диск). А відвідувачів-програм сотні, і кожна хоче, щоб її обслужили першою. Без адміністратора почався б хаос.</p>
+      <p><b>Операційна система (ОС)</b> — це адміністратор ресторану. Windows вирішує:</p>
+      <ul style="margin:0; padding-left:20px; display:grid; gap:4px">
+        <li>яка програма зараз отримає процесор і на скільки;</li>
+        <li>скільки пам'яті виділити кожній програмі, щоб вони не залазили одна до одної;</li>
+        <li>як програмам працювати з диском, екраном, клавіатурою, мережею.</li>
+      </ul>
+      <p>Найголовніша частина ОС зветься <b>ядро</b>. А щоб Windows уміла працювати з конкретною відеокартою чи принтером, потрібні <b>драйвери</b>: маленькі програми-перекладачі, які пише виробник пристрою.</p>
+    </div>
+    <p class="fact"><b>Факт.</b> Windows — не єдина ОС. На більшості серверів інтернету, на суперкомп'ютерах і всередині Android працює Linux. На iPhone і Mac працюють системи від Apple. А марсохід Perseverance керується спеціальною ОС реального часу VxWorks, яка гарантує, що важливі команди виконуються вчасно.</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2">
+    <div class="step-head"><span class="step-no">Крок 2 · дослідження · 15 хв</span><h2>Програма і процес</h2></div>
+    <div class="text">
+      <p><b>Програма</b> — це файл на диску, наприклад <code>chrome.exe</code>. Як рецепт на полиці: лежить і нічого не робить. <b>Процес</b> — це програма, яку запустили і яка зараз працює: рецепт, за яким кухар саме готує. Одна програма може запустити багато процесів. Наприклад, браузер часто запускає окремий процес для кожної вкладки: якщо одна вкладка зламається, решта продовжать працювати.</p>
+    </div>
+    <div class="panel howto">
+      <h3>Подивись сам</h3>
+      <ol style="margin:0; padding-left:22px">
+        <li>Відкрий Диспетчер задач: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Esc</kbd>.</li>
+        <li>Вкладка <b>«Процеси»</b>: тут видно програми, що працюють, і скільки вони беруть процесора (ЦП) і пам'яті. Клацни на заголовок «Пам'ять», щоб відсортувати: хто найбільший «їдак»?</li>
+        <li>Знайди свій браузер і натисни стрілочку ліворуч від назви: скільки процесів усередині?</li>
+        <li>Перейди на <b>«Продуктивність»</b> → <b>ЦП</b>. Унизу є числа <b>«Процеси»</b> і <b>«Потоки»</b>. Потік — це окрема «справа» всередині процесу: одна програма може робити кілька справ одночасно.</li>
+      </ol>
+      <div class="form-grid">
+        <div class="field"><label for="n_proc">Процесів зараз</label><input id="n_proc" type="number" min="1"></div>
+        <div class="field"><label for="n_thr">Потоків зараз</label><input id="n_thr" type="number" min="1"></div>
+        <div class="field"><label for="n_log">Логічних процесорів (з заняття 4)</label><input id="n_log" type="number" min="1"></div>
+        <div class="field"><label for="n_top">Хто їсть найбільше пам'яті?</label><input id="n_top" type="text" placeholder="наприклад, Google Chrome"></div>
+      </div>
+      <div class="facts" id="procFacts"></div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3">
+    <div class="step-head"><span class="step-no">Крок 3 · інтерактив · 10 хв</span><h2>Як ділити один процесор на всіх</h2></div>
+    <div class="text">
+      <p>Секрет простий: Windows дає кожному процесу попрацювати <b>крихітний шматочок часу</b>, потім ставить його на паузу і пускає наступного. Частина Windows, яка цим займається, зветься <b>планувальник</b>. Перемикання відбувається десятки разів на секунду, тому тобі здається, що музика грає, браузер завантажує сторінку, а гра працює одночасно.</p>
+      <p>Подивись на сповільнену модель. Кожен кольоровий прямокутник — це шматочок часу, коли процес працює на ядрі.</p>
+    </div>
+    <div class="panel">
+      <div class="row"><div class="seg" role="group" aria-label="Кількість ядер"><button type="button" id="c1" aria-pressed="true">1 ядро</button><button type="button" id="c2" aria-pressed="false">2 ядра</button></div><button class="btn" type="button" id="schedPlay">Пауза</button></div>
+      <div id="sched" class="sched"></div>
+      <div class="legend" id="schedLegend"></div>
+      <p class="phase" id="schedNow"></p>
+    </div>
+    <div class="panel">
+      <div class="task">
+        <span class="lbl">Завдання 1</span>
+        <p>У комп'ютері 4 ядра, а працювати хочуть 10 процесів. Скільки процесів <b>справді</b> працюють у кожну окрему мить?</p>
+        <div class="row"><input type="number" id="schedIn" min="0" aria-label="Відповідь"><button class="btn primary" type="button" id="schedCheck">Перевірити</button><span class="status" id="schedStatus"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4">
+    <div class="step-head"><span class="step-no">Крок 4 · експеримент · 15 хв</span><h2>Навантаж процесор на повну</h2></div>
+    <div class="text">
+      <p>Кнопки нижче запускають у браузері «марну роботу»: процесор 20 секунд без зупинки рахує. Нічого не зламається, просто комп'ютер трохи подумає, а вентилятор, можливо, зашумить.</p>
+      <ol style="margin:0; padding-left:22px; display:grid; gap:4px">
+        <li>Постав Диспетчер задач і цю сторінку поруч: <kbd>Win</kbd> + <kbd>←</kbd> для одного вікна і <kbd>Win</kbd> + <kbd>→</kbd> для іншого. Відкрий «Продуктивність» → «ЦП».</li>
+        <li>Натисни першу кнопку і подивись, скільки відсотків покаже графік ЦП. Запиши.</li>
+        <li>Дочекайся кінця і натисни другу кнопку. Запиши знову.</li>
+      </ol>
+      <p>Порада: клацни правою кнопкою на графік ЦП і обери «Змінити графік» → «Логічні процесори». Тоді побачиш окремий графік для кожного «кухаря».</p>
+    </div>
+    <div class="panel">
+      <div class="row"><button class="btn primary" type="button" id="load1">Навантажити 1 потік</button><button class="btn primary" type="button" id="loadAll">Навантажити всі потоки</button><span class="status" id="loadStatus"></span></div>
+      <div class="form-grid">
+        <div class="field"><label for="cpu1">ЦП з 1 потоком, %</label><input id="cpu1" type="number" min="0" max="100"></div>
+        <div class="field"><label for="cpuAll">ЦП з усіма потоками, %</label><input id="cpuAll" type="number" min="0" max="100"></div>
+      </div>
+      <p class="status" id="cpuStatus"></p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5">
+    <div class="step-head"><span class="step-no">Крок 5 · практика · 10 хв</span><h2>Що робити, коли програма зависла</h2></div>
+    <div class="text">
+      <p>Іноді програма перестає реагувати: вікно біліє, а в заголовку з'являється «(Не відповідає)». Зазвичай це означає, що вона застрягла в нескінченному циклі (як програма для «Зірки-8» без виходу до HALT) або чекає на щось, що ніколи не станеться.</p>
+      <p>Спершу зачекай хвилину: можливо, вона просто зайнята. Якщо ні, її можна закрити примусово. Потренуємось на безпечній програмі:</p>
+    </div>
+    <div class="panel howto">
+      <ol style="margin:0; padding-left:22px">
+        <li>Відкрий Блокнот: <kbd>Win</kbd> + <kbd>R</kbd>, напиши <code>notepad</code>, Enter.</li>
+        <li>Відкрий Диспетчер задач, вкладка «Процеси», знайди «Блокнот».</li>
+        <li>Клацни на нього правою кнопкою → <b>«Зняти задачу»</b>. Блокнот зникне без питання «Зберегти?».</li>
+      </ol>
+      <p class="fact"><b>Важливо.</b> Знімай задачу тільки з програм, які ти сам відкрив і знаєш. Якщо закрити системний процес Windows (наприклад, з назвою «Системний» або «Windows Explorer»), комп'ютер може поводитись дивно. Якщо сталося, перезавантаж його.</p>
+      <label class="selfcheck"><input type="checkbox" data-task="kill"> Закрив Блокнот через Диспетчер задач</label>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6">
+    <div class="step-head"><span class="step-no">Крок 6 · дослідження · 10 хв</span><h2>Автозапуск: хто стартує разом з Windows</h2></div>
+    <div class="text">
+      <p>Деякі програми запускаються самі щоразу, коли вмикається комп'ютер: месенджери, оновлювачі, ігрові лаунчери. Що їх більше, то довше вмикається комп'ютер і то менше вільної пам'яті.</p>
+      <p>Відкрий Диспетчер задач → вкладку <b>«Автозавантаження»</b> (у Windows 11: «Програми автозавантаження»). Там видно, що стартує автоматично і наскільки це сповільнює запуск (стовпчик «Вплив на запуск»).</p>
+    </div>
+    <div class="panel">
+      <div class="form-grid">
+        <div class="field"><label for="st_on">Скільки програм мають стан «Увімкнуто»?</label><input id="st_on" type="number" min="0"></div>
+        <div class="field"><label for="st_high">Яка має найбільший вплив?</label><input id="st_high" type="text" placeholder="назва програми"></div>
+      </div>
+      <p class="status" id="stStatus"></p>
+      <p class="fact"><b>Не вимикай нічого без дорослих.</b> Вимкнення в автозавантаженні не видаляє програму, а лише не дає їй стартувати самій. Але деякі програми (антивірус, драйвери звуку чи тачпада) мають запускатися завжди.</p>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7">
+    <div class="step-head"><span class="step-no">Крок 7 · гарячі клавіші · 10 хв</span><h2>Клавіші для вікон і робочих столів</h2></div>
+    <div class="panel">
+      <p style="color:var(--muted); font-size:15px">Спробуй кожну і відміть галочкою.</p>
+      <div class="keys" id="keys5"></div>
+    </div>
+    <p class="fact"><b>Віртуальні робочі столи</b> — як кілька окремих екранів. На одному відкрите заняття і IDLE, на іншому музика і браузер. Перемикайся між ними, і нічого не заважатиме.</p>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8">
+    <div class="step-head"><span class="step-no">Крок 8 · тест · 5 хв</span><h2>Перевір себе</h2></div>
+    <div class="panel" id="quiz"></div>
+    <div class="row"><button class="btn primary" id="quizCheck" type="button">Перевірити відповіді</button><span class="status" id="quizStatus"></span></div>
+  </section>
+
+  <!-- 9 -->
+  <section class="step" id="s9">
+    <div class="step-head"><span class="step-no star">★ Челендж на тиждень · необов'язково</span><h2>Монітор ресурсів і Python-навантаження</h2></div>
+    <div class="text">
+      <ol style="margin:0; padding-left:22px; display:grid; gap:6px">
+        <li>Натисни <kbd>Win</kbd> + <kbd>R</kbd>, напиши <code>resmon</code> і Enter. Це «Монітор ресурсів», детальніший брат Диспетчера задач. Знайди вкладку «Диск»: які процеси зараз читають і записують файли?</li>
+        <li>Запусти в IDLE програму нижче і подивись на графіки логічних процесорів. Скільки з них завантажив Python? Чому лише стільки, хоча програма працює на повну? Зупинити програму: <kbd>Ctrl</kbd> + <kbd>C</kbd> у вікні IDLE або просто закрий його.</li>
+      </ol>
+    </div>
+    <div class="code-box"><pre>import time
+
+print("Навантажую процесор на 20 секунд...")
+end = time.time() + 20
+count = 0
+while time.time() &lt; end:
+    count = count + 1
+print("Готово! Встиг порахувати до", count)</pre><button class="copy" type="button">Копіювати</button></div>
+    <details><summary>Відповідь</summary><div><p>Звичайна програма на Python — це один процес з одним потоком, який виконує команди по одній. Тому вона завантажує лише одного «кухаря». Щоб зайняти всі ядра, програму треба спеціально розділити на кілька потоків чи процесів. Саме так зробила кнопка «Навантажити всі потоки» на кроці 4.</p></div></details>
+    <label class="selfcheck"><input type="checkbox" data-task="ch"> Челендж виконано</label>
+
+    <div class="ask">
+      <h3>Цікаво? Запитай Claude</h3>
+      <ul>
+        <li>«Що таке синій екран смерті у Windows і чому він з'являється?»</li>
+        <li>«Чим процес відрізняється від потоку? Поясни на прикладі кухні».</li>
+        <li>«Що робить процес "System Idle Process" (Бездіяльність системи)?»</li>
+        <li>«Чому для ігор важлива одна швидкість ядра, а для відео — кількість ядер?»</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span class="step-no">Наступне заняття</span>
+    <h3><a href="06-faily-i-papky.html">Файли і папки: шляхи, розширення, розміри →</a></h3>
+    <p>Де насправді лежать твої фото і програми, що таке шлях до файлу і чому файл «фото.jpg.exe» небезпечний.</p>
+    <div class="row" style="margin-top:24px"><button class="btn" id="resetBtn" type="button">Скинути прогрес цього заняття</button></div>
+  </footer>
+</div>
+
+<script src="../assets/lesson.js"></script>
+<script>
+(() => {
+  const L = Lesson({
+    key: "inf-l5",
+    tasks: ["procs", "sched", "load", "kill", "startup", "keys", "quiz"],
+    labels: { procs: ["s2", "Дослідження: процеси і потоки"], sched: ["s3", "Завдання 1: скільки процесів працює одночасно"],
+      load: ["s4", "Експеримент: навантажити процесор"], kill: ["s5", "Закрити Блокнот через Диспетчер задач"],
+      startup: ["s6", "Дослідження: автозавантаження"], keys: ["s7", "Гарячі клавіші: спробувати всі"],
+      quiz: ["s8", "Тест: щонайменше 4 з 5"], ch: ["s9", "★ Челендж (необов'язково)"] },
+  });
+  const { $, num, fmt, esc, mark, setStatus } = L;
+
+  /* 2: processes */
+  L.fields(["n_proc", "n_thr", "n_log", "n_top"], v => {
+    const p = num(v.n_proc), t = num(v.n_thr), c = num(v.n_log), F = [];
+    if (p) F.push(`Зараз у тебе працює <b>${fmt(p)} процесів</b>. І це навіть без відкритих тобою програм більшість з них були б на місці: Windows сама запускає десятки службових процесів.`);
+    if (p && t) F.push(`Потоків <b>${fmt(t)}</b>, тобто в середньому по <b>${(t / p).toLocaleString("uk-UA", { maximumFractionDigits: 1 })}</b> «справи» на кожен процес.`);
+    if (p && c) F.push(`А логічних процесорів лише <b>${c}</b>. Тобто на кожного «кухаря» припадає близько <b>${fmt(t ? t / c : p / c)}</b> ${t ? "потоків" : "процесів"}, які чекають своєї черги. Як вони всі встигають, дивись у наступному кроці.`);
+    if (v.n_top) F.push(`Найбільший «їдак» пам'яті: <b>${esc(v.n_top)}</b>.`);
+    $("procFacts").innerHTML = F.map(f => `<div class="fx">${f}</div>`).join("");
+    mark("procs", !!(p && t && c));
+  });
+
+  /* 3: scheduler model */
+  const PR = [["Музика", "--accent"], ["Браузер", "--sky"], ["Гра", "--ok"], ["Антивірус", "--bad"]];
+  let cores = 1, tick = 0, playing = !matchMedia("(prefers-reduced-motion: reduce)").matches, timer;
+  const SLOTS = 16;
+  const who = (core, slot) => (slot * cores + core) % PR.length;
+  function drawSched() {
+    let h = "";
+    for (let c = 0; c < cores; c++) {
+      h += `<div class="sched-row"><span class="sched-lbl">Ядро ${c + 1}</span><div class="sched-strip">`;
+      for (let s = 0; s < SLOTS; s++) { const p = who(c, s); h += `<span class="sched-slot ${s === tick % SLOTS ? "now" : ""}" style="background:var(${PR[p][1]})" title="${PR[p][0]}"></span>`; }
+      h += "</div></div>";
+    }
+    $("sched").innerHTML = h;
+    const now = [...Array(cores)].map((_, c) => PR[who(c, tick % SLOTS)][0]);
+    const waiting = PR.map(p => p[0]).filter(n => !now.includes(n));
+    $("schedNow").innerHTML = `Зараз працює: <b>${now.join(" і ")}</b>. Чекають своєї черги: ${waiting.join(", ")}.`;
+  }
+  $("schedLegend").innerHTML = PR.map(([n, c]) => `<span><i style="background:var(${c})"></i>${n}</span>`).join("");
+  function setCores(n) { cores = n; $("c1").setAttribute("aria-pressed", String(n === 1)); $("c2").setAttribute("aria-pressed", String(n === 2)); drawSched(); }
+  $("c1").addEventListener("click", () => setCores(1)); $("c2").addEventListener("click", () => setCores(2));
+  function play(on) { playing = on; clearInterval(timer); if (on) timer = setInterval(() => { tick++; drawSched(); }, 700); $("schedPlay").textContent = on ? "Пауза" : "Відтворити"; }
+  $("schedPlay").addEventListener("click", () => play(!playing));
+  drawSched(); play(playing);
+  L.inputTask({ input: "schedIn", btn: "schedCheck", status: "schedStatus", task: "sched",
+    check: v => +v === 4 ? [true, "Так! 4 ядра — 4 процеси в кожну мить. Решта 6 чекають, а планувальник швидко їх чергує."] : [false, +v === 10 ? "Здається, що всі 10, але насправді ні. Скільки «кухарів»?" : "Ні. Подивись на модель з 2 ядрами: скільки процесів працює в одну мить?"] });
+
+  /* 4: CPU load with web workers */
+  const N = navigator.hardwareConcurrency || 4;
+  $("loadAll").textContent = `Навантажити всі потоки (${N})`;
+  let workers = [], loadTimer = null;
+  const src = "onmessage = e => { const end = Date.now() + e.data; let x = 0; while (Date.now() < end) { x += Math.sqrt(x + 1); } postMessage(x); };";
+  const url = URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
+  function runLoad(n) {
+    if (workers.length) return;
+    try { for (let i = 0; i < n; i++) { const w = new Worker(url); w.postMessage(20000); workers.push(w); } }
+    catch (e) { setStatus($("loadStatus"), false, "Браузер не дозволив запустити навантаження. Спробуй інший браузер."); return; }
+    let left = 20;
+    setStatus($("loadStatus"), null, `Працюю: ${n} ${n === 1 ? "потік" : "потоків"}, залишилось ${left} с`);
+    loadTimer = setInterval(() => {
+      left--;
+      if (left <= 0) { clearInterval(loadTimer); workers.forEach(w => w.terminate()); workers = []; setStatus($("loadStatus"), true, "Готово! Подивись, як графік ЦП падає назад."); }
+      else setStatus($("loadStatus"), null, `Працюю: ${n} ${n === 1 ? "потік" : "потоків"}, залишилось ${left} с`);
+    }, 1000);
+  }
+  $("load1").addEventListener("click", () => runLoad(1));
+  $("loadAll").addEventListener("click", () => runLoad(N));
+  L.fields(["cpu1", "cpuAll"], v => {
+    const a = num(v.cpu1), b = num(v.cpuAll);
+    if (a != null && b != null && a > 0 && b > 0) {
+      setStatus($("cpuStatus"), true, `Один потік зайняв близько ${Math.round(a)}%, тобто приблизно 1/${Math.max(1, Math.round(100 / a))} процесора: одного «кухаря» з ${N}. Усі потоки дали ${Math.round(b)}%. Ось чому кілька ядер допомагають, тільки коли програма вміє ділити роботу.`);
+      mark("load");
+    } else { $("cpuStatus").textContent = ""; mark("load", false); }
+  });
+
+  /* 6: startup */
+  L.fields(["st_on", "st_high"], v => {
+    const n = num(v.st_on);
+    if (n != null && v.st_high) { setStatus($("stStatus"), true, n > 10 ? `${n} програм в автозапуску — чимало. Можна разом із дорослими подивитися, що з цього справді потрібно.` : `${n} — небагато, комп'ютер не перевантажений автозапуском.`); mark("startup"); }
+    else { $("stStatus").textContent = ""; mark("startup", false); }
+  });
+
+  /* 7: keys */
+  L.checklist({ el: "keys5", task: "keys", items: [
+    ["k_tab", "<kbd>Win</kbd> + <kbd>Tab</kbd>", "Подання завдань: усі вікна і робочі столи одразу"],
+    ["k_newd", "<kbd>Ctrl</kbd> + <kbd>Win</kbd> + <kbd>D</kbd>", "Створити новий віртуальний робочий стіл"],
+    ["k_swd", "<kbd>Ctrl</kbd> + <kbd>Win</kbd> + <kbd>←</kbd> / <kbd>→</kbd>", "Перемикатися між робочими столами"],
+    ["k_cld", "<kbd>Ctrl</kbd> + <kbd>Win</kbd> + <kbd>F4</kbd>", "Закрити поточний робочий стіл (вікна перейдуть на сусідній)"],
+    ["k_num", "<kbd>Win</kbd> + <kbd>1</kbd>, <kbd>2</kbd>, <kbd>3</kbd>…", "Відкрити програму, яка стоїть першою, другою… на панелі задач"],
+    ["k_up", "<kbd>Win</kbd> + <kbd>↑</kbd> / <kbd>↓</kbd>", "Розгорнути вікно на весь екран / згорнути"],
+    ["k_af4", "<kbd>Alt</kbd> + <kbd>F4</kbd>", "Закрити активне вікно (на робочому столі відкриває меню вимкнення, обережно!)"],
+    ["k_cad", "<kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Del</kbd>", "Аварійне меню: Диспетчер задач, блокування, вихід. Працює навіть коли все зависло"],
+  ] });
+
+  /* 8: quiz */
+  L.quiz([
+    { q: "Чим процес відрізняється від програми?", a: ["Нічим", "Процес — це програма, яка зараз працює", "Процес — це вірус", "Програма менша за процес"], c: 1, e: "Програма — файл на диску (рецепт), процес — її запущена копія (кухар готує)." },
+    { q: "Хто у Windows вирішує, який процес зараз отримає процесор?", a: ["Користувач", "Антивірус", "Планувальник ОС", "Відеокарта"], c: 2, e: "Планувальник дає кожному процесу короткі шматочки часу по черзі." },
+    { q: "Що таке драйвер?", a: ["Програма-перекладач між Windows і пристроєм", "Водій комп'ютера", "Тип процесора", "Вірус"], c: 0, e: "Драйвер пише виробник пристрою, щоб Windows знала, як із ним працювати." },
+    { q: "Звичайна програма на Python завантажила процесор на 100% одного логічного процесора з 8. Скільки покаже загальний графік ЦП?", a: ["100%", "Близько 12–13%", "50%", "0%"], c: 1, e: "Один «кухар» з восьми: 100% / 8 ≈ 12,5%." },
+    { q: "Програма зависла і не закривається. Що робити?", a: ["Одразу висмикнути кабель живлення", "Зачекати, а потім «Зняти задачу» в Диспетчері задач", "Закрити всі процеси підряд", "Перевстановити Windows"], c: 1, e: "Диспетчер задач закриває тільки цю програму. Кабель і закриття всього підряд можуть зашкодити." },
+  ]);
+  L.ready();
+})();
+</script>
+</body>
+</html>
